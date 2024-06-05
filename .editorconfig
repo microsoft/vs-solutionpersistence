@@ -7,7 +7,11 @@ root = true
 [*]
 indent_style = space
 
+
 # (Please don't specify an indent_size here; that has too many unintended consequences.)
+
+[*.sln]
+indent_style = tab
 
 [*.yml]
 indent_size = 2
@@ -39,9 +43,7 @@ indent_size = 4
 
 # Dotnet code style settings:
 [*.{cs,vb}]
-# Sort using and Import directives with System.* appearing first
-dotnet_sort_system_directives_first = true
-dotnet_separate_import_directive_groups = false
+# Use this for member references
 dotnet_style_qualification_for_field = true:warning
 dotnet_style_qualification_for_property = true:warning
 dotnet_style_qualification_for_method = true:warning
@@ -134,10 +136,17 @@ csharp_indent_case_contents = true
 csharp_indent_switch_labels = true
 csharp_indent_labels = flush_left
 
+# Usings and namespace declaration
+csharp_using_directive_placement = outside_namespace:warning
+csharp_style_namespace_declarations = file_scoped:warning
+dotnet_sort_system_directives_first = true
+dotnet_separate_import_directive_groups = false
+
 # Prefer "var" everywhere
 csharp_style_var_for_built_in_types = false
-csharp_style_var_when_type_is_apparent = true:suggestion
+csharp_style_var_when_type_is_apparent = false:suggestion
 csharp_style_var_elsewhere = false:warning
+csharp_style_implicit_object_creation_when_type_is_apparent = false:warning
 
 # Prefer method-like constructs to have a block body
 csharp_style_expression_bodied_methods = false:none
@@ -155,6 +164,8 @@ csharp_style_pattern_matching_over_as_with_null_check = true:suggestion
 csharp_style_inlined_variable_declaration = true:suggestion
 csharp_style_throw_expression = true:suggestion
 csharp_style_conditional_delegate_call = true:suggestion
+csharp_style_prefer_index_operator = true:silent
+csharp_style_prefer_range_operator = true:silent
 
 # Newline settings
 csharp_new_line_before_open_brace = all
@@ -166,6 +177,7 @@ csharp_new_line_before_members_in_anonymous_types = true
 
 # Blocks are allowed
 csharp_prefer_braces = true:silent
+csharp_prefer_simple_using_statement = true:none
 
 # SA1130: Use lambda syntax
 dotnet_diagnostic.SA1130.severity = silent
@@ -185,5 +197,27 @@ dotnet_diagnostic.DOC202.severity = warning
 # CA1062: Validate arguments of public methods
 dotnet_diagnostic.CA1062.severity = warning
 
-[*.sln]
-indent_style = tab
+# IDE0051: Remove unused/unread private member
+dotnet_diagnostic.IDE0051.severity = warning
+dotnet_diagnostic.IDE0052.severity = warning
+
+# IDE0058: Expression value is never used
+dotnet_diagnostic.IDE0058.severity = error
+
+# SA!010: Spacing for []. This doesn't understand C# 12 collection syntax.
+dotnet_diagnostic.SA1010.severity = silent
+
+# SA1124: Do not use regions. We use regions for imrpoved readibilty and code folding.
+dotnet_diagnostic.SA1124.severity = silent
+
+# SA1129: Do not use default value type constructor. This code uses many struct helpers.
+dotnet_diagnostic.SA1129.severity = silent
+
+###################################################
+# Turn off XML comment rules for now
+dotnet_diagnostic.CS1591.severity = silent
+dotnet_diagnostic.SA1600.severity = silent
+
+# Turn off member ordering rules for now
+dotnet_diagnostic.SA1201.severity = silent
+dotnet_diagnostic.SA1202.severity = silent

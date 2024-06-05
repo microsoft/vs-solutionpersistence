@@ -9,6 +9,7 @@
         "licenseFile": "LICENSE"
       },
       "fileNamingConvention": "metadata",
+      "documentInternalElements": false,
       "xmlHeader": false
     },
     "orderingRules": {

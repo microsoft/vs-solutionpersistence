@@ -1,0 +1,3 @@
+#nullable enable
+
+Microsoft.VisualStudio.SolutionPersistence.Serializer.InvalidSolutionFormatException.InvalidSolutionFormatException(System.Runtime.Serialization.SerializationInfo! info, System.Runtime.Serialization.StreamingContext context) -> void
