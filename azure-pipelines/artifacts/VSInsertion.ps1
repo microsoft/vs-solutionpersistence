@@ -52,7 +52,7 @@ if ($env:IsOptProf) {
         exit $LASTEXITCODE
     }
 
-    $result["$VSRepoPackages"] = (Get-ChildItem "$VSRepoPackages\LibraryName.VSInsertionMetadata.$InsertionMetadataVersion.nupkg");
+    $result["$VSRepoPackages"] = (Get-ChildItem "$VSRepoPackages\Microsoft.VisualStudio.SolutionPersistence.VSInsertionMetadata.$InsertionMetadataVersion.nupkg");
 }
 
 $result

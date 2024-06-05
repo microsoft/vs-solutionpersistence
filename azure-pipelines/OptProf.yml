@@ -51,8 +51,8 @@ stages:
   - job: QueueOptProf
     pool: VSEngSS-MicroBuild2022-1ES
     variables:
-      InsertPayloadName: LibraryName
-      InsertTopicBranch: team/VS-IDE/LibraryName-OptProf-run-$(Build.BuildId)
+      InsertPayloadName: Microsoft.VisualStudio.SolutionPersistence
+      InsertTopicBranch: team/VS-IDE/Microsoft.VisualStudio.SolutionPersistence-OptProf-run-$(Build.BuildId)
     steps:
     - checkout: none # We don't need source from our own repo
       clean: true
@@ -111,8 +111,8 @@ stages:
         filePath: $(Agent.TempDirectory)/DeploymentScripts/Scripts/Insertion/WriteArtifact.ps1
         arguments: '-oldBuildID $(Build.BuildId) -newBuildID $(TriggeredBuildIds) -artifactName "InsertionOutputs" -accessToken $(System.AccessToken)'
     - task: PowerShell@2
-      displayName: Tag the build with LibraryName-insertion
+      displayName: Tag the build with Microsoft.VisualStudio.SolutionPersistence-insertion
       inputs:
         targetType: filePath
         filePath: $(Agent.TempDirectory)/DeploymentScripts/Scripts/Insertion/TagBuild.ps1
-        arguments: '-buildID $(TriggeredBuildIds) -tagName "LibraryName-insertion" -accessToken $(System.AccessToken)'
+        arguments: '-buildID $(TriggeredBuildIds) -tagName "Microsoft.VisualStudio.SolutionPersistence-insertion" -accessToken $(System.AccessToken)'

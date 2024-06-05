@@ -4,8 +4,8 @@
 # your libraries as defined in the src\ProductData\AssemblyVersions.tt file.
 return
 
-$MacroName = 'LibraryNoDotsVersion'
-$SampleProject = "$PSScriptRoot\..\..\src\LibraryName"
+$MacroName = 'MicrosoftVisualStudioSolutionPersistenceVersion'
+$SampleProject = "$PSScriptRoot\..\..\src\Microsoft.VisualStudio.SolutionPersistence"
 [string]::join(',',(@{
     ($MacroName) = & { (dotnet nbgv get-version --project $SampleProject --format json | ConvertFrom-Json).AssemblyVersion };
 }.GetEnumerator() |% { "$($_.key)=$($_.value)" }))

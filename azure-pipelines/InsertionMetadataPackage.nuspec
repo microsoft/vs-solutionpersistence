@@ -2,14 +2,14 @@
 <package>
   <!-- This file is only used in repos where OptProf is enabled. -->
   <metadata>
-    <id>LibraryName.VSInsertionMetadata</id>
+    <id>Microsoft.VisualStudio.SolutionPersistence.VSInsertionMetadata</id>
     <version>$version$</version>
     <authors>Microsoft</authors>
     <owners>Microsoft</owners>
-    <!-- <projectUrl>https://github.com/Microsoft/LibraryName</projectUrl> -->
+    <!-- <projectUrl>https://github.com/Microsoft/Microsoft.VisualStudio.SolutionPersistence</projectUrl> -->
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Contains metadata for insertion into VS.</description>
-    <copyright>© Microsoft Corporation. All rights reserved.</copyright>
+    <copyright>Â© Microsoft Corporation. All rights reserved.</copyright>
   </metadata>
   <files>
     <file src="ProfilingInputs.props" target="InsertionVS/" />

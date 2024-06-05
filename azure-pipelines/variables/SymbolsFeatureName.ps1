@@ -1,1 +1,1 @@
-'LibraryName'
+'Microsoft.VisualStudio.SolutionPersistence'

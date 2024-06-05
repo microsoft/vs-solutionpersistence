@@ -7,7 +7,7 @@ resources:
     source: DD-CB-TestSignVS-devCI
     trigger:
       tags:
-      - LibraryName-insertion
+      - Microsoft.VisualStudio.SolutionPersistence-insertion
   - pipeline: DartLab
     source: DartLab
     branch: main
@@ -35,7 +35,7 @@ stages:
 - template: \templates\stages\visual-studio\single-runsettings.yml@DartLabOptProfTemplates
   parameters:
     ##### Required #####
-    runSettingsURI: $(Pipeline.Workspace)\VisualStudioBuildUnderTest\BuildArtifacts\runsettings\LibraryName.OptProf.runsettings
+    runSettingsURI: $(Pipeline.Workspace)\VisualStudioBuildUnderTest\BuildArtifacts\runsettings\Microsoft.VisualStudio.SolutionPersistence.OptProf.runsettings
     visualStudioBootstrapperURI: https://vsdrop.corp.microsoft.com/file/v1/$(VisualStudio.BuildUnderTest.ProductsDropName);bootstrappers/Enterprise/vs_enterprise.exe
     ##### Optional #####
     name: OptProfProfilingWorkflow

@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Library\Library.csproj" />
+    <ProjectReference Include="..\..\src\Microsoft.VisualStudio.SolutionPersistence\Microsoft.VisualStudio.SolutionPersistence.csproj" />
   </ItemGroup>
 
   <ItemGroup>
