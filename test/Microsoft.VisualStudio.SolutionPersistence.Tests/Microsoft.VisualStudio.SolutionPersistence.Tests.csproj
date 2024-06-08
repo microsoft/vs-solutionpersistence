@@ -15,4 +15,17 @@
     <PackageReference Include="xunit" />
   </ItemGroup>
 
+  <ItemGroup Label="NetFrameworkPackages" Condition=" '$(TargetFramework)' == 'net472' ">
+    <PackageReference Include="IsExternalInit" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.IO.Redist" />
+    <PackageReference Include="System.Memory" />
+    <PackageReference Include="System.Threading.Tasks.Extensions" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Reference solution files for test assets. -->
+    <EmbeddedResource Include="SlnAssets\**" />
+  </ItemGroup>
+
+
 </Project>
