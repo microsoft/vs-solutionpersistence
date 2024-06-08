@@ -21,6 +21,7 @@ public class InvalidSolutionFormatException : Exception
     }
 
 #if NETFRAMEWORK
+    [SuppressMessage("ApiDesign", "RS0016:Add public types and members to the declared API", Justification = "Only in .NET Framework.")]
     protected InvalidSolutionFormatException(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context)
         : base(info, context)
     {

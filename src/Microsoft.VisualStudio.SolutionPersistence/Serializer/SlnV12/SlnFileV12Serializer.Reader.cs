@@ -243,7 +243,8 @@ internal sealed partial class SlnFileV12Serializer
 
                     break;
 
-                case 'P': // this can match either Project( and ProjectSection(
+                case 'P':
+                    // this can match either Project( and ProjectSection(
                     if (first == 0 && tokenizer.SliceIfStartsWith(SlnConstants.TagProjectStart))
                     {
                         return LineType.Project;
@@ -256,8 +257,9 @@ internal sealed partial class SlnFileV12Serializer
 
                     break;
 
-                case 'G': // Global or GlobalSection(
-                          // "Global" needs to start at 0, character after it be either whitespace, or be at the end of line.
+                case 'G':
+                    // Global or GlobalSection(
+                    // "Global" needs to start at 0, character after it be either whitespace, or be at the end of line.
                     if (first == 0 && tokenizer.SliceIfStartsWithAndEmptyAfter(SlnConstants.TagGlobal))
                     {
                         return LineType.Global;
@@ -270,7 +272,8 @@ internal sealed partial class SlnFileV12Serializer
 
                     break;
 
-                case 'E': // EndProject, EndGlobal , EndProjectSection and EndGlobalSection
+                case 'E':
+                    // EndProject, EndGlobal , EndProjectSection and EndGlobalSection
                     if (first == 0)
                     {
                         if (tokenizer.SliceIfStartsWithAndEmptyAfter(SlnConstants.TagEndProject))
@@ -296,7 +299,8 @@ internal sealed partial class SlnFileV12Serializer
 
                     break;
 
-                case 'V': // VisualStudioVersion
+                case 'V':
+                    // VisualStudioVersion
                     if (allowSolutionProperties && first == 0 && tokenizer.SliceIfStartsWith(SlnConstants.TagVisualStudioVersion))
                     {
                         return LineType.VisualStudioVersion;
@@ -304,7 +308,8 @@ internal sealed partial class SlnFileV12Serializer
 
                     break;
 
-                case 'M': // MinimumVisualStudioVersion
+                case 'M':
+                    // MinimumVisualStudioVersion
                     if (allowSolutionProperties && first == 0 && tokenizer.SliceIfStartsWith(SlnConstants.TagMinimumVisualStudioVersion))
                     {
                         return LineType.MinimumVisualStudioVersion;
