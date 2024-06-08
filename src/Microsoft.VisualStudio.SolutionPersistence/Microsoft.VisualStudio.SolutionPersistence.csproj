@@ -17,9 +17,6 @@
     <!-- PublicAPI entries in all TargetFrameworks -->
     <AdditionalFiles Include="PublicAPI/PublicAPI.Shipped.txt" />
     <AdditionalFiles Include="PublicAPI/PublicAPI.Unshipped.txt" />
-    <!-- PublicAPI entries only in specific TargetFrameworks -->
-    <AdditionalFiles Include="PublicAPI/net472/PublicAPI.Shipped.txt" Condition=" '$(TargetFramework)' == 'net472' " />
-    <AdditionalFiles Include="PublicAPI/net/PublicAPI.Shipped.txt" Condition=" '$(TargetFramework)' != 'net472' " />
   </ItemGroup>
 
   <ItemGroup>

@@ -72,15 +72,12 @@ internal readonly struct ConfigurationRuleFollower(IReadOnlyList<ConfigurationRu
                  (dimension != BuildDimension.Platform || IsSpecified(solutionPlatform)));
         }
 
+        // If the rule applies to all Platforms, the BuildType must be specified and match.
+        // If the rule applies to all BuildTypes, the Platform must be specified and match.
+        // If the rule applies to specific BuildType and Platform, both must be specified and match.
         return
-
-            // If the rule applies to all Platforms, the BuildType must be specified and match.
             AppliesToAllPlatforms(rule) && IsSpecified(solutionBuildType) ? IsSameBuildType(rule, solutionBuildType) :
-
-            // If the rule applies to all BuildTypes, the Platform must be specified and match.
             AppliesToAllBuildTypes(rule) && IsSpecified(solutionPlatform) ? IsSamePlatform(rule, solutionPlatform) :
-
-            // If the rule applies to specific BuildType and Platform, both must be specified and match.
             IsSpecified(solutionBuildType) && IsSpecified(solutionPlatform) && IsSame(rule, solutionBuildType, solutionPlatform);
 
         // These local functions are used to (hopefullly) make the code more readable.
