@@ -58,7 +58,8 @@ internal sealed partial class ProjectTypeTable
                 rules: [
                     ModelHelper.CreatePlatformRule(PlatformNames.AnyCPU, PlatformNames.x64),
                     ModelHelper.CreatePlatformRule(PlatformNames.x86, PlatformNames.Win32),
-                ]) { Name = "VC", Extension = ".vcxproj" },
+                ])
+            { Name = "VC", Extension = ".vcxproj" },
 
             // Visual C++ shared code project.
             // This is a special project type that is used to represent shared items in C++ projects.
