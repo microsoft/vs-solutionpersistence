@@ -124,29 +124,29 @@ jobs:
           clean: true
         - ${{ if parameters.EnableOptProf }}:
           - powershell: Write-Host "##vso[task.setvariable variable=PROFILINGINPUTSDROPNAME]$(azure-pipelines/variables/ProfilingInputsDropName.ps1)"
-            displayName: âš™ Set ProfilingInputsDropName for optprof
+            displayName: ⚙ Set ProfilingInputsDropName for optprof
 
       outputParentDirectory: $(Build.ArtifactStagingDirectory)
       outputs:
       - ${{ each artifact_name in parameters.artifact_names }}:
         - ${{ if or(ne(artifact_name, 'testResults'), parameters.RunTests) }}:
           - output: pipelineArtifact
-            displayName: ðŸ“¢ Publish ${{ artifact_name }}-Windows
+            displayName: 📢 Publish ${{ artifact_name }}-Windows
             targetPath: $(Build.ArtifactStagingDirectory)/${{ artifact_name }}-Windows
             artifactName: ${{ artifact_name }}-Windows
             condition: succeededOrFailed()
       - output: pipelineArtifact
-        displayName: ðŸ“¢ Publish VSInsertion-Windows
+        displayName: 📢 Publish VSInsertion-Windows
         targetPath: $(Build.ArtifactStagingDirectory)/VSInsertion-Windows
         artifactName: VSInsertion-Windows
       - ${{ if parameters.EnableLocalization }}:
         - output: pipelineArtifact
-          displayName: ðŸ“¢ Publish LocBin-Windows
+          displayName: 📢 Publish LocBin-Windows
           targetPath: $(Build.ArtifactStagingDirectory)/LocBin-Windows
           artifactName: LocBin-Windows
       - ${{ if parameters.EnableAPIScan }}:
         - output: pipelineArtifact
-          displayName: ðŸ“¢ Publish APIScanInputs
+          displayName: 📢 Publish APIScanInputs
           targetPath: $(Build.ArtifactStagingDirectory)/APIScanInputs-Windows
           artifactName: APIScanInputs
   steps:
@@ -156,7 +156,7 @@ jobs:
       clean: true
     - ${{ if parameters.EnableOptProf }}:
       - powershell: Write-Host "##vso[task.setvariable variable=PROFILINGINPUTSDROPNAME]$(azure-pipelines/variables/ProfilingInputsDropName.ps1)"
-        displayName: âš™ Set ProfilingInputsDropName for optprof
+        displayName: ⚙ Set ProfilingInputsDropName for optprof
 
   - ${{ if eq(variables['Build.Reason'], 'Schedule') }}:
     - template: schedule-only-steps.yml
@@ -164,7 +164,7 @@ jobs:
   - template: install-dependencies.yml
 
   - script: dotnet nbgv cloud -ca
-    displayName: âš™ Set build number
+    displayName: ⚙ Set build number
     name: nbgv
 
   - ${{ if eq(variables['system.collectionId'], '011b8bdf-6d56-4f87-be0d-0092136884d9') }}:
@@ -184,7 +184,7 @@ jobs:
 
   - ${{ if and(parameters.EnableDotNetFormatCheck, not(parameters.EnableLinuxBuild)) }}:
     - script: dotnet format --verify-no-changes --no-restore
-      displayName: ðŸ’… Verify formatted code
+      displayName: 💅 Verify formatted code
 
   - ${{ if eq(variables['system.collectionId'], '011b8bdf-6d56-4f87-be0d-0092136884d9') }}:
     - template: microbuild.after.yml
@@ -209,7 +209,7 @@ jobs:
           - ${{ each artifact_name in parameters.artifact_names }}:
             - ${{ if or(ne(artifact_name, 'testResults'), parameters.RunTests) }}:
               - output: pipelineArtifact
-                displayName: ðŸ“¢ Publish ${{ artifact_name }}-Linux
+                displayName: 📢 Publish ${{ artifact_name }}-Linux
                 targetPath: $(Build.ArtifactStagingDirectory)/${{ artifact_name }}-Linux
                 artifactName: ${{ artifact_name }}-Linux
                 condition: succeededOrFailed()
@@ -224,7 +224,7 @@ jobs:
           RunTests: ${{ parameters.RunTests }}
       - ${{ if parameters.EnableDotNetFormatCheck }}:
         - script: dotnet format --verify-no-changes --no-restore
-          displayName: ðŸ’… Verify formatted code
+          displayName: 💅 Verify formatted code
 
   - ${{ if parameters.EnableMacOSBuild }}:
     - job: macOS
@@ -241,7 +241,7 @@ jobs:
           - ${{ each artifact_name in parameters.artifact_names }}:
             - ${{ if or(ne(artifact_name, 'testResults'), parameters.RunTests) }}:
               - output: pipelineArtifact
-                displayName: ðŸ“¢ Publish ${{ artifact_name }}-macOS
+                displayName: 📢 Publish ${{ artifact_name }}-macOS
                 targetPath: $(Build.ArtifactStagingDirectory)/${{ artifact_name }}-macOS
                 artifactName: ${{ artifact_name }}-macOS
                 condition: succeededOrFailed()
