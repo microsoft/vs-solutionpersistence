@@ -105,7 +105,7 @@ public static class SlnV12Extensions
             case SectionName.SolutionItems when itemBuilder is SolutionFolderModel.Builder folderBuilder:
                 foreach (string fileName in properties.PropertyNames)
                 {
-                    folderBuilder.AddFile(fileName);
+                    folderBuilder.AddFile(PathExtensions.ConvertFromPersistencePath(fileName));
                 }
 
                 break;
@@ -154,7 +154,8 @@ public static class SlnV12Extensions
             SolutionPropertyBag propertyBag = new SolutionPropertyBag(SectionName.SolutionItems, PropertiesScope.PreLoad, files.Count);
             foreach (string file in files)
             {
-                propertyBag.Add(file, file);
+                string persistenceFile = PathExtensions.ConvertToPersistencePath(file);
+                propertyBag.Add(persistenceFile, persistenceFile);
             }
 
             slnProperties.Add(propertyBag);

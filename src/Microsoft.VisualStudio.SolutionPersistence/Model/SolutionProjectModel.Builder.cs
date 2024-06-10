@@ -39,11 +39,6 @@ public sealed partial class SolutionProjectModel
 
         public override bool IsValid => !string.IsNullOrEmpty(this.FilePath);
 
-        public string SetFilePath(string filePath)
-        {
-            return this.FilePath = filePath;
-        }
-
         public string? ProjectType { get; set; }
 
         public string? DisplayName { get; set; }

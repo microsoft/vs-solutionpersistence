@@ -23,9 +23,16 @@ internal static class StringExtensions
     public static bool StartsWith(this StringSpan span, string str) => span.StartsWith(str.AsSpan());
 
 #if NETFRAMEWORK
+
     public static bool StartsWith(this string str, char value) => !str.IsNullOrEmpty() && str[0] == value;
 
     public static bool EndsWith(this string str, char value) => !str.IsNullOrEmpty() && str[str.Length - 1] == value;
+
+    public static bool Contains(this StringSpan span, char c)
+    {
+        return span.IndexOf(c) >= 0;
+    }
+
 #endif
 
     public static string Concat(scoped StringSpan first, scoped StringSpan second)

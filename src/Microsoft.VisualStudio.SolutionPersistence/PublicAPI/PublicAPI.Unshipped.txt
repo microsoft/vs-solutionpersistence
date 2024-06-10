@@ -128,7 +128,6 @@ Microsoft.VisualStudio.SolutionPersistence.Model.SolutionProjectModel.Builder.Di
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionProjectModel.Builder.FilePath.get -> string!
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionProjectModel.Builder.ProjectType.get -> string?
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionProjectModel.Builder.ProjectType.set -> void
-Microsoft.VisualStudio.SolutionPersistence.Model.SolutionProjectModel.Builder.SetFilePath(string! filePath) -> string!
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionProjectModel.Dependencies.get -> System.Collections.Generic.IReadOnlyList<string!>?
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionProjectModel.Dependencies.set -> void
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionProjectModel.DisplayName.get -> string?

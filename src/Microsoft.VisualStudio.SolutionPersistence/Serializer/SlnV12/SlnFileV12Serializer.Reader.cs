@@ -467,7 +467,7 @@ internal sealed partial class SlnFileV12Serializer
             }
             else
             {
-                SolutionProjectModel.Builder projectBuilder = solutionBuilder.AddProject(filePath: relativePath.ToString());
+                SolutionProjectModel.Builder projectBuilder = solutionBuilder.AddProject(filePath: PathExtensions.ConvertFromPersistencePath(relativePath.ToString()));
                 projectBuilder.ProjectType = projectTypeId == Guid.Empty ? null : projectType.ToString();
                 projectBuilder.DisplayName = displayName.ToString();
                 itemBuilder = projectBuilder;

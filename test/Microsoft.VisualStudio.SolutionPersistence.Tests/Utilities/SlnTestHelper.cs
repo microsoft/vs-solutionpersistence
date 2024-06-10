@@ -162,7 +162,13 @@ internal static partial class SlnTestHelper
                 """);
         }
 
-        Assert.Equal(expectedSln.FullString, actualSln.FullString);
+        string expectedSlnFull = expectedSln.FullString;
+        if (Environment.NewLine != "\r\n")
+        {
+            expectedSlnFull = expectedSlnFull.Replace("\r\n", Environment.NewLine);
+        }
+
+        Assert.Equal(expectedSlnFull, actualSln.FullString);
     }
 
     // This only works for SLNX right now.

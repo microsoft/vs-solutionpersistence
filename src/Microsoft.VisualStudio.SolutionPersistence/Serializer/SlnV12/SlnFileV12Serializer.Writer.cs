@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using Microsoft.VisualStudio.SolutionPersistence.Model;
+using Microsoft.VisualStudio.SolutionPersistence.Utilities;
 
 namespace Microsoft.VisualStudio.SolutionPersistence.Serializer.SlnV12;
 
@@ -126,7 +127,7 @@ internal partial class SlnFileV12Serializer
         private void WriteProject(SolutionModel solutionModel, SolutionItemModel item)
         {
             // For solution folders, path is just the display name again.
-            string path = item is SolutionProjectModel project ? project.FilePath : item.CanonicalDisplayName;
+            string path = item is SolutionProjectModel project ? PathExtensions.ConvertToPersistencePath(project.FilePath) : item.CanonicalDisplayName;
 
             if (item.TypeId == Guid.Empty)
             {

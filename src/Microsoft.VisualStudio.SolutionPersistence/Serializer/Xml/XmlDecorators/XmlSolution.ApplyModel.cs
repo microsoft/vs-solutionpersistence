@@ -3,6 +3,7 @@
 
 using System.Linq;
 using Microsoft.VisualStudio.SolutionPersistence.Model;
+using Microsoft.VisualStudio.SolutionPersistence.Utilities;
 
 namespace Microsoft.VisualStudio.SolutionPersistence.Serializer.Xml.XmlDecorators;
 
@@ -47,12 +48,12 @@ internal sealed partial class XmlSolution
 
         // Projects
         modified |= this.ApplyModelToXmlGeneric(
-            modelCollection: modelSolution.SolutionProjects,
+            modelCollection: modelSolution.SolutionProjects.ToList(x => (ItemRef: PathExtensions.ConvertToPersistencePath(x.ItemRef), Item: x)),
             ref this.Projects,
             Keyword.Project,
-            getItemRefs: static (modelProjects) => modelProjects.Where(static x => x.Parent is null).Select(static x => x.ItemRef).ToList(),
-            getModelItem: static (modelProjects, itemRef) => ModelHelper.FindByItemRef(modelProjects, itemRef),
-            applyModelToXml: static (newProject, newValue) => newProject.ApplyModelToXml(newValue));
+            getItemRefs: static (modelProjects) => modelProjects.WhereToList((x, _) => x.Item.Parent is null, (x, _) => x.ItemRef, false),
+            getModelItem: static (modelProjects, itemRef) => ModelHelper.FindByItemRef(modelProjects, itemRef, x => x.ItemRef),
+            applyModelToXml: static (newProject, newValue) => newProject.ApplyModelToXml(newValue.Item));
 
         // Properties
         modified |= this.ApplyModelToXml(modelSolution.Properties);
