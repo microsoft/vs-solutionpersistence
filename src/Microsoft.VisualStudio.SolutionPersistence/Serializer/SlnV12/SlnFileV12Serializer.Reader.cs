@@ -202,9 +202,31 @@ internal sealed partial class SlnFileV12Serializer
             solutionBuilder.Corrupted = this.corrupted;
             SolutionModel model = solutionBuilder.ToModel(new SlnV12ModelExtension(
                 serializer,
-                new SlnV12SerializerSettings() { Encoding = reader.CurrentEncoding },
+                new SlnV12SerializerSettings() { Encoding = GetSlnFileEncoding(reader) },
                 fullPath));
             return new ValueTask<SolutionModel>(model);
+        }
+
+        private static Encoding GetSlnFileEncoding(StreamReader reader)
+        {
+            // UTF-16 is supported, so roundtrip as is.
+            if (reader.CurrentEncoding.CodePage == Encoding.Unicode.CodePage)
+            {
+                return Encoding.Unicode;
+            }
+
+            // If the file is UTF-8 and has a BOM then it should stay UTF-8.
+            if (reader.CurrentEncoding.CodePage == Encoding.UTF8.CodePage &&
+                !reader.CurrentEncoding.GetPreamble().IsNullOrEmpty())
+            {
+                return Encoding.UTF8;
+            }
+
+            // All other encodings default to ASCII. If it was a file with an ANSI codepage
+            // encoding it will get converted to UTF-8 with BOM on save.
+            // ASCII is subset of UTF-8, and it doesn't emit a BOM, and is compatible with old versions
+            // of Visual Studio, so it is the preferred default for .sln files.
+            return Encoding.ASCII;
         }
 
         private static string? CommentToOpenWithVS(StringSpan firstComment)
