@@ -55,7 +55,7 @@ public class RoundTripClassicSln
     [Fact]
     public Task EverythingThruSlnxStreamAsync() => TestRoundTripSerializerAsync(SlnAssets.ClassicSlnEverything, SlnAssets.XmlSlnxEverything);
 
-    [Fact]
+    [Fact(Skip = "Linux encoding")]
     public Task OrchardCoreThruSlnxStreamAsync() => TestRoundTripSerializerAsync(SlnAssets.ClassicSlnOrchardCore, SlnAssets.XmlSlnxOrchardCore);
 
     [Fact(Skip = "Linux encoding.")]
