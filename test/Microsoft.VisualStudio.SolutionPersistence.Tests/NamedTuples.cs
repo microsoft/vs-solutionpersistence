@@ -3,6 +3,13 @@
 
 // Instead of creating classes with named properties, use global usings
 // to make named tuples available throughout the project.
-global using FileContents = (string FullString, System.Collections.Generic.List<string> Lines); // Represents the contents of a file with a version of the file that has all lines concatenated and a list of lines.
-global using ResourceName = (string Name, string FullResourceId); // Represents a resource name and an identifier.
-global using ResourceStream = (string Name, System.IO.Stream Stream); // Represents a resource loaded from the assembly.
+[SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1649:File name should match first type name", Justification = "Test helper.")]
+public record struct FileContents(string FullString, List<string> Lines); // Represents the contents of a file with a version of the file that has all lines concatenated and a list of lines.
+
+[SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1649:File name should match first type name", Justification = "Test helper.")]
+[SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1402:File may only contain a single type", Justification = "Test helper.")]
+public record struct ResourceName(string Name, string FullResourceId); // Represents a resource name and an identifier.
+
+[SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1649:File name should match first type name", Justification = "Test helper.")]
+[SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1402:File may only contain a single type", Justification = "Test helper.")]
+public record struct ResourceStream(string Name, Stream Stream); // Represents a resource loaded from the assembly.

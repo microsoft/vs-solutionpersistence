@@ -83,7 +83,7 @@ public class RoundTripClassicSln
 
         if (viaSlnxStream is not null)
         {
-            (model, (string FullString, List<string> Lines) slnxContents) = await ThruSlnStreamAsync(model, slnStream.Name, originalSolution.FullString.Length * 10);
+            (model, FileContents slnxContents) = await ThruSlnStreamAsync(model, slnStream.Name, originalSolution.FullString.Length * 10);
 
             AssertSolutionsAreEqual(viaSlnxStream.Value.ToLines(), slnxContents);
         }
