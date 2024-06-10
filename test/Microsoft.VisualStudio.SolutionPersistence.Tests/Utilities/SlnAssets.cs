@@ -33,7 +33,7 @@ internal static class SlnAssets
 
     private static readonly Assembly ResourceAssembly = typeof(SlnAssets).Assembly;
 
-    public static IEnumerable<ResourceStream> GetAllSampleFiles(string postFix)
+    public static IEnumerable<ResourceName> GetAllSampleFiles(string postFix)
     {
         string[] allResources = ResourceAssembly.GetManifestResourceNames();
         foreach (string fullResourceId in allResources)
@@ -52,13 +52,18 @@ internal static class SlnAssets
                 Stream? stream = ResourceAssembly.GetManifestResourceStream(fullResourceId);
                 if (stream is not null)
                 {
-                    yield return (Path.GetFileNameWithoutExtension(resourceName).ToString(), stream);
+                    yield return (Path.GetFileNameWithoutExtension(resourceName).ToString(), fullResourceId);
                 }
             }
         }
     }
 
-    public static ResourceStream[] ClassicSlnFiles => GetAllSampleFiles(".sln").ToArray();
+    public static ResourceStream Load(this ResourceName resourceName)
+    {
+        return (resourceName.Name, ResourceAssembly.GetManifestResourceStream(resourceName.FullResourceId)!);
+    }
+
+    public static ResourceName[] ClassicSlnFiles => GetAllSampleFiles(".sln").ToArray();
 
     #endregion
 
@@ -90,7 +95,7 @@ internal static class SlnAssets
     // Metadata for known project types.
     public static ResourceStream XmlBuiltInProjectTypes => LoadResource(@"Configurations\BuiltInProjectTypes.slnx");
 
-    public static ResourceStream[] XmlSlnxFiles => GetAllSampleFiles(".slnx").ToArray();
+    public static ResourceName[] XmlSlnxFiles => GetAllSampleFiles(".slnx").ToArray();
 
     #endregion
 

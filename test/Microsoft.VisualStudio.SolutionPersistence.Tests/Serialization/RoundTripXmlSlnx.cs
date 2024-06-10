@@ -15,8 +15,8 @@ namespace Serialization;
 /// </summary>
 public class RoundTripXmlSlnx
 {
-    public static TheoryData<ResourceStream> XmlSlnxFiles =>
-        new TheoryData<ResourceStream>(SlnAssets.XmlSlnxFiles);
+    public static TheoryData<ResourceName> XmlSlnxFiles =>
+        new TheoryData<ResourceName>(SlnAssets.XmlSlnxFiles);
 
     #region Basic slnx -> slnx round trip
 
@@ -45,9 +45,9 @@ public class RoundTripXmlSlnx
 
     [Theory]
     [MemberData(nameof(XmlSlnxFiles))]
-    public Task AllXmlSolutionAsync(ResourceStream sampleFile)
+    public Task AllXmlSolutionAsync(ResourceName sampleFile)
     {
-        return TestRoundTripSerializerAsync(sampleFile);
+        return TestRoundTripSerializerAsync(sampleFile.Load());
     }
 
     #region slnx -> sln -> slnx round trip
