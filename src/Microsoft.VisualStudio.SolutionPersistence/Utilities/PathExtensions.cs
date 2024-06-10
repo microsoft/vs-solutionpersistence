@@ -7,6 +7,24 @@ internal static class PathExtensions
 {
     private static bool IsUri(this StringSpan filePath) => !filePath.IsEmpty && filePath.Contains("://".AsSpan(), StringComparison.Ordinal);
 
+    private static readonly bool IsWindows = Environment.OSVersion.Platform == PlatformID.Win32NT;
+
+    [return: NotNullIfNotNull(nameof(persistencePath))]
+    internal static string? ConvertFromPersistencePath(string? persistencePath)
+    {
+        return persistencePath.IsNullOrEmpty() || IsWindows || !persistencePath.Contains('\\') ?
+            persistencePath :
+            persistencePath.Replace('\\', Path.DirectorySeparatorChar);
+    }
+
+    [return: NotNullIfNotNull(nameof(modelPath))]
+    internal static string? ConvertToPersistencePath(string? modelPath)
+    {
+        return modelPath is null || IsWindows || !modelPath.Contains(Path.DirectorySeparatorChar) || IsUri(modelPath.AsSpan()) ?
+            modelPath :
+            modelPath.Replace(Path.DirectorySeparatorChar, '\\');
+    }
+
     public static StringSpan GetStandardDisplayName(this string filePath)
     {
         return GetStandardDisplayName(filePath.AsSpan());

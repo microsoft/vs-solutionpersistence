@@ -4,6 +4,7 @@
 using System.Linq;
 using System.Xml;
 using Microsoft.VisualStudio.SolutionPersistence.Model;
+using Microsoft.VisualStudio.SolutionPersistence.Utilities;
 
 namespace Microsoft.VisualStudio.SolutionPersistence.Serializer.Xml.XmlDecorators;
 
@@ -58,7 +59,7 @@ internal sealed class XmlFolder(SlnxFile root, XmlSolution xmlSolution, XmlEleme
 
         foreach (XmlFile file in this.files.GetItems())
         {
-            builder.AddFile(file.Path);
+            builder.AddFile(PathExtensions.ConvertFromPersistencePath(file.Path));
         }
 
         foreach (XmlProperties properties in this.propertyBags.GetItems())
@@ -76,21 +77,21 @@ internal sealed class XmlFolder(SlnxFile root, XmlSolution xmlSolution, XmlEleme
 
         // Files
         modified |= this.ApplyModelToXmlGeneric(
-            modelCollection: modelFolder,
+            modelCollection: modelFolder.Files?.ToList(static file => PathExtensions.ConvertToPersistencePath(file)),
             decoratorItems: ref this.files,
             decoratorElementName: Keyword.File,
-            getItemRefs: static (modelFolder) => modelFolder.Files?.ToList(),
-            getModelItem: static (modelFolder, itemRef) => ModelHelper.FindByItemRef(modelFolder.Files, itemRef),
+            getItemRefs: static (files) => files?.ToList(),
+            getModelItem: static (files, itemRef) => ModelHelper.FindByItemRef(files, itemRef),
             applyModelToXml: null);
 
         // Projects
         modified |= this.ApplyModelToXmlGeneric(
-            modelCollection: modelSolution.SolutionProjects,
+            modelCollection: modelSolution.SolutionProjects.ToList(x => (ItemRef: PathExtensions.ConvertToPersistencePath(x.ItemRef), Item: x)),
             ref this.xmlSolution.Projects,
             Keyword.Project,
-            getItemRefs: static (modelProjects, modelFolder) => modelProjects.Where(x => x.Parent == modelFolder).Select(static x => x.ItemRef).ToList(),
-            getModelItem: static (modelProjects, itemRef, modelFolder) => ModelHelper.FindByItemRef(modelProjects, itemRef),
-            applyModelToXml: static (newProject, newValue, modelFolder) => newProject.ApplyModelToXml(newValue),
+            getItemRefs: static (modelProjects, modelFolder) => modelProjects.WhereToList((x, _) => x.Item.Parent == modelFolder, (x, _) => x.ItemRef, false),
+            getModelItem: static (modelProjects, itemRef, modelFolder) => ModelHelper.FindByItemRef(modelProjects, itemRef, x => x.ItemRef),
+            applyModelToXml: static (newProject, newValue, modelFolder) => newProject.ApplyModelToXml(newValue.Item),
             modelFolder);
 
         // Properties

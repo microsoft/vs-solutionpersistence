@@ -21,7 +21,7 @@ internal sealed partial class XmlProject(SlnxFile root, XmlFolder? xmlParentFold
 
     public string Path => this.ItemRef;
 
-    public StringSpan DefaultDisplayName => this.Path.GetStandardDisplayName();
+    public StringSpan DefaultDisplayName => PathExtensions.ConvertFromPersistencePath(this.Path).GetStandardDisplayName();
 
     public string? DisplayName
     {
@@ -71,14 +71,14 @@ internal sealed partial class XmlProject(SlnxFile root, XmlFolder? xmlParentFold
 
     public void ToModelBuilder(SolutionModel.Builder solutionBuilder)
     {
-        SolutionProjectModel.Builder builder = solutionBuilder.AddProject(this.Path);
+        SolutionProjectModel.Builder builder = solutionBuilder.AddProject(PathExtensions.ConvertFromPersistencePath(this.Path));
         builder.ProjectType = this.Type;
         builder.DisplayName = this.DisplayName;
         builder.Parent = this.ParentFolder?.Name;
 
         foreach (XmlBuildDependency buildDependency in this.buildDependencies.GetItems())
         {
-            builder.AddDependency(buildDependency.Project);
+            builder.AddDependency(PathExtensions.ConvertFromPersistencePath(buildDependency.Project));
         }
 
         foreach (ConfigurationRule configurationRule in this.configurationRules.ToModel())
