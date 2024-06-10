@@ -208,7 +208,7 @@ internal static partial class SlnTestHelper
 
         stream.Position = 0;
 
-        return (fullString, lines);
+        return new FileContents(fullString, lines);
     }
 
     public static void RecreateProjectConfigurations(this SolutionModel.Builder builder, SolutionModel model)

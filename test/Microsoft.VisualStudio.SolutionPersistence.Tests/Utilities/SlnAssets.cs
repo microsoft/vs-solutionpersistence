@@ -52,7 +52,7 @@ internal static class SlnAssets
                 Stream? stream = ResourceAssembly.GetManifestResourceStream(fullResourceId);
                 if (stream is not null)
                 {
-                    yield return (Path.GetFileNameWithoutExtension(resourceName).ToString(), fullResourceId);
+                    yield return new ResourceName(Path.GetFileNameWithoutExtension(resourceName).ToString(), fullResourceId);
                 }
             }
         }
@@ -60,7 +60,7 @@ internal static class SlnAssets
 
     public static ResourceStream Load(this ResourceName resourceName)
     {
-        return (resourceName.Name, ResourceAssembly.GetManifestResourceStream(resourceName.FullResourceId)!);
+        return new ResourceStream(resourceName.Name, ResourceAssembly.GetManifestResourceStream(resourceName.FullResourceId)!);
     }
 
     public static ResourceName[] ClassicSlnFiles => GetAllSampleFiles(".sln").ToArray();
@@ -119,7 +119,7 @@ internal static class SlnAssets
             ResourceAssembly.GetManifestResourceStream(SlnAssetsRoot + name + ".xml");
         if (stream is not null)
         {
-            return (name, stream);
+            return new ResourceStream(name, stream);
         }
 
         // Create an error message to help diagnose the missing resource.
