@@ -17,13 +17,11 @@ internal sealed class SlnxFile
     public string? FullPath { get; }
 
     public SlnxFile(
-        ISolutionSerializer serializer,
         XmlDocument xmlDocument,
         SlnxSerializerSettings serializationSettings,
         StringTable? stringTable,
         string? fullPath)
     {
-        this.Serializer = serializer;
         this.Document = xmlDocument;
         this.FullPath = fullPath;
         this.StringTable = stringTable ?? new StringTable().WithSolutionConstants();
@@ -70,8 +68,6 @@ internal sealed class SlnxFile
 
     public XmlDocument Document { get; }
 
-    public ISolutionSerializer Serializer { get; }
-
     public XmlSolution? Solution { get; private set; }
 
     public SlnxSerializerSettings SerializationSettings { get; }
@@ -84,15 +80,17 @@ internal sealed class SlnxFile
 
     public SolutionModel ToModel()
     {
-        SolutionModel.Builder? builder = this.Solution?.ToModelBuilder();
-        builder ??= new SolutionModel.Builder(stringTable: this.StringTable) { Corrupted = true };
-
-        return builder.ToModel(new SlnXmlModelExtension(this.Serializer, this.SerializationSettings, root: this));
+        SolutionModel model = this.Solution?.ToModel() ?? new SolutionModel() { StringTable = this.StringTable };
+        model.SerializerExtension = new SlnXmlModelExtension(SolutionSerializers.SlnXml, this.SerializationSettings, root: this);
+        return model;
     }
 
     /// <summary>
     /// Update the Xml DOM with changes from the model.
     /// </summary>
+    /// <returns>
+    /// true if any changes were made to the XML.
+    /// </returns>
     public bool ApplyModel(SolutionModel model)
     {
         this.ProjectTypes = model.ProjectTypeTable;

@@ -53,18 +53,18 @@ internal sealed class XmlFolder(SlnxFile root, XmlSolution xmlSolution, XmlEleme
 
     #region Deserialize model
 
-    public void ToModelBuilder(SolutionModel.Builder solutionBuilder)
+    public void AddToModel(SolutionModel solutionModel)
     {
-        SolutionFolderModel.Builder builder = solutionBuilder.AddFolder(this.Name);
+        SolutionFolderModel folderModel = solutionModel.AddFolder(this.Name);
 
         foreach (XmlFile file in this.files.GetItems())
         {
-            builder.AddFile(PathExtensions.ConvertFromPersistencePath(file.Path));
+            folderModel.AddFile(PathExtensions.ConvertFromPersistencePath(file.Path));
         }
 
         foreach (XmlProperties properties in this.propertyBags.GetItems())
         {
-            _ = builder.AddProperties(properties.ToModel());
+            properties.AddToModel(folderModel);
         }
     }
 

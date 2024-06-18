@@ -8,22 +8,15 @@ namespace Microsoft.VisualStudio.SolutionPersistence.Utilities;
 /// <summary>
 /// Helper for turning unique string identifiers into guid identifiers.
 /// </summary>
-internal readonly struct DefaultIdGenerator
+internal static class DefaultIdGenerator
 {
-    private readonly IncrementalHash hash;
-
-    public DefaultIdGenerator()
-    {
-        this.hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
-    }
-
-    public Guid CreateIdFrom(string uniqueName)
+    public static Guid CreateIdFrom(string uniqueName)
     {
         byte[] bytes = Encoding.UTF8.GetBytes(uniqueName.ToUpperInvariant());
-        return this.MakeId(bytes, null);
+        return MakeId(bytes, null);
     }
 
-    public Guid CreateIdFrom(Guid parentItemId, string name)
+    public static Guid CreateIdFrom(Guid parentItemId, string name)
     {
         if (string.IsNullOrEmpty(name))
         {
@@ -32,29 +25,36 @@ internal readonly struct DefaultIdGenerator
 
         byte[] parentData = parentItemId.ToByteArray();
         byte[] itemData = Encoding.UTF8.GetBytes(name.ToUpperInvariant());
-        return this.MakeId(parentData, itemData);
+        return MakeId(parentData, itemData);
     }
 
-    private Guid MakeId(byte[]? data1, byte[]? data2)
+    private static Guid MakeId(byte[] data1, byte[]? data2)
     {
         if (data1.IsNullOrEmpty() && data2.IsNullOrEmpty())
         {
             return Guid.Empty;
         }
 
-        if (!data1.IsNullOrEmpty())
+#if NETFRAMEWORK
+        byte[] allData = data2 is null ? data1 : [.. data1, .. data2];
+
+        using (SHA256 hash = SHA256.Create())
         {
-            this.hash.AppendData(data1);
+            byte[] hashBytes = hash.ComputeHash(allData);
+            byte[] guidBytes = new byte[16];
+            Array.Copy(hashBytes, guidBytes, 16);
+            return new Guid(guidBytes);
+        }
+#else
+        ReadOnlySpan<byte> allData = data2 is null ? data1 : [.. data1, .. data2];
+
+        Span<byte> hashBytes = stackalloc byte[32];
+        if (!SHA256.TryHashData(allData, hashBytes, out int bytesWritten) || bytesWritten <= 16)
+        {
+            throw new InvalidOperationException();
         }
 
-        if (!data2.IsNullOrEmpty())
-        {
-            this.hash.AppendData(data2);
-        }
-
-        byte[] hash = this.hash.GetHashAndReset();
-        byte[] guidBytes = new byte[16];
-        Array.Copy(hash, guidBytes, 16);
-        return new Guid(guidBytes);
+        return new Guid(hashBytes.Slice(0, 16));
+#endif
     }
 }

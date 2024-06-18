@@ -5,7 +5,6 @@ using System.Linq;
 using Microsoft.VisualStudio.SolutionPersistence;
 using Microsoft.VisualStudio.SolutionPersistence.Model;
 using Microsoft.VisualStudio.SolutionPersistence.Serializer;
-using Microsoft.VisualStudio.SolutionPersistence.Serializer.SlnV12;
 using Microsoft.VisualStudio.SolutionPersistence.Serializer.Xml;
 using Microsoft.VisualStudio.SolutionPersistence.Serializer.Xml.XmlDecorators;
 using Xunit;
@@ -15,7 +14,7 @@ namespace Utilities;
 /// <summary>
 /// Helper methods to be included in sln/slnx tests.
 /// </summary>
-internal static partial class SlnTestHelper
+internal static class SlnTestHelper
 {
     public static async Task<FileContents> ModelToLinesAsync<T>(ISolutionSingleFileSerializer<T> serializer, SolutionModel updateModel, string name, int bufferSize = 1024 * 1024)
     {
@@ -29,14 +28,13 @@ internal static partial class SlnTestHelper
     }
 
     /// <summary>
-    /// Helper to wrap the common pattern of creating a new model and updating it.
-    /// CONSIDER: Should this helper be on the model.
+    /// Helper to creating a new model and update it.
     /// </summary>
-    public static SolutionModel CreateNew(this SolutionModel compactSolutionModel, Action<SolutionModel.Builder> modifyBuilder)
+    public static SolutionModel CreateCopy(this SolutionModel solution, Action<SolutionModel> modifyModel)
     {
-        SolutionModel.Builder builder = new SolutionModel.Builder(compactSolutionModel, stringTable: null);
-        modifyBuilder(builder);
-        return builder.ToModel(compactSolutionModel.SerializerExtension);
+        SolutionModel model = new SolutionModel(solution) { SerializerExtension = solution.SerializerExtension };
+        modifyModel(model);
+        return model;
     }
 
     /// <summary>
@@ -66,8 +64,7 @@ internal static partial class SlnTestHelper
 
     public static async Task<(SolutionModel Model, FileContents SlnxContents)> ThruSlnStreamAsync(SolutionModel model, string name, int bufferSize)
     {
-        ISerializerModelExtension originalExtension = model.SerializerExtension;
-        Assert.NotNull(originalExtension);
+        ISerializerModelExtension? originalExtension = model.SerializerExtension;
 
         // When converting to slnx, the order of projects will change (since they are grouped by folders).
         // This captures the order they are in for the .sln so it can be restored to get rid of diff noise.
@@ -87,12 +84,9 @@ internal static partial class SlnTestHelper
         }
 
         // Restore info that isn't serialized to make diff match.
-        model = model with
-        {
-            VsVersion = vsVersion,
-            MinVsVersion = minVersion,
-            SolutionId = solutionGuid,
-        };
+        model.VsVersion = vsVersion;
+        model.MinVsVersion = minVersion;
+        model.SolutionId = solutionGuid;
 
         // This is hacky, but need to preserve original order to make test diff work.
         List<SolutionItemModel> itemsHack = (List<SolutionItemModel>)model.SolutionItems;
@@ -104,22 +98,13 @@ internal static partial class SlnTestHelper
         foldersHack.Sort((a, b) => originalOrder.IndexOf(a.Id).CompareTo(originalOrder.IndexOf(b.Id)));
 
         // Rehydrate some expected lost information when converting.
-        model = model with
-        {
-            SerializerExtension = originalExtension,
-        };
+        model.SerializerExtension = originalExtension;
         return (model, slnxContents);
 
-        static SolutionItemModel FindItem(SolutionModel compactModel, string itemRef)
+        static SolutionItemModel FindItem(SolutionModel solution, string itemRef)
         {
-            try
-            {
-                return compactModel.SolutionItems.First(x => x.ItemRef == itemRef);
-            }
-            catch (Exception)
-            {
+            return solution.SolutionItems.FindByItemRef(itemRef) ??
                 throw new InvalidOperationException($"Project {itemRef} not found!");
-            }
         }
     }
 
@@ -174,6 +159,7 @@ internal static partial class SlnTestHelper
     // This only works for SLNX right now.
     public static void AssertEmptySerializationLog(SolutionModel model)
     {
+        Assert.NotNull(model.SerializerExtension);
         SlnxFile? slnxDOM = ((SlnXmlModelExtension)model.SerializerExtension).Root;
         Assert.NotNull(slnxDOM);
         Assert.Equal(slnxDOM.Logger.ToString(), string.Empty);
@@ -209,16 +195,5 @@ internal static partial class SlnTestHelper
         stream.Position = 0;
 
         return new FileContents(fullString, lines);
-    }
-
-    public static void RecreateProjectConfigurations(this SolutionModel.Builder builder, SolutionModel model)
-    {
-        // This similuates what VS does, but isn't the most efficient way to recalculate rules.
-        IEnumerable<SolutionPropertyBag> slnProperties = model.GetSlnProperties();
-
-        foreach (SolutionPropertyBag slnPropertyBag in slnProperties)
-        {
-            builder.AddSlnProperties(slnPropertyBag);
-        }
     }
 }

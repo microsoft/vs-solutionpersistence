@@ -6,18 +6,13 @@ using Microsoft.VisualStudio.SolutionPersistence.Serializer.Xml.XmlDecorators;
 
 namespace Microsoft.VisualStudio.SolutionPersistence.Serializer.Xml;
 
-internal sealed record SlnXmlModelExtension : ISerializerModelExtension<SlnxSerializerSettings>
+/// <summary>
+/// Initializes a new instance of the <see cref="SlnXmlModelExtension"/> class.
+/// </summary>
+[method: SetsRequiredMembers]
+internal sealed class SlnXmlModelExtension(ISolutionSerializer serializer, SlnxSerializerSettings settings)
+    : ISerializerModelExtension<SlnxSerializerSettings>
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="SlnXmlModelExtension"/> class.
-    /// </summary>
-    [SetsRequiredMembers]
-    public SlnXmlModelExtension(ISolutionSerializer serializer, SlnxSerializerSettings settings)
-    {
-        this.Serializer = serializer;
-        this.Settings = settings;
-    }
-
     [SetsRequiredMembers]
     public SlnXmlModelExtension(ISolutionSerializer serializer, SlnxSerializerSettings settings, SlnxFile root)
         : this(serializer, settings)
@@ -25,11 +20,11 @@ internal sealed record SlnXmlModelExtension : ISerializerModelExtension<SlnxSeri
         this.Root = root;
     }
 
-    public required ISolutionSerializer Serializer { get; init; }
+    public required ISolutionSerializer Serializer { get; init; } = serializer;
 
     public SlnxFile? Root { get; init; }
 
-    public required SlnxSerializerSettings Settings { get; init; }
+    public required SlnxSerializerSettings Settings { get; init; } = settings;
 
     public string? SolutionFileFullPath => this.Root?.FullPath;
 }

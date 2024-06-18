@@ -20,7 +20,8 @@ public class RoundTripClassicSln
 
     #region Basic sln -> sln round trip
 
-    [Fact(Skip = "Linux encoding")]
+    [Fact]
+    [Trait("TestCategory", "FailsInCloudTest")]
     public Task BlankAsync() => TestRoundTripSerializerAsync(SlnAssets.ClassicSlnBlank);
 
     [Fact]
@@ -29,16 +30,22 @@ public class RoundTripClassicSln
     [Fact]
     public Task EverythingAsync() => TestRoundTripSerializerAsync(SlnAssets.ClassicSlnEverything);
 
-    [Fact(Skip = "Linux encoding")]
+    [Fact]
+    public Task ManyAsync() => TestRoundTripSerializerAsync(SlnAssets.ClassicSlnMany);
+
+    [Fact]
+    [Trait("TestCategory", "FailsInCloudTest")]
     public Task OrchardCoreAsync() => TestRoundTripSerializerAsync(SlnAssets.ClassicSlnOrchardCore);
 
-    [Fact(Skip = "Linux encoding")]
+    [Fact]
+    [Trait("TestCategory", "FailsInCloudTest")]
     public Task SingleNativeProjectAsync() => TestRoundTripSerializerAsync(SlnAssets.ClassicSlnSingleNativeProject);
 
     #endregion
 
-    [Theory(Skip = "Linux encoding")]
+    [Theory]
     [MemberData(nameof(ClassicSlnFiles))]
+    [Trait("TestCategory", "FailsInCloudTest")]
     public Task AllClassicSolutionAsync(ResourceName sampleFile)
     {
         return TestRoundTripSerializerAsync(sampleFile.Load());
@@ -46,7 +53,8 @@ public class RoundTripClassicSln
 
     #region sln -> slnx file -> sln round trip
 
-    [Fact(Skip = "Linux encoding")]
+    [Fact]
+    [Trait("TestCategory", "FailsInCloudTest")]
     public Task BlankThruSlnxStreamAsync() => TestRoundTripSerializerAsync(SlnAssets.ClassicSlnBlank, SlnAssets.XmlSlnxBlank);
 
     [Fact]
@@ -55,10 +63,12 @@ public class RoundTripClassicSln
     [Fact]
     public Task EverythingThruSlnxStreamAsync() => TestRoundTripSerializerAsync(SlnAssets.ClassicSlnEverything, SlnAssets.XmlSlnxEverything);
 
-    [Fact(Skip = "Linux encoding")]
+    [Fact]
+    [Trait("TestCategory", "FailsInCloudTest")]
     public Task OrchardCoreThruSlnxStreamAsync() => TestRoundTripSerializerAsync(SlnAssets.ClassicSlnOrchardCore, SlnAssets.XmlSlnxOrchardCore);
 
-    [Fact(Skip = "Linux encoding.")]
+    [Fact]
+    [Trait("TestCategory", "FailsInCloudTest")]
     public Task SingleNativeProjectThruSlnxStreamAsync() => TestRoundTripSerializerAsync(SlnAssets.ClassicSlnSingleNativeProject, SlnAssets.XmlSlnxSingleNativeProject);
 
     [Fact]

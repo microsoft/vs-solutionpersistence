@@ -49,8 +49,7 @@ internal sealed partial class SlnXmlSerializer : SingleFileSerializerBase<SlnxSe
     private protected override Task<SolutionModel> ReadModelAsync(string? fullPath, Stream reader, CancellationToken cancellationToken)
     {
         Reader parser = new Reader(fullPath, reader);
-        SolutionModel model = parser.Parse(this);
-        return Task.FromResult(model);
+        return Task.FromResult(parser.Parse());
     }
 
     private protected override Task WriteModelAsync(string? fullPath, SolutionModel model, Stream writerStream, CancellationToken cancellationToken)

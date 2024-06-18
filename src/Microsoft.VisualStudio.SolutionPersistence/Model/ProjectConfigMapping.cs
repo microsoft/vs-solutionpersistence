@@ -27,6 +27,6 @@ internal readonly struct ProjectConfigMapping(string buildType, string platform,
         return other.Build == this.Build &&
             other.Deploy == this.Deploy &&
             StringComparer.Ordinal.Equals(this.BuildType, other.BuildType) &&
-            (this.Platform == other.Platform || StringComparer.Ordinal.Equals(this.Platform.Canonical(), other.Platform.Canonical()));
+            (this.Platform == other.Platform || StringComparer.Ordinal.Equals(PlatformNames.Canonical(this.Platform), PlatformNames.Canonical(other.Platform)));
     }
 }

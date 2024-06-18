@@ -118,8 +118,9 @@ internal abstract partial class XmlDecorator
     public bool GetXmlAttributeBool(Keyword keyword, bool defaultValue = false) =>
         bool.TryParse(this.GetXmlAttribute(keyword), out bool boolValue) ? boolValue : defaultValue;
 
+    // Note: The XML schema for boolean only allows lowercase "true" or "false".
     public void UpdateXmlAttributeBool(Keyword keyword, bool value, bool defaultValue = false) =>
-        this.UpdateXmlAttribute(keyword, isDefault: value == defaultValue, value, b => b.ToString());
+        this.UpdateXmlAttribute(keyword, isDefault: value == defaultValue, value, b => b ? "true" : "false");
 
     public void UpdateXmlAttribute(Keyword keyword, string? value) =>
         this.UpdateXmlAttribute(keyword, isDefault: value.IsNullOrEmpty(), value, str => str ?? string.Empty);

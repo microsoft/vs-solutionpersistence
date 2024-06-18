@@ -90,6 +90,6 @@ internal readonly struct ConfigurationRuleFollower(IReadOnlyList<ConfigurationRu
         static bool IsSameBuildType(ConfigurationRule rule, string solutionBuildType) =>
             StringComparer.OrdinalIgnoreCase.Equals(rule.SolutionBuildType, solutionBuildType);
         static bool IsSamePlatform(ConfigurationRule rule, string solutionPlatform) =>
-            StringComparer.OrdinalIgnoreCase.Equals(rule.SolutionPlatform.Canonical(), solutionPlatform.Canonical());
+            StringComparer.OrdinalIgnoreCase.Equals(PlatformNames.Canonical(rule.SolutionPlatform), PlatformNames.Canonical(solutionPlatform));
     }
 }

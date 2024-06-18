@@ -5,27 +5,32 @@ namespace Microsoft.VisualStudio.SolutionPersistence.Model;
 
 internal static class PlatformNames
 {
-    public const string All = "*";
+    internal const string All = "*";
 
-    public const string AnyCPU = nameof(AnyCPU);
-    public const string AnySpaceCPU = "Any CPU";
-    public const string Win32 = nameof(Win32);
+    internal const string AnyCPU = nameof(AnyCPU);
+    internal const string AnySpaceCPU = "Any CPU";
+    internal const string Win32 = nameof(Win32);
 #pragma warning disable SA1303 // Const field names should begin with upper-case letter
-    public const string x64 = nameof(x64);
-    public const string x86 = nameof(x86);
-    public const string arm = nameof(arm);
-    public const string arm64 = nameof(arm64);
+    internal const string x64 = nameof(x64);
+    internal const string x86 = nameof(x86);
+    internal const string arm = nameof(arm);
+    internal const string arm64 = nameof(arm64);
 #pragma warning restore SA1303 // Const field names should begin with upper-case letter
 
     // All caps to intern this common version.
-    public const string ARM = nameof(ARM);
-    public const string ARM64 = nameof(ARM64);
+    internal const string ARM = nameof(ARM);
+    internal const string ARM64 = nameof(ARM64);
 
-    public static string Canonical(this string platform) => string.Equals(platform, AnySpaceCPU, StringComparison.OrdinalIgnoreCase) ? AnyCPU : platform;
+    internal static string Canonical(string platform) => string.Equals(platform, AnySpaceCPU, StringComparison.OrdinalIgnoreCase) ? AnyCPU : platform;
 
-    public static string ToStringKnown(this StringSpan platform)
+    internal static string ToStringKnown(string platform)
     {
-        return platform switch
+        return TryGetKnown(platform.AsSpan(), out string? value) ? value : platform;
+    }
+
+    internal static bool TryGetKnown(StringSpan platform, [NotNullWhen(true)] out string? value)
+    {
+        value = platform switch
         {
             All => All,
             AnySpaceCPU => AnySpaceCPU,
@@ -36,7 +41,8 @@ internal static class PlatformNames
             arm64 => arm64,
             ARM => ARM,
             ARM64 => ARM64,
-            _ => platform.ToString(),
+            _ => null,
         };
+        return value is not null;
     }
 }

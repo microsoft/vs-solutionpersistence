@@ -53,43 +53,44 @@ public class RoundTripXmlSlnx
     #region slnx -> sln -> slnx round trip
 
     [Fact]
-    public Task CommentsThruBuilderAsync()
+    public Task CommentsThruModelCopyAsync()
     {
-        return Assert.ThrowsAsync<FailException>(() => TestRoundTripSerializerAsync(SlnAssets.XmlSlnxComments, thruBuilder: true));
+        return Assert.ThrowsAsync<FailException>(() => TestRoundTripSerializerAsync(SlnAssets.XmlSlnxComments, thruModelCopy: true));
     }
 
     [Fact]
-    public Task BlankThruBuilderAsync() => TestRoundTripSerializerAsync(SlnAssets.XmlSlnxBlank, thruBuilder: true);
+    public Task BlankThruModelCopyAsync() => TestRoundTripSerializerAsync(SlnAssets.XmlSlnxBlank, thruModelCopy: true);
 
     [Fact]
-    public Task CpsThruBuilderAsync() => TestRoundTripSerializerAsync(SlnAssets.XmlSlnxCps, thruBuilder: true);
+    public Task CpsThruModelCopyAsync() => TestRoundTripSerializerAsync(SlnAssets.XmlSlnxCps, thruModelCopy: true);
 
     [Fact]
-    public Task EverythingThruBuilderAsync() => TestRoundTripSerializerAsync(SlnAssets.XmlSlnxEverything, thruBuilder: true);
+    public Task EverythingThruModelCopyAsync() => TestRoundTripSerializerAsync(SlnAssets.XmlSlnxEverything, thruModelCopy: true);
 
     [Fact]
-    public Task OrchardCoreThruBuilderAsync() => TestRoundTripSerializerAsync(SlnAssets.XmlSlnxOrchardCore, thruBuilder: true);
+    public Task OrchardCoreThruModelCopyAsync() => TestRoundTripSerializerAsync(SlnAssets.XmlSlnxOrchardCore, thruModelCopy: true);
 
     [Fact]
-    public Task SingleNativeProjectThruBuilderAsync() => TestRoundTripSerializerAsync(SlnAssets.XmlSlnxSingleNativeProject, thruBuilder: true);
+    public Task SingleNativeProjectThruModelCopyAsync() => TestRoundTripSerializerAsync(SlnAssets.XmlSlnxSingleNativeProject, thruModelCopy: true);
 
     [Fact]
-    public Task BuiltInProjectTypesThruBuilderAsync() => TestRoundTripSerializerAsync(SlnAssets.XmlBuiltInProjectTypes, thruBuilder: true);
+    public Task BuiltInProjectTypesThruModelCopyAsync() => TestRoundTripSerializerAsync(SlnAssets.XmlBuiltInProjectTypes, thruModelCopy: true);
 
     #endregion
 
-    private static async Task TestRoundTripSerializerAsync(ResourceStream slnStream, bool thruBuilder = false)
+    private static async Task TestRoundTripSerializerAsync(ResourceStream slnStream, bool thruModelCopy = false)
     {
         // Open the Model from stream.
         SolutionModel model = await SolutionSerializers.SlnXml.OpenAsync(slnStream.Name, slnStream.Stream, CancellationToken.None);
         AssertEmptySerializationLog(model);
 
-        if (thruBuilder)
+        if (thruModelCopy)
         {
-            SolutionModel.Builder newModel = new SolutionModel.Builder(model, stringTable: null);
-
-            // Strip off any comments or whitespace from the original model.
-            model = newModel.ToModel(model.SerializerExtension.Serializer.CreateModelExtension());
+            model = new SolutionModel(model)
+            {
+                // Strip off any comments or whitespace from the original model.
+                SerializerExtension = SolutionSerializers.SlnXml.CreateModelExtension(),
+            };
         }
 
         // Save the Model back to stream.

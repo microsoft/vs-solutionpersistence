@@ -52,18 +52,14 @@ internal sealed partial class XmlProperties(SlnxFile root, XmlElement element) :
 
     #region Deserialize model
 
-    public SolutionPropertyBag? ToModel()
+    public void AddToModel(PropertyContainerModel model)
     {
         // Even if there are no properties in this property table, create a model entry so the xml isn't deleted.
-        SolutionPropertyBag propBuilder = new SolutionPropertyBag(id: this.Name, scope: this.Scope, capacity: this.properties.ItemsCount);
+        SolutionPropertyBag propertyBag = model.AddProperties(id: this.Name, scope: this.Scope);
         foreach (XmlProperty properties in this.properties.GetItems())
         {
-            propBuilder.Add(properties.Name, properties.Value);
+            propertyBag.Add(properties.Name, properties.Value);
         }
-
-        propBuilder.Freeze();
-
-        return propBuilder;
     }
 
     #endregion

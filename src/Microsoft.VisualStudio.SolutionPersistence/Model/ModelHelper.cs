@@ -59,6 +59,7 @@ internal static class ModelHelper
             $"{rule.SolutionBuildType.NullIfEmpty() ?? BuildTypeNames.All}|{rule.SolutionPlatform.NullIfEmpty() ?? PlatformNames.All}";
     }
 
+    // Splits the configuration into build type and platform.
     internal static bool TrySplitFullConfiguration(
         string fullConfiguration,
         out StringSpan buildType,
@@ -82,6 +83,33 @@ internal static class ModelHelper
         buildType = fullConfiguration.AsSpan(0, sep).Trim();
         platform = fullConfiguration.AsSpan(sep + 1).Trim();
         return !buildType.IsEmpty && !platform.IsEmpty;
+    }
+
+    // Splits the configuration and uses the string table to reuse existing string.
+    internal static bool TrySplitFullConfiguration(
+        StringTable stringTable,
+        string fullConfiguration,
+        [NotNullWhen(true)] out string? buildType,
+        [NotNullWhen(true)] out string? platform)
+    {
+        if (TrySplitFullConfiguration(fullConfiguration, out StringSpan buildTypeSpan, out StringSpan platformSpan))
+        {
+            if (!BuildTypeNames.TryGetKnown(buildTypeSpan, out buildType))
+            {
+                buildType = stringTable.GetString(buildTypeSpan);
+            }
+
+            if (!PlatformNames.TryGetKnown(platformSpan, out platform))
+            {
+                platform = stringTable.GetString(platformSpan);
+            }
+
+            return true;
+        }
+
+        buildType = null;
+        platform = null;
+        return false;
     }
 
     internal static ConfigurationRule CreatePlatformRule(string solutionPlatform, string projectPlatform)

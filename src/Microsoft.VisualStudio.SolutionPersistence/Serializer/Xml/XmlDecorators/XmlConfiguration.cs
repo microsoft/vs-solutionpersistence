@@ -53,28 +53,28 @@ internal abstract class XmlConfiguration(SlnxFile root, XmlElement element, Keyw
             return null;
         }
 
-        if (!ModelHelper.TrySplitFullConfiguration(this.Solution, out StringSpan solutionBuildType, out StringSpan solutionPlatform) &&
+        if (!ModelHelper.TrySplitFullConfiguration(this.Root.StringTable, this.Solution, out string? solutionBuildType, out string? solutionPlatform) &&
             !this.Solution.IsNullOrEmpty())
         {
             this.Root.Logger.LogWarning("Solution configuration could not be parsed.", this.XmlElement);
             return null;
         }
 
-        if (solutionBuildType is BuildTypeNames.All)
+        if (solutionBuildType is BuildTypeNames.All or null)
         {
-            solutionBuildType = StringSpan.Empty;
+            solutionBuildType = string.Empty;
         }
 
-        if (solutionPlatform is PlatformNames.All)
+        if (solutionPlatform is PlatformNames.All or null)
         {
-            solutionPlatform = StringSpan.Empty;
+            solutionPlatform = string.Empty;
         }
 
         // A configuration element represents a "Configuration" mapping rule.
         return new ConfigurationRule(
             dimension,
-            solutionBuildType: this.GetTableString(BuildTypeNames.ToStringKnown(solutionBuildType)),
-            solutionPlatform: this.GetTableString(PlatformNames.ToStringKnown(solutionPlatform)),
+            solutionBuildType: solutionBuildType,
+            solutionPlatform: solutionPlatform,
             projectValue: this.GetTableString(projectValue));
     }
 
@@ -83,10 +83,10 @@ internal abstract class XmlConfiguration(SlnxFile root, XmlElement element, Keyw
     // Update the Xml DOM with changes from the model.
     public bool ApplyModelToXml(ConfigurationRule configurationRule)
     {
-        // Set default value for build rule to 'true' and deploy rule to 'false'.
         string value = configurationRule.Dimension switch
         {
-            BuildDimension.Build or BuildDimension.Deploy when bool.Parse(configurationRule.ProjectValue) => string.Empty,
+            // For build or deploy the default value is 'true'. Use lowercase 'false' to match the XML boolean.
+            BuildDimension.Build or BuildDimension.Deploy => bool.Parse(configurationRule.ProjectValue) ? string.Empty : "false",
             _ => configurationRule.ProjectValue,
         };
 

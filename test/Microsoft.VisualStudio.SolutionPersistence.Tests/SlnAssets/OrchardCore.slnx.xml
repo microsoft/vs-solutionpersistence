@@ -234,7 +234,7 @@
     <Project Path="test\OrchardCore.Tests.Modules\DerivedThemeSample2\DerivedThemeSample2.csproj" />
     <Project Path="test\OrchardCore.Tests.Modules\DerivedThemeSample\DerivedThemeSample.csproj" />
     <Project Path="test\OrchardCore.Tests.Modules\Errors.OrchardCoreModules.TwoPlus\Errors.OrchardCoreModules.TwoPlus.csproj">
-      <Build Project="False" />
+      <Build Project="false" />
     </Project>
     <Project Path="test\OrchardCore.Tests.Modules\Examples.Modules.AssyAttrib.Alpha\Examples.Modules.AssyAttrib.Alpha.csproj" />
     <Project Path="test\OrchardCore.Tests.Modules\Examples.Modules.AssyAttrib.Bravo\Examples.Modules.AssyAttrib.Bravo.csproj" />
@@ -254,10 +254,10 @@
   </Folder>
   <Folder Name="/test/OrchardCore.Tests.Themes/">
     <Project Path="test\OrchardCore.Tests.Themes\Errors.OrchardCoreThemes.ThemeAndModule\Errors.OrchardCoreThemes.ThemeAndModule.csproj">
-      <Build Project="False" />
+      <Build Project="false" />
     </Project>
     <Project Path="test\OrchardCore.Tests.Themes\Errors.OrchardCoreThemes.TwoPlus\Errors.OrchardCoreThemes.TwoPlus.csproj">
-      <Build Project="False" />
+      <Build Project="false" />
     </Project>
     <Project Path="test\OrchardCore.Tests.Themes\Examples.OrchardCoreThemes.Alpha\Examples.OrchardCoreThemes.Alpha.csproj" />
     <Project Path="test\OrchardCore.Tests.Themes\Examples.Themes.AssyAttrib.Alpha\Examples.Themes.AssyAttrib.Alpha.csproj" />
@@ -268,6 +268,6 @@
     <Property Name="HasPerformanceSessions" Value="true" />
   </Properties>
   <Properties Name="Visual Studio">
-    <Property Name="OpenWith" Value="17" />
+    <Property Name="OpenWith" Value="Visual Studio Version 17" />
   </Properties>
 </Solution>

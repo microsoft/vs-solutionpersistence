@@ -399,6 +399,6 @@
     <Property Name="src\Workspaces\SharedUtilitiesAndExtensions\Workspace\VisualBasic\VisualBasicWorkspaceExtensions.projitems*{e9dbfa41-7a9c-49be-bd36-fd71b31aa9fe}*SharedItemsImports" Value="13" />
   </Properties>
   <Properties Name="Visual Studio">
-    <Property Name="OpenWith" Value="17" />
+    <Property Name="OpenWith" Value="Visual Studio Version 17" />
   </Properties>
 </Solution>

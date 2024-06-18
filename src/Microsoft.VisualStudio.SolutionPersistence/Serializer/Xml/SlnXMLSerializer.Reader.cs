@@ -27,9 +27,9 @@ internal sealed partial class SlnXmlSerializer
             this.xmlDocument.Load(readerStream);
         }
 
-        public SolutionModel Parse(ISolutionSerializer serializer)
+        public SolutionModel Parse()
         {
-            SlnxFile slnxFile = new SlnxFile(serializer, this.xmlDocument, new SlnxSerializerSettings(), null, this.fullPath);
+            SlnxFile slnxFile = new SlnxFile(this.xmlDocument, new SlnxSerializerSettings(), null, this.fullPath);
             SerializerLogger logger = slnxFile.Logger;
             (string message, MessageLevel level, XmlElement? location) = logger.Messages.FirstOrDefault(x => x.Level == MessageLevel.Error);
             if (level == MessageLevel.Error)

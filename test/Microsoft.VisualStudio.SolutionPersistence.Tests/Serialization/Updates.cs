@@ -38,4 +38,10 @@ public class Updates
 
     // TODO:
     // Test slnx with 2 identical folder items
+
+    // TODO:
+    // Create folders in different order.
+
+    // TODO:
+    // Remove a folder/project.
 }

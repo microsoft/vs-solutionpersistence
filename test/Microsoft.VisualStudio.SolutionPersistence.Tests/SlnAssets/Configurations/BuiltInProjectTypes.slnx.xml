@@ -1,10 +1,10 @@
 <Solution>
   <Configurations>
-    <ProjectType Extension=".vcxitems" TypeId="8bc9ceb8-8b4a-11d0-8d11-00a0c91bc942" IsBuildable="False" />
+    <ProjectType Extension=".vcxitems" TypeId="8bc9ceb8-8b4a-11d0-8d11-00a0c91bc942" IsBuildable="false" />
     <ProjectType Name="C#" TypeId="fae04ec0-301f-11d3-bf4b-00c04f79efbc">
       <Platform Project="AnyCPU" />
     </ProjectType>
-    <ProjectType Name="C#Shared" Extension=".shproj" TypeId="d954291e-2a0b-460d-934e-dc6b0785db48" IsBuildable="False" />
+    <ProjectType Name="C#Shared" Extension=".shproj" TypeId="d954291e-2a0b-460d-934e-dc6b0785db48" IsBuildable="false" />
     <ProjectType Name="CPS C#" Extension=".csproj" TypeId="9a19103f-16f7-4668-be54-9a1e7a4f7556">
       <Platform Project="AnyCPU" />
     </ProjectType>
@@ -14,11 +14,11 @@
     <ProjectType Name="CPS VB" Extension=".vbproj" TypeId="778dae3c-4631-46ea-aa77-85c1314464d9">
       <Platform Project="AnyCPU" />
     </ProjectType>
-    <ProjectType Name="Exe" Extension=".exe" TypeId="911e67c6-3d85-4fce-b560-20a9c3e3ff48" IsBuildable="False" />
+    <ProjectType Name="Exe" Extension=".exe" TypeId="911e67c6-3d85-4fce-b560-20a9c3e3ff48" IsBuildable="false" />
     <ProjectType Name="F#" TypeId="f2a71f9b-5d33-465a-a702-920d77279786">
       <Platform Project="AnyCPU" />
     </ProjectType>
-    <ProjectType Name="Folder" TypeId="2150e333-8fdc-42a3-9474-1a3956d46de8" IsBuildable="False" />
+    <ProjectType Name="Folder" TypeId="2150e333-8fdc-42a3-9474-1a3956d46de8" IsBuildable="false" />
     <ProjectType Name="VB" TypeId="f184b08f-c81c-45f6-a57f-5abd9991f28f">
       <Platform Project="AnyCPU" />
     </ProjectType>

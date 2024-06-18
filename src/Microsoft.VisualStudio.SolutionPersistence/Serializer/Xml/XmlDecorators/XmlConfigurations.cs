@@ -60,32 +60,32 @@ internal sealed class XmlConfigurations(SlnxFile root, XmlElement element) :
 
     #region Deserialize model
 
-    public static void CreateDefaultConfigurationsIfNeeded(SolutionModel.Builder builder)
+    public static void CreateDefaultConfigurationsIfNeeded(SolutionModel solution)
     {
         // Add default build types (Debug/Release) if not specified.
-        if (builder.BuildTypes.IsNullOrEmpty() && builder.HasProjects)
+        if (solution.BuildTypes.IsNullOrEmpty() && solution.SolutionProjects.Count > 0)
         {
-            builder.AddBuildType(BuildTypeNames.Debug);
-            builder.AddBuildType(BuildTypeNames.Release);
+            solution.AddBuildType(BuildTypeNames.Debug);
+            solution.AddBuildType(BuildTypeNames.Release);
         }
 
         // Add default platform (Any CPU) if not specified.
-        if (builder.Platforms.IsNullOrEmpty() && builder.HasProjects)
+        if (solution.Platforms.IsNullOrEmpty() && solution.SolutionProjects.Count > 0)
         {
-            builder.AddPlatform(PlatformNames.AnySpaceCPU);
+            solution.AddPlatform(PlatformNames.AnySpaceCPU);
         }
     }
 
-    public void AddToModelBuilder(SolutionModel.Builder builder)
+    public void AddToModel(SolutionModel solution)
     {
         foreach (XmlPlatform platform in this.platforms.GetItems())
         {
-            builder.AddPlatform(platform.Name);
+            solution.AddPlatform(PlatformNames.ToStringKnown(platform.Name));
         }
 
         foreach (XmlBuildType buildType in this.buildType.GetItems())
         {
-            builder.AddBuildType(buildType.Name);
+            solution.AddBuildType(BuildTypeNames.ToStringKnown(buildType.Name));
         }
     }
 

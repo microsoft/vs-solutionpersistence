@@ -25,12 +25,12 @@ internal static class PathExtensions
             modelPath.Replace(Path.DirectorySeparatorChar, '\\');
     }
 
-    public static StringSpan GetStandardDisplayName(this string filePath)
+    public static StringSpan GetStandardDisplayName(string filePath)
     {
         return GetStandardDisplayName(filePath.AsSpan());
     }
 
-    public static StringSpan GetStandardDisplayName(this StringSpan filePath)
+    public static StringSpan GetStandardDisplayName(StringSpan filePath)
     {
         if (filePath.IsEmpty || filePath.IsUri())
         {
@@ -49,6 +49,4 @@ internal static class PathExtensions
     {
         return filePath.IsUri() ? StringSpan.Empty : Path.GetExtension(filePath);
     }
-
-    public static bool IsFullFolderName(this string? name) => !name.IsNullOrEmpty() && name.Length >= 2 && name[0] == '/' && name[name.Length - 1] == '/';
 }

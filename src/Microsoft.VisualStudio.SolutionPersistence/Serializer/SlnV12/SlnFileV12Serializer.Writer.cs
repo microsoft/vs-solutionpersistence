@@ -82,7 +82,7 @@ internal partial class SlnFileV12Serializer
 
             foreach (SolutionItemModel item in model.SolutionItems)
             {
-                this.WriteProject(model, item);
+                this.WriteProject(item);
             }
 
             writer.WriteLine(SlnConstants.TagGlobal);          // Global
@@ -107,11 +107,9 @@ internal partial class SlnFileV12Serializer
                 return;
             }
 
+            // Old parser actually do not write empty maps.
             if (properties.Count == 0)
             {
-                // old parser actually do not write empty maps. We should have already filtered these out from the model, but just in case.
-                // Todo: might consider preserving the empty maps if there are comments associated with it.
-                // to allow placeholders template solution file? But we really do not promote self editing these, so likely no user case.
                 return;
             }
 
@@ -124,16 +122,16 @@ internal partial class SlnFileV12Serializer
             }
         }
 
-        private void WriteProject(SolutionModel solutionModel, SolutionItemModel item)
+        private void WriteProject(SolutionItemModel item)
         {
             // For solution folders, path is just the display name again.
-            string path = item is SolutionProjectModel project ? PathExtensions.ConvertToPersistencePath(project.FilePath) : item.CanonicalDisplayName;
+            string path = item is SolutionProjectModel project ? PathExtensions.ConvertToPersistencePath(project.FilePath) : item.ActualDisplayName;
 
             if (item.TypeId == Guid.Empty)
             {
                 throw new InvalidOperationException("Missing essential property TypeId on project.");
             }
-            else if (string.IsNullOrEmpty(item.CanonicalDisplayName))
+            else if (string.IsNullOrEmpty(item.ActualDisplayName))
             {
                 throw new InvalidOperationException("Missing essential property DisplayName on project.");
             }
@@ -150,14 +148,14 @@ internal partial class SlnFileV12Serializer
             writer.Write(@"(""");                           // Project("
             writer.Write(item.TypeId.ToSlnString());        // Project("[type]
             writer.Write(@""") = """);                      // Project("[type]") = ")
-            writer.Write(item.CanonicalDisplayName);        // Project("[type]") = "[dispName])
+            writer.Write(item.ActualDisplayName);           // Project("[type]") = "[dispName])
             writer.Write(SlnConstants.TagQuoteCommaQuote);  // Project("[type]") = "[dispName]", "
             writer.Write(path);                             // Project("[type]") = "[dispName]", "[relpath]
             writer.Write(SlnConstants.TagQuoteCommaQuote);  // Project("[type]") = "[dispName]", "[relpath]", "
             writer.Write(item.Id.ToSlnString());            // Project("[type]") = "[dispName]", "[relpath]", "[guid]
             writer.WriteLine('\"');                         // Project("[type]") = "[dispName]", "[relpath]", "[guid]"
 
-            foreach (SolutionPropertyBag map in item.GetSlnProperties(solutionModel))
+            foreach (SolutionPropertyBag map in item.GetSlnProperties())
             {
                 this.WritePropertyMap(isSolution: false, map);
             }
