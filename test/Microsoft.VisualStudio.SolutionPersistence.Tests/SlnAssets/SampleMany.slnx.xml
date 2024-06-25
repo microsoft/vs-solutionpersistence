@@ -82,6 +82,6 @@
     <Property Name="SharedCPS\SharedCPS.vcxitems*{919107bb-2e8e-4dbb-ac5d-36ff8a211ffc}*SharedItemsImports" Value="9" />
   </Properties>
   <Properties Name="Visual Studio">
-    <Property Name="OpenWith" Value="17" />
+    <Property Name="OpenWith" Value="Visual Studio Version 17" />
   </Properties>
 </Solution>

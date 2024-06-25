@@ -24,7 +24,7 @@ public sealed class ProjectType(Guid projectTypeId, IReadOnlyList<ConfigurationR
     /// Gets the project type id for this item.
     /// </summary>
     /// <remarks>
-    /// This is a unique identifier for the project type and must be provided unless BasedOn is specified.
+    /// This is a unique identifier for the project type and must not be Guid.Empty unless BasedOn is specified.
     /// </remarks>
     public Guid ProjectTypeId { get; } = projectTypeId;
 

@@ -116,8 +116,6 @@ internal sealed class XmlProjectType(SlnxFile root, XmlElement element) :
         return base.IsValid();
     }
 
-    #region Deserialize model
-
     public ProjectType ToModel()
     {
         ConfigurationRule[] rules = this.IsBuildable ? [.. this.configurationRules.ToModel()] : ProjectTypeTable.NoBuildRules;
@@ -170,6 +168,4 @@ internal sealed class XmlProjectType(SlnxFile root, XmlElement element) :
         modified |= this.configurationRules.ApplyModelToXml(this, isBuildable ? modelProjectType.ConfigurationRules : []);
         return modified;
     }
-
-    #endregion
 }

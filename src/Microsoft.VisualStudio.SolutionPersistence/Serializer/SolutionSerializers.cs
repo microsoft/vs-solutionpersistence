@@ -43,22 +43,4 @@ public static class SolutionSerializers
 
         return null;
     }
-
-    /// <summary>
-    /// Finds a serializer by name.
-    /// </summary>
-    /// <param name="name">The name of the serializer.</param>
-    /// <returns>A serializer with the matching name.</returns>
-    public static ISolutionSerializer? GetSerializerByName(string name)
-    {
-        foreach (ISolutionSerializer serializer in Serializers)
-        {
-            if (StringComparer.OrdinalIgnoreCase.Equals(serializer.Name, name))
-            {
-                return serializer;
-            }
-        }
-
-        return null;
-    }
 }

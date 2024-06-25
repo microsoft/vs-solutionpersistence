@@ -34,10 +34,10 @@
     </Properties>
   </Project>
   <Project Path="AzureFunctionApp1\AzureFunctionApp1.csproj" Type="C#">
-    <Build Solution="Debug|Any CPU" Project="False" />
+    <Build Solution="Debug|Any CPU" Project="false" />
   </Project>
   <Project Path="BlazorApp1\BlazorApp1.csproj" Type="C#">
-    <Build Solution="Debug|Any CPU" Project="False" />
+    <Build Solution="Debug|Any CPU" Project="false" />
   </Project>
   <Project Path="SharedNativeProject\SharedNativeProject.vcxitems" />
   <Project Path="src\ClassicWinFormsApp\ClassicWinFormsApp.csproj" Type="C#" />
@@ -53,11 +53,11 @@
   <Project Path="src\FSharpApp\FSharpApp.fsproj" />
   <Project Path="src\NativeConsole\NativeConsole.vcxproj">
     <Platform Solution="*|Any CPU" Project="Win32" />
-    <Build Solution="*|Any CPU" Project="False" />
+    <Build Solution="*|Any CPU" Project="false" />
   </Project>
   <Project Path="src\NativeStaticLib\NativeStaticLib.vcxproj">
     <Platform Solution="*|Any CPU" Project="Win32" />
-    <Build Solution="*|Any CPU" Project="False" />
+    <Build Solution="*|Any CPU" Project="false" />
   </Project>
   <Project Path="src\SharedCode\SharedCode.shproj" />
   <Project Path="src\VBCoreConsoleApp\VBCoreConsoleApp.vbproj" />
@@ -71,6 +71,6 @@
     <Property Name="src\SharedCode\SharedCode.projitems*{9f828cea-ff08-4819-8700-f0bfad9d56d8}*SharedItemsImports" Value="13" />
   </Properties>
   <Properties Name="Visual Studio">
-    <Property Name="OpenWith" Value="17" />
+    <Property Name="OpenWith" Value="Visual Studio Version 17" />
   </Properties>
 </Solution>

@@ -5,18 +5,24 @@ namespace Microsoft.VisualStudio.SolutionPersistence.Model;
 
 internal static class BuildTypeNames
 {
-    public const string All = PlatformNames.All;
-    public const string Debug = nameof(Debug);
-    public const string Release = nameof(Release);
+    internal const string All = PlatformNames.All;
+    internal const string Debug = nameof(Debug);
+    internal const string Release = nameof(Release);
 
-    public static string ToStringKnown(this StringSpan buildType)
+    internal static string ToStringKnown(string buildType)
     {
-        return buildType switch
+        return TryGetKnown(buildType.AsSpan(), out string? value) ? value : buildType;
+    }
+
+    internal static bool TryGetKnown(StringSpan buildType, [NotNullWhen(true)] out string? value)
+    {
+        value = buildType switch
         {
             All => All,
             Debug => Debug,
             Release => Release,
-            _ => buildType.ToString(),
+            _ => null,
         };
+        return value is not null;
     }
 }

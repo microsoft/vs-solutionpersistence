@@ -18,7 +18,7 @@ internal abstract partial class XmlContainer
     /// Creates a new child element and wraps it with a new decorator.
     /// The new decorator is initialized and requested to add it to the cache.
     /// </summary>
-    protected XmlDecorator CreateAndAddChild(Keyword type, string? itemRef, XmlDecorator? insertBefore)
+    private protected XmlDecorator CreateAndAddChild(Keyword type, string? itemRef, XmlDecorator? insertBefore)
     {
         XmlElement newElement = this.CreateXmlChild(type, insertBefore);
         XmlDecorator? newDecorator = this.CreateChildDecorator(newElement, itemRef, validateItemRef: true);
@@ -84,7 +84,7 @@ internal abstract partial class XmlContainer
         return newElement;
     }
 
-    protected void RemoveXmlChild(XmlDecorator? childToRemove)
+    private protected void RemoveXmlChild(XmlDecorator? childToRemove)
     {
         if (childToRemove is null)
         {
@@ -268,7 +268,7 @@ internal abstract partial class XmlContainer
 
             TDecorator? nextExistingITem = decoratorItems.FindNext(itemRef);
 
-            // TODO: Find position. Based on general areas and alphabetical order.
+            // CONSIDER: Find position to insert before based on general areas and alphabetical order.
             TDecorator newDecorator = (TDecorator)this.CreateAndAddChild(decoratorElementName, itemRef, insertBefore: null);
             _ = applyModelToXml?.Invoke(newDecorator, modelItem, state);
             modified = true;

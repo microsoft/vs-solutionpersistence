@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using Microsoft.VisualStudio.SolutionPersistence.Model;
 using Microsoft.VisualStudio.SolutionPersistence.Utilities;
-using static Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel;
 
 namespace Microsoft.VisualStudio.SolutionPersistence.Serializer.SlnV12;
 
@@ -18,12 +18,12 @@ public static class SlnV12Extensions
     /// Gets extra info for VS to open the solution with a specific installed version.
     /// (e.g. # Visual Studio Version 17 in SLN file).
     /// </summary>
-    /// <param name="model">The solution model.</param>
+    /// <param name="solution">The solution model.</param>
     /// <returns>The version of Visual Studio to open the solution with.</returns>
-    public static string? GetOpenWithVisualStudio(this SolutionModel model)
+    public static string? GetOpenWithVisualStudio(this SolutionModel solution)
     {
-        Argument.ThrowIfNull(model, nameof(model));
-        SolutionPropertyBag? properties = model.Properties.FindByItemRef(SectionName.VisualStudio);
+        Argument.ThrowIfNull(solution, nameof(solution));
+        SolutionPropertyBag? properties = solution.Properties.FindByItemRef(SectionName.VisualStudio);
         return properties is null ? null : properties.TryGetValue(SlnConstants.OpenWith, out string? openWith) ? openWith : null;
     }
 
@@ -31,12 +31,12 @@ public static class SlnV12Extensions
     /// Sets extra info for VS to open the solution with a specific installed version.
     /// (e.g. # Visual Studio Version 17 in SLN file).
     /// </summary>
-    /// <param name="modelBuider">The solution model builder.</param>
+    /// <param name="solution">The solution model.</param>
     /// <param name="openWith">The version of Visual Studio to open the solution with.</param>
-    public static void SetOpenWithVisualStudio(this SolutionModel.Builder modelBuider, string openWith)
+    public static void SetOpenWithVisualStudio(this SolutionModel solution, string openWith)
     {
-        Argument.ThrowIfNull(modelBuider, nameof(modelBuider));
-        modelBuider.EnsureProperties(SectionName.VisualStudio)
+        Argument.ThrowIfNull(solution, nameof(solution));
+        solution.AddProperties(SectionName.VisualStudio)
             .Add(SlnConstants.OpenWith, openWith);
     }
 
@@ -44,12 +44,12 @@ public static class SlnV12Extensions
     /// Gets the solution file property that is used to determine if the solution should be shown
     /// in Visual Studio's solution explorer. This property is obsolete and should not be used.
     /// </summary>
-    /// <param name="model">The solution model.</param>
+    /// <param name="solution">The solution model.</param>
     /// <returns>The value of the option or null if it is not explicitly set.</returns>
-    public static bool? GetHideSolutionNode(this SolutionModel model)
+    public static bool? GetHideSolutionNode(this SolutionModel solution)
     {
-        Argument.ThrowIfNull(model, nameof(model));
-        SolutionPropertyBag? properties = model.Properties.FindByItemRef(SectionName.SolutionProperties);
+        Argument.ThrowIfNull(solution, nameof(solution));
+        SolutionPropertyBag? properties = solution.Properties.FindByItemRef(SectionName.SolutionProperties);
         return
             properties is null ? null :
             !properties.TryGetValue(SlnConstants.HideSolutionNode, out string? hideSolutionNodeStr) ? null :
@@ -61,25 +61,25 @@ public static class SlnV12Extensions
     /// Sets the solution file property that is used to determine if the solution should be shown
     /// in Visual Studio's solution explorer. This property is obsolete and should not be used.
     /// </summary>
-    /// <param name="modelBuilder">The solution model builder.</param>
+    /// <param name="solution">The solution model.</param>
     /// <param name="hideSolutionNode">The value of the options.</param>
-    public static void SetHideSolutionNode(this SolutionModel.Builder modelBuilder, bool hideSolutionNode)
+    public static void SetHideSolutionNode(this SolutionModel solution, bool hideSolutionNode)
     {
-        Argument.ThrowIfNull(modelBuilder, nameof(modelBuilder));
+        Argument.ThrowIfNull(solution, nameof(solution));
         if (hideSolutionNode)
         {
-            modelBuilder.EnsureProperties(SectionName.SolutionProperties)
+            solution.AddProperties(SectionName.SolutionProperties)
                 .Add(SlnConstants.HideSolutionNode, hideSolutionNode.ToString(CultureInfo.InvariantCulture));
         }
         else
         {
-            SolutionPropertyBag? solutionProperties = modelBuilder.TryGetProperties(SectionName.SolutionProperties);
+            SolutionPropertyBag? solutionProperties = solution.FindProperties(SectionName.SolutionProperties);
             if (solutionProperties is not null)
             {
                 solutionProperties.Remove(SlnConstants.HideSolutionNode);
                 if (solutionProperties.Count == 0)
                 {
-                    _ = modelBuilder.RemoveProperties(SectionName.SolutionProperties);
+                    _ = solution.RemoveProperties(SectionName.SolutionProperties);
                 }
             }
         }
@@ -90,11 +90,11 @@ public static class SlnV12Extensions
     /// This handles property tables that used to represent configurations, solution folder, files and dependencies.
     /// If the properties are not special types, they will be added as regular property bags.
     /// </summary>
-    /// <param name="itemBuilder">A model builder.</param>
+    /// <param name="solutionItem">A solution item.</param>
     /// <param name="properties">The properties to add to the model.</param>
-    public static void AddSlnProperties(this SolutionItemModel.Builder itemBuilder, SolutionPropertyBag? properties)
+    public static void AddSlnProperties(this SolutionItemModel solutionItem, SolutionPropertyBag? properties)
     {
-        Argument.ThrowIfNull(itemBuilder, nameof(itemBuilder));
+        Argument.ThrowIfNull(solutionItem, nameof(solutionItem));
         if (properties is null)
         {
             return;
@@ -102,53 +102,50 @@ public static class SlnV12Extensions
 
         switch (SectionName.InternKnownSectionName(properties.Id))
         {
-            case SectionName.SolutionItems when itemBuilder is SolutionFolderModel.Builder folderBuilder:
+            case SectionName.SolutionItems when solutionItem is SolutionFolderModel folder:
                 foreach (string fileName in properties.PropertyNames)
                 {
-                    folderBuilder.AddFile(PathExtensions.ConvertFromPersistencePath(fileName));
+                    folder.AddFile(PathExtensions.ConvertFromPersistencePath(fileName));
                 }
 
                 break;
-            case SectionName.ProjectDependencies when itemBuilder is SolutionProjectModel.Builder projectBuilder:
+            case SectionName.ProjectDependencies when solutionItem is SolutionProjectModel project:
                 foreach (string dependencyProjectId in properties.PropertyNames)
                 {
-                    projectBuilder.AddDependency(dependencyProjectId);
+                    if (Guid.TryParse(dependencyProjectId, out Guid dependencyProjectGuid) &&
+                        (project.Solution.FindItemById(dependencyProjectGuid) is SolutionProjectModel dependency))
+                    {
+                        project.AddDependency(dependency);
+                    }
                 }
 
                 break;
             default:
-                _ = itemBuilder.AddProperties(properties);
+                solutionItem.AddProperties(properties.Id, properties.Scope).AddRange(properties);
                 break;
         }
     }
 
-    public static IEnumerable<SolutionPropertyBag> GetSlnProperties(this SolutionItemModel model, SolutionModel solutionModel)
+    public static IEnumerable<SolutionPropertyBag> GetSlnProperties(this SolutionItemModel solutionItem)
     {
-        Argument.ThrowIfNull(model, nameof(model));
-        Argument.ThrowIfNull(solutionModel, nameof(solutionModel));
+        Argument.ThrowIfNull(solutionItem, nameof(solutionItem));
 
-        ListBuilderStruct<SolutionPropertyBag> slnProperties = new ListBuilderStruct<SolutionPropertyBag>((model.Properties?.Count ?? 0) + 1);
+        ListBuilderStruct<SolutionPropertyBag> slnProperties = new ListBuilderStruct<SolutionPropertyBag>((solutionItem.Properties?.Count ?? 0) + 1);
 
-        IReadOnlyList<string>? dependencies = (model as SolutionProjectModel)?.Dependencies;
+        IReadOnlyList<SolutionProjectModel>? dependencies = (solutionItem as SolutionProjectModel)?.Dependencies;
         if (!dependencies.IsNullOrEmpty())
         {
             SolutionPropertyBag propertyBag = new SolutionPropertyBag(SectionName.ProjectDependencies, PropertiesScope.PostLoad, dependencies.Count);
-            foreach (string dependency in dependencies)
+            foreach (SolutionProjectModel dependency in dependencies)
             {
-                SolutionProjectModel? parentProjectModel = solutionModel.SolutionProjects.FindByItemRef(dependency);
-                if (parentProjectModel is null || parentProjectModel.Id == Guid.Empty)
-                {
-                    throw new ArgumentException(null, nameof(solutionModel));
-                }
-
-                string dependencyProjectId = parentProjectModel.Id.ToSlnString();
+                string dependencyProjectId = dependency.Id.ToSlnString();
                 propertyBag.Add(dependencyProjectId, dependencyProjectId);
             }
 
             slnProperties.Add(propertyBag);
         }
 
-        IReadOnlyList<string>? files = (model as SolutionFolderModel)?.Files;
+        IReadOnlyList<string>? files = (solutionItem as SolutionFolderModel)?.Files;
         if (!files.IsNullOrEmpty())
         {
             SolutionPropertyBag propertyBag = new SolutionPropertyBag(SectionName.SolutionItems, PropertiesScope.PreLoad, files.Count);
@@ -161,7 +158,7 @@ public static class SlnV12Extensions
             slnProperties.Add(propertyBag);
         }
 
-        foreach (SolutionPropertyBag propertyBag in model.Properties.GetStructEnumerable())
+        foreach (SolutionPropertyBag propertyBag in solutionItem.Properties.GetStructEnumerable())
         {
             if (SectionName.InternKnownSectionName(propertyBag.Id) is
                 not SectionName.ProjectDependencies and
@@ -179,11 +176,11 @@ public static class SlnV12Extensions
     /// This handles property tables that used to represent configurations, solution folder, files and dependencies.
     /// If the properties are not special types, they will be added as regular property bags.
     /// </summary>
-    /// <param name="solutionBuilder">A model builder.</param>
+    /// <param name="solution">A solution.</param>
     /// <param name="properties">The properties to add to the model.</param>
-    public static void AddSlnProperties(this Builder solutionBuilder, SolutionPropertyBag? properties)
+    public static void AddSlnProperties(this SolutionModel solution, SolutionPropertyBag? properties)
     {
-        Argument.ThrowIfNull(solutionBuilder, nameof(solutionBuilder));
+        Argument.ThrowIfNull(solution, nameof(solution));
         if (properties is null)
         {
             return;
@@ -197,28 +194,39 @@ public static class SlnV12Extensions
                     // For some reason the description was stored in this property table.
                     if (StringComparer.OrdinalIgnoreCase.Equals(slnConfiguration, SlnConstants.Description))
                     {
-                        solutionBuilder.Description = properties[slnConfiguration];
+                        solution.Description = properties[slnConfiguration];
                         continue;
                     }
 
-                    solutionBuilder.AddSolutionConfiguration(slnConfiguration);
+                    if (ModelHelper.TrySplitFullConfiguration(solution.StringTable, slnConfiguration, out string? buildType, out string? platform))
+                    {
+                        solution.AddBuildType(buildType);
+                        solution.AddPlatform(platform);
+                    }
                 }
 
                 break;
 
             case SectionName.ProjectConfigurationPlatforms:
-                solutionBuilder.SetProjectConfigurationPlatforms(properties);
+                SetProjectConfigurationPlatforms(solution, properties);
                 break;
 
             case SectionName.NestedProjects:
                 foreach ((string childProjectIdStr, string parentProjectIdStr) in properties)
                 {
-                    if (Guid.TryParse(childProjectIdStr, out Guid childProjectId))
+                    if (Guid.TryParse(childProjectIdStr, out Guid childProjectId) &&
+                        Guid.TryParse(parentProjectIdStr, out Guid parentProjectId))
                     {
-                        SolutionItemModel.Builder? childBuilder = solutionBuilder.Items.FirstOrDefault(x => x.ItemId == childProjectId);
-                        if (childBuilder is not null)
+                        SolutionItemModel? childModel = solution.FindItemById(childProjectId);
+                        SolutionFolderModel? parentFolder = solution.FindItemById(parentProjectId) as SolutionFolderModel;
+                        if (childModel is not null && parentFolder is not null)
                         {
-                            childBuilder.Parent = parentProjectIdStr;
+                            childModel.Parent = parentFolder;
+                        }
+                        else
+                        {
+                            // TODO Log warning that the parent project was not found.
+                            Debug.WriteLine("Parent project not found.");
                         }
                     }
                 }
@@ -230,7 +238,7 @@ public static class SlnV12Extensions
                 {
                     if (hideSolutionNode)
                     {
-                        solutionBuilder.SetHideSolutionNode(true);
+                        solution.SetHideSolutionNode(true);
                     }
 
                     if (properties.Count == 1)
@@ -240,7 +248,8 @@ public static class SlnV12Extensions
                     else
                     {
                         properties.Remove(SlnConstants.HideSolutionNode);
-                        _ = solutionBuilder.AddProperties(properties);
+                        SolutionPropertyBag solutionProperties = solution.AddProperties(SectionName.SolutionProperties, properties.Scope);
+                        solutionProperties.AddRange(properties);
                     }
 
                     break;
@@ -253,7 +262,7 @@ public static class SlnV12Extensions
                 {
                     if (solutionId != Guid.Empty)
                     {
-                        solutionBuilder.SolutionId = solutionId;
+                        solution.SolutionId = solutionId;
                     }
 
                     if (properties.Count == 1)
@@ -263,29 +272,143 @@ public static class SlnV12Extensions
                     else
                     {
                         properties.Remove(SlnConstants.SolutionGuid);
-                        _ = solutionBuilder.AddProperties(properties);
+                        solution.AddProperties(SectionName.ExtensibilityGlobals, properties.Scope).AddRange(properties);
                     }
                 }
 
                 break;
             default:
-                _ = solutionBuilder.AddProperties(properties);
+                solution.AddProperties(properties.Id, properties.Scope).AddRange(properties);
                 break;
         }
     }
 
-    public static IEnumerable<SolutionPropertyBag> GetSlnProperties(this SolutionModel model)
+    private const string ActiveCfgSuffix = ".ActiveCfg";
+    private const string BuildSuffix = ".Build.0";
+    private const string DeploySuffix = ".Deploy.0";
+
+    private enum ConfigLineType
     {
-        Argument.ThrowIfNull(model, nameof(model));
-        List<SolutionPropertyBag> slnProperties = new List<SolutionPropertyBag>((model.Properties?.Count ?? 0) + 1);
+        Unknown = 0,
+        ActiveCfg = 1,
+        Build = 2,
+        Deploy = 3,
+    }
 
-        AddIfNotNull(slnProperties, GetSolutionConfigurationPlatforms(model));
-        AddIfNotNull(slnProperties, GetProjectConfigurationPlatforms(model));
-        AddIfNotNull(slnProperties, GetSolutionProperties(model));
-        AddIfNotNull(slnProperties, GetNestedProjects(model));
-        AddIfNotNull(slnProperties, GetExtensibilityGlobals(model));
+    // Handles reading the .sln file configuration mappings and
+    // applying them to the model's project configurations.
+    private static void SetProjectConfigurationPlatforms(SolutionModel solution, SolutionPropertyBag properties)
+    {
+        StringTable stringTable = solution.StringTable;
 
-        foreach (SolutionPropertyBag propertyBag in model.Properties.GetStructEnumerable())
+        if (properties.Count > 0)
+        {
+            // Converts the .sln style project configuration platforms into a mappings for each configuration.
+            foreach ((string projectKey, string projectValue) in properties)
+            {
+                ParseProjectConfigLine(solution, projectKey, projectValue);
+            }
+
+            solution.DistillProjectConfigurations();
+        }
+
+        // Applies a .SLN configuration line to the current project configuration.
+        // This converts each line into un-optimal config rules for each project, these
+        // rules can then be distilled into a more optimal set of rules.
+        void ParseProjectConfigLine(SolutionModel solutionModel, string name, string value)
+        {
+            /*
+             * The configurations lines have this format:
+             * {ProjectId}.SolutionBuildType|SolutionPlatform.ConfigLineType = ProjectBuildType|ProjectPlatform
+             * {190CE348-596E-435A-9E5B-12A689F9FC29}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+             * {190CE348-596E-435A-9E5B-12A689F9FC29}.Debug|Any CPU.Build.0 = Debug|Any CPU
+            */
+
+            int firstDot = name.IndexOf('.');
+            if (firstDot < 0)
+            {
+                return;
+            }
+
+#if NETFRAMEWORK
+            Guid projectId = Guid.TryParse(name.Substring(0, firstDot), out Guid id) ? id : Guid.Empty;
+#else
+            Guid projectId = Guid.TryParse(name.AsSpan(0, firstDot), out Guid id) ? id : Guid.Empty;
+#endif
+
+            if (projectId == Guid.Empty || solutionModel.FindItemById(projectId) is not SolutionProjectModel projectModel)
+            {
+                return;
+            }
+
+            ConfigLineType lineType =
+                name.EndsWith(ActiveCfgSuffix) ? ConfigLineType.ActiveCfg :
+                name.EndsWith(BuildSuffix) ? ConfigLineType.Build :
+                name.EndsWith(DeploySuffix) ? ConfigLineType.Deploy :
+                ConfigLineType.Unknown;
+
+            if (lineType == ConfigLineType.Unknown)
+            {
+                return;
+            }
+
+            int slnCfgEnd = name.Length - lineType switch
+            {
+                ConfigLineType.ActiveCfg => ActiveCfgSuffix.Length,
+                ConfigLineType.Build => BuildSuffix.Length,
+                ConfigLineType.Deploy => DeploySuffix.Length,
+                _ => throw new InvalidOperationException(),
+            };
+
+            firstDot++;
+            if (firstDot >= slnCfgEnd)
+            {
+                return;
+            }
+
+            string slnCfg = name.Substring(firstDot, slnCfgEnd - firstDot);
+
+            if (!ModelHelper.TrySplitFullConfiguration(stringTable, slnCfg, out string? solutionBuildType, out string? solutionPlatform))
+            {
+                return;
+            }
+
+            switch (lineType)
+            {
+                case ConfigLineType.ActiveCfg:
+                    // In the old .sln file the default configuration is not to build unless there is a build line.
+                    // This rule will get overwritten by the build line if it exists.
+                    projectModel.AddProjectConfigurationRule(new ConfigurationRule(BuildDimension.Build, solutionBuildType, solutionPlatform, bool.FalseString));
+
+                    if (ModelHelper.TrySplitFullConfiguration(stringTable, value, out string? projectBuildType, out string? projectPlatform))
+                    {
+                        projectModel.AddProjectConfigurationRule(new ConfigurationRule(BuildDimension.BuildType, solutionBuildType, solutionPlatform, projectBuildType));
+                        projectModel.AddProjectConfigurationRule(new ConfigurationRule(BuildDimension.Platform, solutionBuildType, solutionPlatform, projectPlatform));
+                    }
+
+                    break;
+                case ConfigLineType.Build:
+                    projectModel.AddProjectConfigurationRule(new ConfigurationRule(BuildDimension.Build, solutionBuildType, solutionPlatform, bool.TrueString));
+                    break;
+                case ConfigLineType.Deploy:
+                    projectModel.AddProjectConfigurationRule(new ConfigurationRule(BuildDimension.Deploy, solutionBuildType, solutionPlatform, bool.TrueString));
+                    break;
+            }
+        }
+    }
+
+    public static IEnumerable<SolutionPropertyBag> GetSlnProperties(this SolutionModel solution)
+    {
+        Argument.ThrowIfNull(solution, nameof(solution));
+        List<SolutionPropertyBag> slnProperties = new List<SolutionPropertyBag>((solution.Properties?.Count ?? 0) + 1);
+
+        slnProperties.AddIfNotNull(GetSolutionConfigurationPlatforms(solution));
+        slnProperties.AddIfNotNull(GetProjectConfigurationPlatforms(solution));
+        slnProperties.AddIfNotNull(GetSolutionProperties(solution));
+        slnProperties.AddIfNotNull(GetNestedProjects(solution));
+        slnProperties.AddIfNotNull(GetExtensibilityGlobals(solution));
+
+        foreach (SolutionPropertyBag propertyBag in solution.Properties.GetStructEnumerable())
         {
             if (SectionName.InternKnownSectionName(propertyBag.Id) is
                 not SectionName.SolutionConfigurationPlatforms and
@@ -300,14 +423,6 @@ public static class SlnV12Extensions
         }
 
         return slnProperties;
-
-        static void AddIfNotNull<T>(List<T> list, T? item)
-        {
-            if (item is not null)
-            {
-                list.Add(item);
-            }
-        }
 
         // All solution configurations
         static SolutionPropertyBag? GetSolutionConfigurationPlatforms(SolutionModel model)
@@ -388,15 +503,15 @@ public static class SlnV12Extensions
 
                     string prjCfgPlatString = $"{mapping.BuildType}|{platform}";
 
-                    WriteProperty(propertyBag, projectId, entry.SlnKey, SolutionConfigurationMap.ActiveCfgSuffix, prjCfgPlatString);
+                    WriteProperty(propertyBag, projectId, entry.SlnKey, ActiveCfgSuffix, prjCfgPlatString);
                     if (mapping.Build)
                     {
-                        WriteProperty(propertyBag, projectId, entry.SlnKey, SolutionConfigurationMap.BuildSuffix, prjCfgPlatString);
+                        WriteProperty(propertyBag, projectId, entry.SlnKey, BuildSuffix, prjCfgPlatString);
                     }
 
                     if (mapping.Deploy)
                     {
-                        WriteProperty(propertyBag, projectId, entry.SlnKey, SolutionConfigurationMap.DeploySuffix, prjCfgPlatString);
+                        WriteProperty(propertyBag, projectId, entry.SlnKey, DeploySuffix, prjCfgPlatString);
                     }
                 }
             }
@@ -408,12 +523,12 @@ public static class SlnV12Extensions
         }
 
         // HideSolutionNode property
-        static SolutionPropertyBag GetSolutionProperties(SolutionModel model)
+        static SolutionPropertyBag GetSolutionProperties(SolutionModel solution)
         {
-            SolutionPropertyBag? additionalProperties = ModelHelper.FindByItemRef(model.Properties, SectionName.SolutionProperties);
+            SolutionPropertyBag? additionalProperties = ModelHelper.FindByItemRef(solution.Properties, SectionName.SolutionProperties);
             SolutionPropertyBag propertyBag = new SolutionPropertyBag(SectionName.SolutionProperties, PropertiesScope.PreLoad, 1 + additionalProperties?.Count ?? 0)
             {
-                { SlnConstants.HideSolutionNode, model.GetHideSolutionNode().GetValueOrDefault(false) ? "TRUE" : "FALSE" },
+                { SlnConstants.HideSolutionNode, solution.GetHideSolutionNode().GetValueOrDefault(false) ? "TRUE" : "FALSE" },
             };
 
             if (additionalProperties is not null)
@@ -432,17 +547,17 @@ public static class SlnV12Extensions
         }
 
         // Project parents to nest projects under solution folders.
-        static SolutionPropertyBag? GetNestedProjects(SolutionModel model)
+        static SolutionPropertyBag? GetNestedProjects(SolutionModel solution)
         {
-            if (!AnyNestedProjects(model))
+            if (!AnyNestedProjects(solution))
             {
                 return null;
             }
 
-            int count = model.SolutionItems.Count(static x => x.Parent is not null);
+            int count = solution.SolutionItems.Count(static x => x.Parent is not null);
 
             SolutionPropertyBag propertyBag = new SolutionPropertyBag(SectionName.NestedProjects, PropertiesScope.PreLoad, count);
-            foreach (SolutionItemModel item in model.SolutionItems)
+            foreach (SolutionItemModel item in solution.SolutionItems)
             {
                 if (item.Parent is not null)
                 {

@@ -108,16 +108,16 @@ internal sealed partial class ProjectTypeTable
 
     internal IReadOnlyList<ProjectType> ProjectTypes => this.projectTypesList;
 
-    internal Guid GetProjectTypeId(string? alias, StringSpan extension)
+    internal ProjectType? GetProjectType(string? alias, StringSpan extension)
     {
         ProjectType? type = this.GetForName(alias) ?? this.GetForExtension(extension.ToString());
         return
-            type is not null ? this.GetProjectTypeId(type) :
-            !this.isBuiltIn ? BuiltInTypes.GetProjectTypeId(alias, extension) :
-            Guid.Empty;
+            type is not null ? this.GetProjectType(type) :
+            !this.isBuiltIn ? BuiltInTypes.GetProjectType(alias, extension) :
+            null;
     }
 
-    private Guid GetProjectTypeId(ProjectType? type)
+    private ProjectType? GetProjectType(ProjectType? type)
     {
         // If the type doesn't have a project type id, keep searching on the BasedOn type.
         while (type is not null && type.ProjectTypeId == Guid.Empty)
@@ -125,7 +125,7 @@ internal sealed partial class ProjectTypeTable
             type = this.GetBasedOnType(type);
         }
 
-        return type is null ? Guid.Empty : type.ProjectTypeId;
+        return type;
     }
 
     // Figures out what the most concise friendly type name of the project type is, if it fails use the project type id.
@@ -137,12 +137,11 @@ internal sealed partial class ProjectTypeTable
             !impliedFromExtension ? GetTypeFromProjectType(projectType) :
             null;
 
-        // TODO! See if Guid->FriendlyName mapping is needed.
         string? GetTypeFromProjectType(ProjectType projectType) =>
-            projectType.Name.NullIfEmpty() ?? this.GetProjectTypeId(projectType).ToString();
+            projectType.Name.NullIfEmpty() ?? this.GetProjectType(projectType)?.ProjectTypeId.ToString() ?? Guid.Empty.ToString();
 
         static string? GetTypeFromModel(SolutionProjectModel modelProject) =>
-            modelProject.TypeId == Guid.Empty ? modelProject.TypeRef : modelProject.TypeId.ToString();
+            modelProject.TypeId == Guid.Empty ? modelProject.Type : modelProject.TypeId.ToString();
     }
 
     // Gets all of the configuration rules that apply to the project.
@@ -192,6 +191,11 @@ internal sealed partial class ProjectTypeTable
             null;
     }
 
+    internal bool TryGetProjectType(Guid projectTypeId, [NotNullWhen(true)] out ProjectType? projectType)
+    {
+        return this.fromProjectTypeId.TryGetValue(projectTypeId, out projectType);
+    }
+
     private bool TryGetProjectType(
         SolutionProjectModel projectModel,
         [NotNullWhen(true)] out ProjectType? type,
@@ -199,7 +203,7 @@ internal sealed partial class ProjectTypeTable
     {
         return this.TryGetProjectType(
             projectModel.TypeId,
-            projectModel.TypeRef,
+            projectModel.Type,
             projectModel.Extension,
             out type,
             out impliedFromExtension);
@@ -207,32 +211,32 @@ internal sealed partial class ProjectTypeTable
 
     private bool TryGetProjectType(
         [Optional] Guid projectTypeId,
-        string? typeRef,
+        string? typeName,
         string? extension,
         [NotNullWhen(true)] out ProjectType? type,
         out bool impliedFromExtension)
     {
-        // If the TypeRef is a Guid, use it as the projectTypeId instead.
-        if (Guid.TryParse(typeRef, out Guid typeId))
+        // If the typeName is a Guid, use it as the projectTypeId instead.
+        if (Guid.TryParse(typeName, out Guid typeId))
         {
-            typeRef = null;
+            typeName = null;
             projectTypeId = typeId;
         }
 
-        // Only pick the implied type from the extension if it matches the typeRef.
+        // Only pick the implied type from the extension if it matches the typeName.
         type = this.GetForExtension(extension);
         if (type is not null)
         {
-            Guid typeProjectTypeId = this.GetProjectTypeId(type);
+            Guid typeProjectTypeId = this.GetProjectType(type)?.ProjectTypeId ?? Guid.Empty;
             if ((projectTypeId == Guid.Empty || typeProjectTypeId == projectTypeId) &&
-                (typeRef.IsNullOrEmpty() || StringComparer.OrdinalIgnoreCase.Equals(typeRef, type.Name)))
+                (typeName.IsNullOrEmpty() || StringComparer.OrdinalIgnoreCase.Equals(typeName, type.Name)))
             {
                 impliedFromExtension = true;
                 return true;
             }
         }
 
-        type = this.GetForName(typeRef);
+        type = this.GetForName(typeName);
         if (type is not null)
         {
             impliedFromExtension = false;
@@ -248,12 +252,10 @@ internal sealed partial class ProjectTypeTable
         // If not found in solution scope, try implicit types.
         if (!this.isBuiltIn)
         {
-            if (BuiltInTypes.TryGetProjectType(projectTypeId, typeRef, extension, out type, out impliedFromExtension))
+            if (BuiltInTypes.TryGetProjectType(projectTypeId, typeName, extension, out type, out impliedFromExtension))
             {
                 return true;
             }
-
-            // TODO: Search for type in external sources and add to this table if found.
         }
 
         type = null;

@@ -21,7 +21,7 @@ internal sealed partial class XmlProject(SlnxFile root, XmlFolder? xmlParentFold
 
     public string Path => this.ItemRef;
 
-    public StringSpan DefaultDisplayName => PathExtensions.ConvertFromPersistencePath(this.Path).GetStandardDisplayName();
+    public StringSpan DefaultDisplayName => PathExtensions.GetStandardDisplayName(PathExtensions.ConvertFromPersistencePath(this.Path));
 
     public string? DisplayName
     {
@@ -69,26 +69,52 @@ internal sealed partial class XmlProject(SlnxFile root, XmlFolder? xmlParentFold
 
     #region Deserialize model
 
-    public void ToModelBuilder(SolutionModel.Builder solutionBuilder)
+    public SolutionProjectModel AddToModel(SolutionModel solution)
     {
-        SolutionProjectModel.Builder builder = solutionBuilder.AddProject(PathExtensions.ConvertFromPersistencePath(this.Path));
-        builder.ProjectType = this.Type;
-        builder.DisplayName = this.DisplayName;
-        builder.Parent = this.ParentFolder?.Name;
+        SolutionProjectModel projectModel = solution.AddProject(
+            filePath: PathExtensions.ConvertFromPersistencePath(this.Path),
+            this.Type ?? string.Empty);
 
-        foreach (XmlBuildDependency buildDependency in this.buildDependencies.GetItems())
+        projectModel.DisplayName = this.DisplayName;
+
+        if (this.ParentFolder is not null)
         {
-            builder.AddDependency(PathExtensions.ConvertFromPersistencePath(buildDependency.Project));
+            if (solution.FindItemByItemRef(this.ParentFolder.Name) is SolutionFolderModel parentFolder)
+            {
+                projectModel.Parent = parentFolder;
+            }
+            else
+            {
+                this.Root.Logger.LogWarning($"Parent folder '{this.ParentFolder.Name}' not found.", this.XmlElement);
+            }
         }
 
         foreach (ConfigurationRule configurationRule in this.configurationRules.ToModel())
         {
-            builder.AddConfigurationRule(configurationRule);
+            projectModel.AddProjectConfigurationRule(configurationRule);
         }
 
         foreach (XmlProperties properties in this.propertyBags.GetItems())
         {
-            _ = builder.AddProperties(properties.ToModel());
+            properties.AddToModel(projectModel);
+        }
+
+        return projectModel;
+    }
+
+    public void AddDependenciesToModel(SolutionModel solution, SolutionProjectModel projectModel)
+    {
+        foreach (XmlBuildDependency buildDependency in this.buildDependencies.GetItems())
+        {
+            string dependencyItemRef = PathExtensions.ConvertFromPersistencePath(buildDependency.Project);
+            if (solution.FindItemByItemRef(dependencyItemRef) is SolutionProjectModel dependencyProject)
+            {
+                projectModel.AddDependency(dependencyProject);
+            }
+            else
+            {
+                this.Root.Logger.LogWarning($"Dependency project '{dependencyItemRef}' not found.", buildDependency.XmlElement);
+            }
         }
     }
 

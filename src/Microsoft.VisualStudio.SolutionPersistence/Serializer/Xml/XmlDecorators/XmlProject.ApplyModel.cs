@@ -33,7 +33,7 @@ internal sealed partial class XmlProject
 
         // BuildDependencies
         modified |= this.ApplyModelToXmlGeneric(
-            modelCollection: modelProject.Dependencies?.ToList(x => PathExtensions.ConvertToPersistencePath(x)) ?? [],
+            modelCollection: modelProject.Dependencies?.ToList(x => PathExtensions.ConvertToPersistencePath(x.FilePath)) ?? [],
             decoratorItems: ref this.buildDependencies,
             decoratorElementName: Keyword.BuildDependency,
             getItemRefs: static (dependencies) => [.. dependencies],

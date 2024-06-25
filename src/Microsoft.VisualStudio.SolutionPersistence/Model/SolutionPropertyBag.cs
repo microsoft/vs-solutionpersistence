@@ -24,7 +24,6 @@ public sealed class SolutionPropertyBag : IReadOnlyDictionary<string, string>
 {
     private List<string> propertyNamesInOrder;
     private PropertyBag properties;
-    private bool frozen;
 
     public SolutionPropertyBag(string id)
         : this(id, PropertiesScope.PreLoad)
@@ -95,18 +94,8 @@ public sealed class SolutionPropertyBag : IReadOnlyDictionary<string, string>
 
     public string this[string key] => this.TryGetValue(key, out string? value) ? value : throw new KeyNotFoundException();
 
-    public void Freeze()
-    {
-        this.frozen = true;
-    }
-
     public void Add(string? name, string value)
     {
-        if (this.frozen)
-        {
-            throw new NotSupportedException();
-        }
-
         if (name is null || name.Length == 0)
         {
             return;
@@ -125,10 +114,6 @@ public sealed class SolutionPropertyBag : IReadOnlyDictionary<string, string>
     public void AddRange(IReadOnlyCollection<KeyValuePair<string, string>> properties)
     {
         Argument.ThrowIfNull(properties, nameof(properties));
-        if (this.frozen)
-        {
-            throw new NotSupportedException();
-        }
 
         if (this.properties.Count == 0)
         {
@@ -147,11 +132,6 @@ public sealed class SolutionPropertyBag : IReadOnlyDictionary<string, string>
 
     public void Remove(string name)
     {
-        if (this.frozen)
-        {
-            throw new NotSupportedException();
-        }
-
         if (this.properties.Remove(name))
         {
             _ = this.propertyNamesInOrder.Remove(name);

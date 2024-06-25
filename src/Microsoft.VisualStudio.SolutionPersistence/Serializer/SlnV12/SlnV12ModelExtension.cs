@@ -28,5 +28,7 @@ internal sealed class SlnV12ModelExtension : ISerializerModelExtension<SlnV12Ser
 
     public string? SolutionFileFullPath { get; init; }
 
+    public bool Corrupted { get; init; }
+
     public SlnV12SerializerSettings Settings { get; }
 }

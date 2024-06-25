@@ -23,7 +23,7 @@ internal static class SlnConstants
     public const string Description = nameof(Description);
 
     // Used in .SLN to determine with version of VS to open when opening from explorer.
-    public const string OpenWithPrefix = "# Visual Studio Version ";
+    public const string OpenWithPrefix = "# ";
 
     public const string TagProjectStart = "Project(";
     public const string TagProjectSectionStart = "ProjectSection(";

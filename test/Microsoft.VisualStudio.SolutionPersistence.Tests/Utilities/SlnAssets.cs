@@ -3,7 +3,6 @@
 
 using System.Linq;
 using System.Reflection;
-using Microsoft.VisualStudio.SolutionPersistence;
 using Utilities;
 
 namespace Utilities;

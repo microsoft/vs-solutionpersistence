@@ -65,10 +65,9 @@ internal sealed partial class SlnFileV12Serializer : SingleFileSerializerBase<Sl
         catch (EncoderFallbackException)
         {
             // Change the model to save it in UTF-8 and retry.
-            SolutionModel.Builder utf8ModelBuilder = new SolutionModel.Builder(model, stringTable: null);
-            SolutionModel utf8Model = utf8ModelBuilder.ToModel(new SlnV12ModelExtension(this, new SlnV12SerializerSettings() { Encoding = Encoding.UTF8 }, fullPath));
+            model.SerializerExtension = new SlnV12ModelExtension(this, new SlnV12SerializerSettings() { Encoding = Encoding.UTF8 }, fullPath);
 
-            await SlnFileV12Writer.SaveAsync(utf8Model, writerStream);
+            await SlnFileV12Writer.SaveAsync(model, writerStream);
         }
     }
 }

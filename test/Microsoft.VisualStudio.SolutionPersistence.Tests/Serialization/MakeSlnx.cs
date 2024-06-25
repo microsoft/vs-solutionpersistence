@@ -45,8 +45,9 @@ public class MakeSlnx(MakeSlnx.MakeSlnxFixture fixture) : IClassFixture<MakeSlnx
     /// Converts all the sample SLN files into SLNX and puts them in the temp "OutputSln" directory.
     /// </summary>
     /// <param name="sampleFileName">The file to convert.</param>
-    [Theory(Skip = "Error on linux.")]
+    [Theory]
     [MemberData(nameof(ClassicSlnFiles))]
+    [Trait("TestCategory", "FailsInCloudTest")]
     public async Task ConvertSlnToSlnxAsync(ResourceName sampleFileName)
     {
         ResourceStream sampleFile = sampleFileName.Load();

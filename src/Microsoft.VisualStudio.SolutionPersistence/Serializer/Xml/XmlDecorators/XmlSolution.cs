@@ -26,14 +26,9 @@ internal sealed partial class XmlSolution(SlnxFile file, XmlElement element) :
 
     public Guid SolutionId
     {
-        get => this.GetXmlAttributeGuid(Keyword.SolutionId, this.DefaultSolutionId);
-        set => this.UpdateXmlAttribute(Keyword.SolutionId, isDefault: value == this.DefaultSolutionId, value, static guid => guid.ToString());
+        get => this.GetXmlAttributeGuid(Keyword.SolutionId, Guid.Empty);
+        set => this.UpdateXmlAttribute(Keyword.SolutionId, isDefault: value == Guid.Empty, value, static guid => guid.ToString());
     }
-
-    public bool IsDefaultId => this.SolutionId == this.DefaultSolutionId;
-
-    // TODO: Use calculated value as default.
-    public Guid DefaultSolutionId { get; } = Guid.Empty;
 
     public string? VisualStudioVersion
     {
@@ -85,43 +80,51 @@ internal sealed partial class XmlSolution(SlnxFile file, XmlElement element) :
 
     #region Deserialize model
 
-    public SolutionModel.Builder ToModelBuilder()
+    public SolutionModel ToModel()
     {
-        SolutionModel.Builder builder = new SolutionModel.Builder(stringTable: this.Root.StringTable)
+        SolutionModel solutionModel = new SolutionModel
         {
+            StringTable = this.Root.StringTable,
             Description = this.Description,
             MinVsVersion = this.MinimumVisualStudioVersion,
             VsVersion = this.VisualStudioVersion,
-            SolutionId = this.IsDefaultId ? null : this.SolutionId,
+            SolutionId = this.SolutionId.NullIfEmpty(),
 
-            // This table was calculated during the parsing of the XML, since it is needed to resolve project types.
-            ProjectTypeTable = this.Root.ProjectTypes,
+            // Project types are loaded earlier when parsing the XML since they are needed to resolve projects.
+            ProjectTypes = this.Root.ProjectTypes.ProjectTypes,
         };
 
         foreach (XmlFolder folder in this.folders.GetItems())
         {
-            folder.ToModelBuilder(builder);
+            folder.AddToModel(solutionModel);
         }
 
+        List<(XmlProject, SolutionProjectModel)> newProjects = new List<(XmlProject, SolutionProjectModel)>(this.Projects.ItemsCount);
         foreach (XmlProject project in this.Projects.GetItems())
         {
-            project.ToModelBuilder(builder);
+            newProjects.Add((project, project.AddToModel(solutionModel)));
+        }
+
+        // Dependencies need to be added after all the projects are loaded.
+        foreach ((XmlProject xmlProject, SolutionProjectModel modelProject) in newProjects)
+        {
+            xmlProject.AddDependenciesToModel(solutionModel, modelProject);
         }
 
         foreach (XmlConfigurations configurations in this.configurationsSingle.GetItems())
         {
-            configurations.AddToModelBuilder(builder);
+            configurations.AddToModel(solutionModel);
         }
 
         // Create default configurations if they weren't provided by the Configurations section.
-        XmlConfigurations.CreateDefaultConfigurationsIfNeeded(builder);
+        XmlConfigurations.CreateDefaultConfigurationsIfNeeded(solutionModel);
 
         foreach (XmlProperties properties in this.propertyBags.GetItems())
         {
-            _ = builder.AddProperties(properties.ToModel());
+            properties.AddToModel(solutionModel);
         }
 
-        return builder;
+        return solutionModel;
     }
 
     /// <summary>

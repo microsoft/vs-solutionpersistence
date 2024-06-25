@@ -6,7 +6,7 @@ namespace Microsoft.VisualStudio.SolutionPersistence.Serializer.Xml;
 /// <summary>
 /// Allows customization of the behavior of the <see cref="SolutionSerializers.SlnXml"/> serializer.
 /// </summary>
-public readonly record struct SlnxSerializerSettings
+public readonly struct SlnxSerializerSettings
 {
     /// <summary>
     /// Gets a value indicating whether to keep whitespace when writing the solution file.

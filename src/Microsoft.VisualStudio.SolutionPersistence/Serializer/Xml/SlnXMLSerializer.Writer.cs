@@ -28,7 +28,7 @@ internal partial class SlnXmlSerializer
                 };
 
             // If this started as an XML document, merge the changes back into the original document.
-            SlnxFile root = modelExtension?.Root ?? CreateNewSlnFile(fullPath, model, xmlSerializerSettings);
+            SlnxFile root = modelExtension?.Root ?? CreateNewSlnFile(fullPath, xmlSerializerSettings, model.StringTable);
 
             // Update the XML to reflect the model.
             _ = root.ApplyModel(model);
@@ -91,15 +91,14 @@ internal partial class SlnXmlSerializer
                 }
             }
 
-            static SlnxFile CreateNewSlnFile(string? fullPath, SolutionModel model, SlnxSerializerSettings xmlSerializerSettings)
+            static SlnxFile CreateNewSlnFile(string? fullPath, SlnxSerializerSettings xmlSerializerSettings, StringTable stringTable)
             {
                 XmlDocument xmlDocument = new XmlDocument() { PreserveWhitespace = xmlSerializerSettings.PreserveWhitespace ?? false, };
 
                 XmlElement slnElement = xmlDocument.CreateElement(Keyword.Solution.ToXmlString());
                 _ = xmlDocument.AppendChild(slnElement);
 
-                // todo share StringTable with builders
-                return new SlnxFile(model.SerializerExtension.Serializer, xmlDocument, xmlSerializerSettings, stringTable: null, fullPath);
+                return new SlnxFile(xmlDocument, xmlSerializerSettings, stringTable, fullPath);
             }
         }
     }

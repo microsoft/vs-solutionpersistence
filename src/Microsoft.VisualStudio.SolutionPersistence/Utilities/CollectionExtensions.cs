@@ -18,6 +18,20 @@ internal static class CollectionExtensions
     }
 #endif
 
+    public static void AddIfNotNull<T>(this List<T> list, T? item)
+    {
+        if (item is not null)
+        {
+            list.Add(item);
+        }
+    }
+
+    public static T AddAndReturn<T>(this List<T> list, T item)
+    {
+        list.Add(item);
+        return item;
+    }
+
     public static bool IsNullOrEmpty<T>([NotNullWhen(false)] this IReadOnlyCollection<T>? collection)
     {
         return collection is null || collection.Count == 0;

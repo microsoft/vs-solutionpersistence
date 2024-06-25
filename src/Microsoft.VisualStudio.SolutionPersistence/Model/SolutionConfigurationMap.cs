@@ -8,17 +8,9 @@ namespace Microsoft.VisualStudio.SolutionPersistence.Model;
 /// </summary>
 internal sealed partial class SolutionConfigurationMap
 {
-    // TODO Move constants to SlnFileV12 parser.
-    public const string ActiveCfgSuffix = ".ActiveCfg";
-    public const string BuildSuffix = ".Build.0";
-    public const string DeploySuffix = ".Deploy.0";
-
     private readonly SolutionModel solutionModel;
-    private readonly SolutionModel.Builder? solutionBuilder;
     private readonly Dictionary<string, int> buildTypesIndex = [];
     private readonly Dictionary<string, int> platformsIndex = [];
-    private readonly Dictionary<string, SolutionConfigIndex> byFullConfiguration = [];
-    private readonly Dictionary<string, (string BuildType, string Platform)> splitCfgPlatCache = [];
 
     private readonly Dictionary<SolutionProjectModel, SolutionToProjectMappings> perProjectCurrent = [];
 
@@ -34,16 +26,10 @@ internal sealed partial class SolutionConfigurationMap
 
         for (int i = 0; i < solutionModel.Platforms.Count; i++)
         {
-            this.platformsIndex.Add(solutionModel.Platforms[i].Canonical(), i);
+            this.platformsIndex.Add(PlatformNames.Canonical(solutionModel.Platforms[i]), i);
         }
 
         this.matrixSize = this.BuildTypesCount * this.PlatformsCount;
-    }
-
-    internal SolutionConfigurationMap(SolutionModel solutionModel, SolutionModel.Builder solutionBuilder)
-        : this(solutionModel)
-    {
-        this.solutionBuilder = solutionBuilder;
     }
 
     private SolutionConfigIndex ToIndex(int iBuildType, int iPlatform) => new SolutionConfigIndex(this, iBuildType, iPlatform);
@@ -55,7 +41,7 @@ internal sealed partial class SolutionConfigurationMap
 
     public int GetPlatformIndex(string platform)
     {
-        return !string.IsNullOrEmpty(platform) && this.platformsIndex.TryGetValue(platform.Canonical(), out int index) ? index : ScopedRules.All;
+        return !string.IsNullOrEmpty(platform) && this.platformsIndex.TryGetValue(PlatformNames.Canonical(platform), out int index) ? index : ScopedRules.All;
     }
 
     // This should only be called from ConfigIndex
@@ -85,144 +71,6 @@ internal sealed partial class SolutionConfigurationMap
     public int BuildTypesCount => this.buildTypesIndex.Count;
 
     public int PlatformsCount => this.platformsIndex.Count;
-
-    public SolutionConfigIndex GetConfigIndex(string fullConfiguration)
-    {
-        if (string.IsNullOrEmpty(fullConfiguration))
-        {
-            return new SolutionConfigIndex();
-        }
-
-        if (this.byFullConfiguration.TryGetValue(fullConfiguration, out SolutionConfigIndex index))
-        {
-            return index;
-        }
-
-        if (this.TrySplitFullConfigurationCached(fullConfiguration, out string? buildType, out string? platform))
-        {
-            index = new SolutionConfigIndex(this, buildType, platform);
-        }
-
-        this.byFullConfiguration.Add(fullConfiguration, index);
-
-        return index;
-    }
-
-    public bool TrySplitFullConfigurationCached(
-        string fullConfiguration,
-        [NotNullWhen(true)] out string? buildType,
-        [NotNullWhen(true)] out string? platform)
-    {
-        if (string.IsNullOrEmpty(fullConfiguration))
-        {
-            buildType = null;
-            platform = null;
-            return false;
-        }
-
-        if (this.splitCfgPlatCache.TryGetValue(fullConfiguration, out (string BuildType, string Platform) cached))
-        {
-            buildType = cached.BuildType;
-            platform = cached.Platform;
-            return true;
-        }
-
-        if (ModelHelper.TrySplitFullConfiguration(fullConfiguration, out StringSpan buildTypeSpan, out StringSpan platformSpan))
-        {
-            buildType = BuildTypeNames.ToStringKnown(buildTypeSpan);
-            platform = PlatformNames.ToStringKnown(platformSpan);
-            this.splitCfgPlatCache.Add(fullConfiguration, (buildType, platform));
-            return true;
-        }
-
-        buildType = null;
-        platform = null;
-        return false;
-    }
-
-    // Used for Sln file parsing to classify the type of configuration line.
-    private enum SetType
-    {
-        None = 0,
-        Active,
-        Build,
-        Deploy,
-    }
-
-    /// <summary>
-    /// Applies a .SLN configuration line to the current project configuration.
-    /// These have a lot of weird syntax.
-    /// </summary>
-    /// <remarks>
-    /// TODO Move to SlnFileV12 parser.
-    /// </remarks>
-    public void ParseProjectConfigLine(string name, string value)
-    {
-        int firstDot = name.IndexOf('.');
-        if (firstDot < 0)
-        {
-            return;
-        }
-
-        string projId = name.Substring(0, firstDot);
-        if (this.solutionBuilder is null ||
-            !this.solutionBuilder.TryGet(projId, out SolutionItemModel? item) ||
-            item is not SolutionProjectModel projectModel)
-        {
-            return;
-        }
-
-        SetType setType =
-            name.EndsWith(ActiveCfgSuffix) ? SetType.Active :
-            name.EndsWith(BuildSuffix) ? SetType.Build :
-            name.EndsWith(DeploySuffix) ? SetType.Deploy :
-            SetType.None;
-
-        if (setType == SetType.None)
-        {
-            return;
-        }
-
-        int slnCfgEnd = name.Length - setType switch
-        {
-            SetType.Active => ActiveCfgSuffix.Length,
-            SetType.Build => BuildSuffix.Length,
-            SetType.Deploy => DeploySuffix.Length,
-            _ => throw new InvalidOperationException(),
-        };
-
-        firstDot++;
-        if (firstDot >= slnCfgEnd)
-        {
-            return;
-        }
-
-        string slnCfg = name.Substring(firstDot, slnCfgEnd - firstDot);
-        SolutionConfigIndex slnCfgIndex = this.GetConfigIndex(slnCfg);
-        if (!slnCfgIndex.IsValid)
-        {
-            return;
-        }
-
-        if (!this.perProjectCurrent.TryGetValue(projectModel, out SolutionToProjectMappings projectMappings))
-        {
-            projectMappings = new SolutionToProjectMappings(this, projectModel, out bool _, forceExclude: true);
-            this.perProjectCurrent.Add(projectModel, projectMappings);
-        }
-
-        ProjectConfigMapping mapping = projectMappings[slnCfgIndex];
-        projectMappings[slnCfgIndex] = setType switch
-        {
-            SetType.Active => mapping with
-            {
-                BuildType = this.TrySplitFullConfigurationCached(value, out string? projectBuildType, out _) ? projectBuildType : mapping.BuildType,
-                Platform = this.TrySplitFullConfigurationCached(value, out _, out string? projectPlatform) ? projectPlatform : mapping.Platform,
-            },
-            SetType.Build => mapping with { Build = true },
-            SetType.Deploy => mapping with { Deploy = true },
-            _ => mapping,
-        };
-    }
 
     /// <summary>
     /// Used to convert this model to a full list of all solution to project configurations.
@@ -275,6 +123,26 @@ internal sealed partial class SolutionConfigurationMap
     }
 
     /// <summary>
+    /// Interprets all of the current project configurations to a full list of all mappings.
+    /// Then recalculates a distilled set of rules for each project.
+    /// </summary>
+    internal void DistillProjectConfigurations()
+    {
+        foreach (SolutionProjectModel projectModel in this.solutionModel.SolutionProjects)
+        {
+            // Cache list of all project configurations for all solution configuration mappings.
+            this.GetProjectConfigMap(projectModel, out SolutionToProjectMappings mappings, out bool supportsConfigs);
+            if (supportsConfigs)
+            {
+                this.perProjectCurrent.Add(projectModel, mappings);
+            }
+
+            // Converts cached mappings into simpler rules.
+            projectModel.ProjectConfigurationRules = this.CreateProjectRules(projectModel);
+        }
+    }
+
+    /// <summary>
     /// Represents all project configurations that are mapped from
     /// all solution configurations for a single project.
     /// </summary>
@@ -302,7 +170,7 @@ internal sealed partial class SolutionConfigurationMap
 
             for (int iPlatform = 0; iPlatform < configMap.PlatformsCount; iPlatform++)
             {
-                string solutionPlatform = configMap.solutionModel.Platforms[iPlatform].Canonical();
+                string solutionPlatform = PlatformNames.Canonical(configMap.solutionModel.Platforms[iPlatform]);
 
                 for (int iBuildType = 0; iBuildType < configMap.BuildTypesCount; iBuildType++)
                 {
@@ -352,8 +220,6 @@ internal sealed partial class SolutionConfigurationMap
             bool unknown = buildType < 0 || buildType >= map.BuildTypesCount || platForm < 0 || platForm >= map.PlatformsCount;
             this.index = unknown ? -1 : (buildType * map.PlatformsCount) + platForm;
         }
-
-        public bool IsValid => this.index >= 0;
 
         public int MatrixIndex => this.index;
 

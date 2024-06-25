@@ -154,46 +154,4 @@ internal static class Keywords
 
         return stringTable;
     }
-
-    internal static string? FromDimension(this BuildDimension? dimension)
-    {
-        return dimension?.FromDimension();
-    }
-
-    internal static string FromDimension(this BuildDimension dimension)
-    {
-        return dimension switch
-        {
-            BuildDimension.BuildType => Keyword.BuildType.ToXmlString(),
-            BuildDimension.Platform => Keyword.Platform.ToXmlString(),
-            BuildDimension.Build => Keyword.Build.ToXmlString(),
-            BuildDimension.Deploy => Keyword.Deploy.ToXmlString(),
-            _ => throw new ArgumentException(null, nameof(dimension)),
-        };
-    }
-
-    internal static BuildDimension? ToDimension(this string? dimensionString)
-    {
-        Keyword keyword = dimensionString is null ? Keyword.Unknown : ToKeyword(dimensionString);
-        return keyword switch
-        {
-            Keyword.BuildType => BuildDimension.BuildType,
-            Keyword.Platform => BuildDimension.Platform,
-            Keyword.Build => BuildDimension.Build,
-            Keyword.Deploy => BuildDimension.Deploy,
-            _ => null,
-        };
-    }
-
-    internal static Keyword ToKeyword(this BuildDimension dimension)
-    {
-        return dimension switch
-        {
-            BuildDimension.BuildType => Keyword.BuildType,
-            BuildDimension.Platform => Keyword.Platform,
-            BuildDimension.Build => Keyword.Build,
-            BuildDimension.Deploy => Keyword.Deploy,
-            _ => throw new ArgumentException(null, nameof(dimension)),
-        };
-    }
 }

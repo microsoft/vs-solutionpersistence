@@ -41,16 +41,7 @@ internal sealed partial class SlnFileV12Serializer
 
         private int lineNumber = 0;
 
-        // this is the parser state objects (similar by name and purpose as the old
-        // vs parser. Note there old parser did not enforce clean state, and it is very difficult to emulate with
-        // proper state machine. It make so very awkward content to actually be loaded (in many case correctly as one would think).
-        // so we try to be as close as possible to that logic, without trying to fix it too much.
         private bool corrupted = false;
-
-        public bool CheckFormat()
-        {
-            return this.TryParseFormatLine();
-        }
 
         public ValueTask<SolutionModel> ParseAsync(ISolutionSerializer serializer, string? fullPath, CancellationToken cancellationToken)
         {
@@ -58,7 +49,7 @@ internal sealed partial class SlnFileV12Serializer
             string? minVsVersion = null;
             string? openWithVsVersion = null; // VS version that saved last.
 
-            SolutionItemModel.Builder? currentProject = null;
+            SolutionItemModel? currentProject = null;
             SolutionPropertyBag? currentPropertyBag = null;
 
             bool inProject = false;
@@ -67,12 +58,15 @@ internal sealed partial class SlnFileV12Serializer
             bool inGlobal = false;
             bool inGlobalSection = false;
 
-            SolutionModel.Builder solutionBuilder = new SolutionModel.Builder(stringTable: null);
+            SolutionModel solutionModel = new SolutionModel();
 
             if (!this.TryParseFormatLine())
             {
                 this.OnParseError(ParseError.NotASln12File);
             }
+
+            // Some property bags need to be loaded after all projects have been resolved.
+            List<(SolutionItemModel, SolutionPropertyBag)> delayLoadProperties = [];
 
             while (this.ReadLine(out StringTokenizer tokenizer))
             {
@@ -88,13 +82,13 @@ internal sealed partial class SlnFileV12Serializer
                     case LineType.Project:
                         _ = this.Validate(!inProject);
                         inProject = true;
-                        currentProject = this.ReadProjectInfo(solutionBuilder, ref tokenizer);
+                        currentProject = this.ReadProjectInfo(solutionModel, ref tokenizer);
                         break;
 
                     case LineType.EndProject:
                         _ = this.Validate(inProject);
                         inProject = false;
-                        currentProject?.AddSlnProperties(currentPropertyBag);
+                        AddProjectProperties(currentProject, currentPropertyBag, delayLoadProperties);
                         currentPropertyBag = null;
                         currentProject = null;
                         break;
@@ -107,7 +101,7 @@ internal sealed partial class SlnFileV12Serializer
                     case LineType.EndGlobal:
                         _ = this.Validate(inGlobal);
                         inGlobal = false;
-                        solutionBuilder.AddSlnProperties(currentPropertyBag);
+                        solutionModel.AddSlnProperties(currentPropertyBag);
                         currentPropertyBag = null;
                         break;
 
@@ -121,7 +115,7 @@ internal sealed partial class SlnFileV12Serializer
                     case LineType.EndProjectSection:
                         _ = this.Validate(inProject && inProjectSection);
                         inProjectSection = false;
-                        currentProject?.AddSlnProperties(currentPropertyBag);
+                        AddProjectProperties(currentProject, currentPropertyBag, delayLoadProperties);
                         currentPropertyBag = null;
                         break;
 
@@ -134,7 +128,7 @@ internal sealed partial class SlnFileV12Serializer
                     case LineType.EndGlobalSection:
                         _ = this.Validate(inGlobal && inGlobalSection);
                         inGlobalSection = false;
-                        solutionBuilder.AddSlnProperties(currentPropertyBag);
+                        solutionModel.AddSlnProperties(currentPropertyBag);
                         currentPropertyBag = null;
                         break;
 
@@ -149,7 +143,7 @@ internal sealed partial class SlnFileV12Serializer
 
                     case LineType.CommentLine:
                         // oddly for valid <Global> first solution this will still work
-                        if (openWithVsVersion is null && !solutionBuilder.HasProjects)
+                        if (openWithVsVersion is null && solutionModel.SolutionProjects.Count == 0)
                         {
                             openWithVsVersion = tokenizer.StringLine;
                         }
@@ -191,20 +185,47 @@ internal sealed partial class SlnFileV12Serializer
                 }
             }
 
+            // The project dependencies properties require the projects to all be loaded,
+            // so they are processed after the model has added all of the projects.
+            foreach ((SolutionItemModel item, SolutionPropertyBag properties) in delayLoadProperties)
+            {
+                item.AddSlnProperties(properties);
+            }
+
             string? openWithVS = CommentToOpenWithVS(openWithVsVersion.AsSpan());
             if (!openWithVS.IsNullOrEmpty())
             {
-                solutionBuilder.SetOpenWithVisualStudio(openWithVS);
+                solutionModel.SetOpenWithVisualStudio(openWithVS);
             }
 
-            solutionBuilder.MinVsVersion = minVsVersion;
-            solutionBuilder.VsVersion = vsVersion;
-            solutionBuilder.Corrupted = this.corrupted;
-            SolutionModel model = solutionBuilder.ToModel(new SlnV12ModelExtension(
+            solutionModel.MinVsVersion = minVsVersion;
+            solutionModel.VsVersion = vsVersion;
+            solutionModel.SerializerExtension = new SlnV12ModelExtension(
                 serializer,
                 new SlnV12SerializerSettings() { Encoding = GetSlnFileEncoding(reader) },
-                fullPath));
-            return new ValueTask<SolutionModel>(model);
+                fullPath)
+            { Corrupted = this.corrupted };
+            return new ValueTask<SolutionModel>(solutionModel);
+
+            static void AddProjectProperties(
+                SolutionItemModel? currentProject,
+                SolutionPropertyBag? currentPropertyBag,
+                List<(SolutionItemModel, SolutionPropertyBag)> delayLoadProperties)
+            {
+                if (currentProject is null || currentPropertyBag is null)
+                {
+                    return;
+                }
+
+                if (SectionName.InternKnownSectionName(currentPropertyBag.Id) is SectionName.ProjectDependencies)
+                {
+                    delayLoadProperties.Add((currentProject, currentPropertyBag));
+                }
+                else
+                {
+                    currentProject.AddSlnProperties(currentPropertyBag);
+                }
+            }
         }
 
         private static Encoding GetSlnFileEncoding(StreamReader reader)
@@ -450,7 +471,7 @@ internal sealed partial class SlnFileV12Serializer
             return checkOnly ? null : new SolutionPropertyBag(sectionName.ToString(), scope);
         }
 
-        private SolutionItemModel.Builder ReadProjectInfo(SolutionModel.Builder solutionBuilder, ref StringTokenizer tokenizer)
+        private SolutionItemModel ReadProjectInfo(SolutionModel solution, ref StringTokenizer tokenizer)
         {
             // Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "App1", "App1\App1.csproj", "{B0D4AB54-EB86-4C88-A2A4-C55D0C200244}"
             //         ^  <- this is tokenizer pos.
@@ -481,41 +502,38 @@ internal sealed partial class SlnFileV12Serializer
             this.ValidateAbort(!projectUniqueId.IsEmpty);
             _ = this.Validate(Guid.TryParse(projectUniqueId.ToString(), out Guid projectId));
 
-            SolutionItemModel.Builder itemBuilder;
             if (projectTypeId == ProjectTypeTable.SolutionFolder)
             {
-                SolutionFolderModel.Builder folderBuilder = solutionBuilder.AddFolder(name: displayName.ToString());
-                itemBuilder = folderBuilder;
+                SolutionFolderModel folder = solution.AddFolder(name: displayName.ToString());
+                folder.Id = projectId;
+                return folder;
             }
             else
             {
-                SolutionProjectModel.Builder projectBuilder = solutionBuilder.AddProject(filePath: PathExtensions.ConvertFromPersistencePath(relativePath.ToString()));
-                projectBuilder.ProjectType = projectTypeId == Guid.Empty ? null : projectType.ToString();
-                projectBuilder.DisplayName = displayName.ToString();
-                itemBuilder = projectBuilder;
+                SolutionProjectModel project = solution.AddProject(
+                    filePath: PathExtensions.ConvertFromPersistencePath(relativePath.ToString()),
+                    projectTypeId: projectTypeId);
+                project.Id = projectId;
+                project.DisplayName = displayName.ToString();
+                return project;
             }
-
-            itemBuilder.ItemId = projectId;
-            return itemBuilder;
         }
 
         private readonly void OnParseError(ParseError code, string? message = null)
         {
             int line = this.lineNumber;
 
-            // TODO: More stuff?
             throw new InvalidSolutionFormatException($"Error in {fullPath}: {code} {message ?? string.Empty} {(line != 0 ? $" at line : {line}" : string.Empty)}");
         }
 
         // Validate condition, that would mark solution file as "corrupted" if false
         // In these scenarios old parser would ignore the line (potentially throw aways some data) and move on.
+        // CONSIDER: Update this to log the error and location.
         private bool Validate(bool condition)
         {
             if (!condition)
             {
                 this.corrupted = true;
-
-                // Todo: Error at lineNumber log ?
             }
 
             return condition;
