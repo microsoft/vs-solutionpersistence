@@ -54,7 +54,7 @@ extends:
             TeamEmail: $(TeamEmail)
             InsertionPayloadName: $(Build.Repository.Name) $(Build.BuildNumber)
             InsertionBuildPolicy: Request Perf DDRITs
-            InsertionReviewers: $(Build.RequestedFor) # Append `,Your team name` (without quotes)
+            InsertionReviewers: $(Build.RequestedFor),VS Core - Solution Experience # Append `,Your team name` (without quotes)
             AutoCompletePR: true
             AutoCompleteMergeStrategy: Squash
             ShallowClone: true
