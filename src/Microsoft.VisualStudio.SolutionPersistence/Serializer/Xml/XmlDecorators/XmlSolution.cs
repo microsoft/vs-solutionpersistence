@@ -15,35 +15,43 @@ internal sealed partial class XmlSolution(SlnxFile file, XmlElement element) :
     private ItemRefList<XmlConfigurations> configurationsSingle = new ItemRefList<XmlConfigurations>();
     private ItemRefList<XmlFolder> folders = new ItemRefList<XmlFolder>(ignoreCase: true);
 #pragma warning disable SA1401 // Fields should be private
+#pragma warning disable SA1202 // Elements should be ordered by access
     internal ItemRefList<XmlProject> Projects = new ItemRefList<XmlProject>(ignoreCase: true);
+#pragma warning restore SA1202 // Elements should be ordered by access
 #pragma warning restore SA1401 // Fields should be private
 
-    public string? Description
+    internal string? Description
     {
         get => this.GetXmlAttribute(Keyword.Description);
         set => this.UpdateXmlAttribute(Keyword.Description, value);
     }
 
-    public Guid SolutionId
+    internal Guid SolutionId
     {
         get => this.GetXmlAttributeGuid(Keyword.SolutionId, Guid.Empty);
         set => this.UpdateXmlAttribute(Keyword.SolutionId, isDefault: value == Guid.Empty, value, static guid => guid.ToString());
     }
 
-    public string? VisualStudioVersion
+    internal string? VisualStudioVersion
     {
         get => this.GetXmlAttribute(Keyword.VisualStudioVersion);
         set => this.UpdateXmlAttribute(Keyword.VisualStudioVersion, value);
     }
 
-    public string? MinimumVisualStudioVersion
+    internal string? MinimumVisualStudioVersion
     {
         get => this.GetXmlAttribute(Keyword.MinimumVisualStudioVersion);
         set => this.UpdateXmlAttribute(Keyword.MinimumVisualStudioVersion, value);
     }
 
+#if DEBUG
+
+    internal override string DebugDisplay => $"{base.DebugDisplay} Projects={this.Projects} Folders={this.folders}";
+
+#endif
+
     /// <inheritdoc/>
-    public override XmlDecorator? ChildDecoratorFactory(XmlElement element, Keyword elementName)
+    internal override XmlDecorator? ChildDecoratorFactory(XmlElement element, Keyword elementName)
     {
         return elementName switch
         {
@@ -54,13 +62,13 @@ internal sealed partial class XmlSolution(SlnxFile file, XmlElement element) :
         };
     }
 
-    public XmlProject CreateProjectDecorator(XmlElement element, XmlFolder? xmlParentFolder)
+    internal XmlProject CreateProjectDecorator(XmlElement element, XmlFolder? xmlParentFolder)
     {
         return new XmlProject(this.Root, xmlParentFolder, element);
     }
 
     /// <inheritdoc/>
-    public override void OnNewChildDecoratorAdded(XmlDecorator childDecorator)
+    internal override void OnNewChildDecoratorAdded(XmlDecorator childDecorator)
     {
         switch (childDecorator)
         {
@@ -80,7 +88,7 @@ internal sealed partial class XmlSolution(SlnxFile file, XmlElement element) :
 
     #region Deserialize model
 
-    public SolutionModel ToModel()
+    internal SolutionModel ToModel()
     {
         SolutionModel solutionModel = new SolutionModel
         {
@@ -117,7 +125,18 @@ internal sealed partial class XmlSolution(SlnxFile file, XmlElement element) :
         }
 
         // Create default configurations if they weren't provided by the Configurations section.
-        XmlConfigurations.CreateDefaultConfigurationsIfNeeded(solutionModel);
+        // Add default build types (Debug/Release) if not specified.
+        if (solutionModel.BuildTypes.IsNullOrEmpty() && solutionModel.SolutionProjects.Count > 0)
+        {
+            solutionModel.AddBuildType(BuildTypeNames.Debug);
+            solutionModel.AddBuildType(BuildTypeNames.Release);
+        }
+
+        // Add default platform (Any CPU) if not specified.
+        if (solutionModel.Platforms.IsNullOrEmpty() && solutionModel.SolutionProjects.Count > 0)
+        {
+            solutionModel.AddPlatform(PlatformNames.AnySpaceCPU);
+        }
 
         foreach (XmlProperties properties in this.propertyBags.GetItems())
         {
@@ -130,7 +149,7 @@ internal sealed partial class XmlSolution(SlnxFile file, XmlElement element) :
     /// <summary>
     /// Create a project type table from the declared project types in this solution.
     /// </summary>
-    public ProjectTypeTable GetProjectTypeTable()
+    internal ProjectTypeTable GetProjectTypeTable()
     {
         foreach (XmlConfigurations xmlConfigurations in this.configurationsSingle.GetItems())
         {
@@ -146,7 +165,7 @@ internal sealed partial class XmlSolution(SlnxFile file, XmlElement element) :
 
     #endregion
 
-    public bool TryGetFormatting(out StringSpan newLine, out StringSpan indent)
+    internal bool TryGetFormatting(out StringSpan newLine, out StringSpan indent)
     {
         foreach (XmlDecorator decorator in this.folders.GetItems())
         {
@@ -199,11 +218,4 @@ internal sealed partial class XmlSolution(SlnxFile file, XmlElement element) :
             return true;
         }
     }
-
-#if DEBUG
-
-    public override string DebugDisplay => $"{base.DebugDisplay} Projects={this.Projects} Folders={this.folders}";
-
-#endif
-
 }

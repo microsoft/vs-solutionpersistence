@@ -19,8 +19,16 @@ internal sealed class XmlConfigurations(SlnxFile root, XmlElement element) :
 
     public Keyword ItemRefAttribute => Keyword.Configurations;
 
+    private protected override bool AllowEmptyItemRef => true;
+
+    private protected override string RawItemRef
+    {
+        get => string.Empty;
+        set { }
+    }
+
     /// <inheritdoc/>
-    public override XmlDecorator? ChildDecoratorFactory(XmlElement element, Keyword elementName)
+    internal override XmlDecorator? ChildDecoratorFactory(XmlElement element, Keyword elementName)
     {
         return elementName switch
         {
@@ -32,7 +40,7 @@ internal sealed class XmlConfigurations(SlnxFile root, XmlElement element) :
     }
 
     /// <inheritdoc/>
-    public override void OnNewChildDecoratorAdded(XmlDecorator childDecorator)
+    internal override void OnNewChildDecoratorAdded(XmlDecorator childDecorator)
     {
         switch (childDecorator)
         {
@@ -50,33 +58,9 @@ internal sealed class XmlConfigurations(SlnxFile root, XmlElement element) :
         base.OnNewChildDecoratorAdded(childDecorator);
     }
 
-    private protected override bool AllowEmptyItemRef => true;
-
-    private protected override string RawItemRef
-    {
-        get => string.Empty;
-        set { }
-    }
-
     #region Deserialize model
 
-    public static void CreateDefaultConfigurationsIfNeeded(SolutionModel solution)
-    {
-        // Add default build types (Debug/Release) if not specified.
-        if (solution.BuildTypes.IsNullOrEmpty() && solution.SolutionProjects.Count > 0)
-        {
-            solution.AddBuildType(BuildTypeNames.Debug);
-            solution.AddBuildType(BuildTypeNames.Release);
-        }
-
-        // Add default platform (Any CPU) if not specified.
-        if (solution.Platforms.IsNullOrEmpty() && solution.SolutionProjects.Count > 0)
-        {
-            solution.AddPlatform(PlatformNames.AnySpaceCPU);
-        }
-    }
-
-    public void AddToModel(SolutionModel solution)
+    internal void AddToModel(SolutionModel solution)
     {
         foreach (XmlPlatform platform in this.platforms.GetItems())
         {
@@ -92,7 +76,7 @@ internal sealed class XmlConfigurations(SlnxFile root, XmlElement element) :
     /// <summary>
     /// Create a project type table from the declared project types in this solution.
     /// </summary>
-    public ProjectTypeTable? GetProjectTypeTable()
+    internal ProjectTypeTable? GetProjectTypeTable()
     {
         List<ProjectType> declaredTypes = new List<ProjectType>(this.projectTypes.ItemsCount);
         foreach (XmlProjectType projectType in this.projectTypes.GetItems())
@@ -108,7 +92,7 @@ internal sealed class XmlConfigurations(SlnxFile root, XmlElement element) :
     #endregion
 
     // Update the Xml DOM with changes from the model.
-    public bool ApplyModelToXml(SolutionModel modelSolution)
+    internal bool ApplyModelToXml(SolutionModel modelSolution)
     {
         bool modified = false;
 

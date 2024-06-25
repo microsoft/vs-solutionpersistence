@@ -16,7 +16,7 @@ internal sealed partial class SlnXmlSerializer
         private readonly string? fullPath;
         private readonly XmlDocument xmlDocument;
 
-        public Reader(string? fullPath, Stream readerStream)
+        internal Reader(string? fullPath, Stream readerStream)
         {
             this.fullPath = fullPath;
 
@@ -27,7 +27,7 @@ internal sealed partial class SlnXmlSerializer
             this.xmlDocument.Load(readerStream);
         }
 
-        public SolutionModel Parse()
+        internal SolutionModel Parse()
         {
             SlnxFile slnxFile = new SlnxFile(this.xmlDocument, new SlnxSerializerSettings(), null, this.fullPath);
             SerializerLogger logger = slnxFile.Logger;

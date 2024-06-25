@@ -120,9 +120,9 @@ internal static class Keywords
 #endif
     }
 
-    public static string ToXmlString(this Keyword keyword) => KeywordToString[(int)keyword];  // let it throw
+    internal static string ToXmlString(this Keyword keyword) => KeywordToString[(int)keyword];  // let it throw
 
-    public static Keyword ToKeyword(string name) =>
+    internal static Keyword ToKeyword(string name) =>
         !string.IsNullOrEmpty(name) && StringToKeyword.TryGetValue(name, out Keyword ret) ? ret : Keyword.Unknown;
 
     // Adds common solution constants to string table.

@@ -13,7 +13,7 @@ internal partial class SlnFileV12Serializer
     /// </summary>
     private readonly struct SlnFileV12Writer(SolutionModel model, TextWriter writer)
     {
-        public static async Task SaveAsync(
+        internal static async Task SaveAsync(
             SolutionModel model,
             Stream streamWriter)
         {
@@ -41,13 +41,7 @@ internal partial class SlnFileV12Serializer
             }
         }
 
-        private static bool ShouldWriteExtraHeaderLine(Encoding encoding)
-        {
-            byte[]? bom = encoding.GetPreamble();
-            return bom is not null && bom.Length > 0;
-        }
-
-        public void WriteSolution(bool writeExtraLine)
+        internal void WriteSolution(bool writeExtraLine)
         {
             if (writeExtraLine)
             {
@@ -93,6 +87,12 @@ internal partial class SlnFileV12Serializer
             }
 
             writer.WriteLine(SlnConstants.TagEndGlobal);      // EndGlobal
+        }
+
+        private static bool ShouldWriteExtraHeaderLine(Encoding encoding)
+        {
+            byte[]? bom = encoding.GetPreamble();
+            return bom is not null && bom.Length > 0;
         }
 
         private void WritePropertyMap(bool isSolution, SolutionPropertyBag map)

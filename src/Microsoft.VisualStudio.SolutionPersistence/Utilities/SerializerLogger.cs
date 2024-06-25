@@ -18,13 +18,14 @@ internal sealed class SerializerLogger : ISerializerLogger
 {
     private readonly List<(string Message, MessageLevel Level, XmlElement? Location)> messages = [];
 
+    internal List<(string Message, MessageLevel Level, XmlElement? Location)> Messages => this.messages;
+
     public void Log(string message, MessageLevel level, XmlElement? location)
     {
         this.messages.Add((message, level, location));
     }
 
-    public List<(string Message, MessageLevel Level, XmlElement? Location)> Messages => this.messages;
-
+    /// <inheritdoc/>
     public override string ToString()
     {
         StringBuilder builder = new();

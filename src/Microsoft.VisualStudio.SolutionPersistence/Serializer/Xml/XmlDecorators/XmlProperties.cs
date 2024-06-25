@@ -17,7 +17,7 @@ internal sealed partial class XmlProperties(SlnxFile root, XmlElement element) :
 
     public Keyword ItemRefAttribute => Keyword.Name;
 
-    public string Name => this.ItemRef;
+    internal string Name => this.ItemRef;
 
     private protected override bool AllowEmptyItemRef => true;
 
@@ -28,7 +28,7 @@ internal sealed partial class XmlProperties(SlnxFile root, XmlElement element) :
     }
 
     /// <inheritdoc/>
-    public override XmlDecorator? ChildDecoratorFactory(XmlElement element, Keyword elementName)
+    internal override XmlDecorator? ChildDecoratorFactory(XmlElement element, Keyword elementName)
     {
         return elementName switch
         {
@@ -38,7 +38,7 @@ internal sealed partial class XmlProperties(SlnxFile root, XmlElement element) :
     }
 
     /// <inheritdoc/>
-    public override void OnNewChildDecoratorAdded(XmlDecorator childDecorator)
+    internal override void OnNewChildDecoratorAdded(XmlDecorator childDecorator)
     {
         switch (childDecorator)
         {
@@ -52,7 +52,7 @@ internal sealed partial class XmlProperties(SlnxFile root, XmlElement element) :
 
     #region Deserialize model
 
-    public void AddToModel(PropertyContainerModel model)
+    internal void AddToModel(PropertyContainerModel model)
     {
         // Even if there are no properties in this property table, create a model entry so the xml isn't deleted.
         SolutionPropertyBag propertyBag = model.AddProperties(id: this.Name, scope: this.Scope);
@@ -65,7 +65,7 @@ internal sealed partial class XmlProperties(SlnxFile root, XmlElement element) :
     #endregion
 
     // Update the Xml DOM with changes from the model.
-    public bool ApplyModelToXml(SolutionPropertyBag modelProperties)
+    internal bool ApplyModelToXml(SolutionPropertyBag modelProperties)
     {
         return this.ApplyModelToXmlGeneric(
             modelCollection: modelProperties,

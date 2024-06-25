@@ -14,7 +14,7 @@ namespace Microsoft.VisualStudio.SolutionPersistence.Serializer.Xml.XmlDecorator
 internal sealed partial class XmlSolution
 {
     // Update the Xml DOM with changes from the model.
-    public bool ApplyModelToXml(SolutionModel modelSolution)
+    internal bool ApplyModelToXml(SolutionModel modelSolution)
     {
         bool modified = false;
 

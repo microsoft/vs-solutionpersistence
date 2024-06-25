@@ -7,21 +7,17 @@ namespace Microsoft.VisualStudio.SolutionPersistence.Serializer;
 
 internal abstract class SingleFileSerializerBase<TSettings> : ISolutionSingleFileSerializer<TSettings>
 {
-    private ISolutionSingleFileSerializer<TSettings> AsSingleFileSerializer => this;
-
     public abstract string Name { get; }
 
     public string DefaultFileExtension => this.FileExtension;
 
+    private protected abstract string FileExtension { get; }
+
+    private ISolutionSingleFileSerializer<TSettings> AsSingleFileSerializer => this;
+
     public abstract ISerializerModelExtension CreateModelExtension();
 
     public abstract ISerializerModelExtension CreateModelExtension(TSettings settings);
-
-    private protected abstract string FileExtension { get; }
-
-    private protected abstract Task<SolutionModel> ReadModelAsync(string? fullPath, Stream reader, CancellationToken cancellationToken);
-
-    private protected abstract Task WriteModelAsync(string? fullPath, SolutionModel model, Stream writerStream, CancellationToken cancellationToken);
 
     Task<SolutionModel> ISolutionSingleFileSerializer<TSettings>.OpenAsync(string? fullPath, Stream reader, CancellationToken cancellationToken)
     {
@@ -59,4 +55,8 @@ internal abstract class SingleFileSerializerBase<TSettings> : ISolutionSingleFil
             await this.AsSingleFileSerializer.SaveAsync(moniker, stream, model, cancellationToken);
         }
     }
+
+    private protected abstract Task<SolutionModel> ReadModelAsync(string? fullPath, Stream reader, CancellationToken cancellationToken);
+
+    private protected abstract Task WriteModelAsync(string? fullPath, SolutionModel model, Stream writerStream, CancellationToken cancellationToken);
 }

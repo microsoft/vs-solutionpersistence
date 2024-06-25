@@ -6,12 +6,12 @@ namespace Microsoft.VisualStudio.SolutionPersistence.Model;
 // Constants for the project type table.
 internal sealed partial class ProjectTypeTable
 {
-    private static readonly ConfigurationRule[] ClrBuildRules = [ModelHelper.CreatePlatformRule(string.Empty, PlatformNames.AnyCPU)];
-
     internal static readonly ConfigurationRule[] NoBuildRules = [ModelHelper.CreateNoBuildRule()];
 
     internal static readonly Guid VCXProj = new Guid("8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942");
     internal static readonly Guid SolutionFolder = new Guid("2150E333-8FDC-42A3-9474-1A3956D46DE8");
+
+    private static readonly ConfigurationRule[] ClrBuildRules = [ModelHelper.CreatePlatformRule(string.Empty, PlatformNames.AnyCPU)];
 
     private static ProjectTypeTable? implicitProjectTypes;
 

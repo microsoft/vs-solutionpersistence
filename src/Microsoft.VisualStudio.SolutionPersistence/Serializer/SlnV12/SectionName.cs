@@ -6,24 +6,24 @@ namespace Microsoft.VisualStudio.SolutionPersistence.Serializer.SlnV12;
 internal static class SectionName
 {
     // A property for items directory on the solution or project.
-    public const string VisualStudio = "Visual Studio";
-    public const string SolutionProperties = nameof(SolutionProperties);
-    public const string ExtensibilityGlobals = nameof(ExtensibilityGlobals);
-    public const string NestedProjects = nameof(NestedProjects);
-    public const string SolutionConfigurationPlatforms = nameof(SolutionConfigurationPlatforms);
-    public const string ProjectConfigurationPlatforms = nameof(ProjectConfigurationPlatforms);
+    internal const string VisualStudio = "Visual Studio";
+    internal const string SolutionProperties = nameof(SolutionProperties);
+    internal const string ExtensibilityGlobals = nameof(ExtensibilityGlobals);
+    internal const string NestedProjects = nameof(NestedProjects);
+    internal const string SolutionConfigurationPlatforms = nameof(SolutionConfigurationPlatforms);
+    internal const string ProjectConfigurationPlatforms = nameof(ProjectConfigurationPlatforms);
 
     // Shared project system properties.
-    public const string SharedMSBuildProjectFiles = nameof(SharedMSBuildProjectFiles);
+    internal const string SharedMSBuildProjectFiles = nameof(SharedMSBuildProjectFiles);
 
     // Project's build dependencies.
-    public const string ProjectDependencies = nameof(ProjectDependencies);
+    internal const string ProjectDependencies = nameof(ProjectDependencies);
 
     // Solution Folder's files.
-    public const string SolutionItems = nameof(SolutionItems);
+    internal const string SolutionItems = nameof(SolutionItems);
 
     // Convert section names to the already interned constants.
-    public static string InternKnownSectionName(string sectionName)
+    internal static string InternKnownSectionName(string sectionName)
     {
         return
             StringComparer.OrdinalIgnoreCase.Equals(sectionName, SolutionProperties) ? SolutionProperties :

@@ -10,13 +10,13 @@ namespace Microsoft.VisualStudio.SolutionPersistence.Utilities;
 /// </summary>
 internal static class DefaultIdGenerator
 {
-    public static Guid CreateIdFrom(string uniqueName)
+    internal static Guid CreateIdFrom(string uniqueName)
     {
         byte[] bytes = Encoding.UTF8.GetBytes(uniqueName.ToUpperInvariant());
         return MakeId(bytes, null);
     }
 
-    public static Guid CreateIdFrom(Guid parentItemId, string name)
+    internal static Guid CreateIdFrom(Guid parentItemId, string name)
     {
         if (string.IsNullOrEmpty(name))
         {

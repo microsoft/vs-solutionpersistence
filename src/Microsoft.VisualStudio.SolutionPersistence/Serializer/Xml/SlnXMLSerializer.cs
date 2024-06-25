@@ -12,24 +12,19 @@ internal sealed partial class SlnXmlSerializer : SingleFileSerializerBase<SlnxSe
 
     private const string SerializerName = "Slnx";
 
-    internal enum ParseError
-    {
-        NoSolutionElement,
-        BadXMLorBug,
-        BadSlnFile,
-    }
-
     [Obsolete("Use Instance")]
     public SlnXmlSerializer()
     {
     }
 
-    public static SlnXmlSerializer Instance => Singleton<SlnXmlSerializer>.Instance;
+    /// <inheritdoc/>
+    public override string Name => SerializerName;
+
+    internal static SlnXmlSerializer Instance => Singleton<SlnXmlSerializer>.Instance;
 
     private protected override string FileExtension => Extension;
 
-    public override string Name => SerializerName;
-
+    /// <inheritdoc/>
     public override ISerializerModelExtension CreateModelExtension()
     {
         return this.CreateModelExtension(new SlnxSerializerSettings()
@@ -41,6 +36,7 @@ internal sealed partial class SlnXmlSerializer : SingleFileSerializerBase<SlnxSe
         });
     }
 
+    /// <inheritdoc/>
     public override ISerializerModelExtension CreateModelExtension(SlnxSerializerSettings settings)
     {
         return new SlnXmlModelExtension(this, settings);

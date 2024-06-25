@@ -14,5 +14,5 @@ internal sealed class XmlBuildType(SlnxFile root, XmlElement element) :
 {
     public Keyword ItemRefAttribute => Keyword.Name;
 
-    public string Name => this.ItemRef;
+    internal string Name => this.ItemRef;
 }

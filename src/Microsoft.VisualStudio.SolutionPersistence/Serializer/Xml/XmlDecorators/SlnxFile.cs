@@ -14,9 +14,7 @@ namespace Microsoft.VisualStudio.SolutionPersistence.Serializer.Xml.XmlDecorator
 [DebuggerDisplay("{Solution}")]
 internal sealed class SlnxFile
 {
-    public string? FullPath { get; }
-
-    public SlnxFile(
+    internal SlnxFile(
         XmlDocument xmlDocument,
         SlnxSerializerSettings serializationSettings,
         StringTable? stringTable,
@@ -45,40 +43,21 @@ internal sealed class SlnxFile
         this.SerializationSettings = this.GetDefaultSerializationSettings(serializationSettings);
     }
 
-    // Fill out default values.
-    private SlnxSerializerSettings GetDefaultSerializationSettings(SlnxSerializerSettings inputSettings)
-    {
-        string newLineChars = Environment.NewLine;
-        string newIndentChars = "  ";
-        if ((inputSettings.IndentChars is null || inputSettings.NewLine is null) &&
-            this.Solution is not null &&
-            this.Solution.TryGetFormatting(out StringSpan newLine, out StringSpan indent))
-        {
-            newLineChars = newLine.ToString();
-            newIndentChars = indent.ToString();
-        }
+    internal string? FullPath { get; }
 
-        return inputSettings with
-        {
-            PreserveWhitespace = inputSettings.PreserveWhitespace ?? this.Document.PreserveWhitespace,
-            IndentChars = inputSettings.IndentChars ?? newIndentChars,
-            NewLine = inputSettings.NewLine ?? newLineChars,
-        };
-    }
+    internal XmlDocument Document { get; }
 
-    public XmlDocument Document { get; }
+    internal XmlSolution? Solution { get; private set; }
 
-    public XmlSolution? Solution { get; private set; }
+    internal SlnxSerializerSettings SerializationSettings { get; }
 
-    public SlnxSerializerSettings SerializationSettings { get; }
+    internal StringTable StringTable { get; }
 
-    public StringTable StringTable { get; }
+    internal SerializerLogger Logger { get; private set; } = new SerializerLogger();
 
-    public SerializerLogger Logger { get; private set; } = new SerializerLogger();
+    internal ProjectTypeTable ProjectTypes { get; private set; }
 
-    public ProjectTypeTable ProjectTypes { get; private set; }
-
-    public SolutionModel ToModel()
+    internal SolutionModel ToModel()
     {
         SolutionModel model = this.Solution?.ToModel() ?? new SolutionModel() { StringTable = this.StringTable };
         model.SerializerExtension = new SlnXmlModelExtension(SolutionSerializers.SlnXml, this.SerializationSettings, root: this);
@@ -91,7 +70,7 @@ internal sealed class SlnxFile
     /// <returns>
     /// true if any changes were made to the XML.
     /// </returns>
-    public bool ApplyModel(SolutionModel model)
+    internal bool ApplyModel(SolutionModel model)
     {
         this.ProjectTypes = model.ProjectTypeTable;
 
@@ -113,5 +92,26 @@ internal sealed class SlnxFile
     internal string ToXmlString()
     {
         return this.Document.OuterXml;
+    }
+
+    // Fill out default values.
+    private SlnxSerializerSettings GetDefaultSerializationSettings(SlnxSerializerSettings inputSettings)
+    {
+        string newLineChars = Environment.NewLine;
+        string newIndentChars = "  ";
+        if ((inputSettings.IndentChars is null || inputSettings.NewLine is null) &&
+            this.Solution is not null &&
+            this.Solution.TryGetFormatting(out StringSpan newLine, out StringSpan indent))
+        {
+            newLineChars = newLine.ToString();
+            newIndentChars = indent.ToString();
+        }
+
+        return inputSettings with
+        {
+            PreserveWhitespace = inputSettings.PreserveWhitespace ?? this.Document.PreserveWhitespace,
+            IndentChars = inputSettings.IndentChars ?? newIndentChars,
+            NewLine = inputSettings.NewLine ?? newLineChars,
+        };
     }
 }

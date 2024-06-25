@@ -7,17 +7,17 @@ namespace Microsoft.VisualStudio.SolutionPersistence.Utilities;
 
 internal static class SerializerLoggerExtensions
 {
-    public static void LogError(this ISerializerLogger logger, string message, XmlElement? location = null)
+    internal static void LogError(this ISerializerLogger logger, string message, XmlElement? location = null)
     {
         logger.Log(message, MessageLevel.Error, location);
     }
 
-    public static void LogWarning(this ISerializerLogger logger, string message, XmlElement? location = null)
+    internal static void LogWarning(this ISerializerLogger logger, string message, XmlElement? location = null)
     {
         logger.Log(message, MessageLevel.Warning, location);
     }
 
-    public static void LogMessage(this ISerializerLogger logger, string message, XmlElement? location = null)
+    internal static void LogMessage(this ISerializerLogger logger, string message, XmlElement? location = null)
     {
         logger.Log(message, MessageLevel.Message, location);
     }

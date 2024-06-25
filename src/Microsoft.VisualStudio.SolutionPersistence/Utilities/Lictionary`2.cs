@@ -25,22 +25,18 @@ internal readonly struct Lictionary<TKey, TValue> : IReadOnlyDictionary<TKey, TV
     {
     }
 
-    public Lictionary(int capacity, IComparer<TKey>? comparer = null)
+    internal Lictionary(int capacity, IComparer<TKey>? comparer = null)
     {
         this.comparer = comparer is null ? DefaultComparer : new EntryKeyComparer(comparer);
         this.items = new List<KeyValuePair<TKey, TValue>>(capacity);
     }
 
-    public Lictionary(IReadOnlyCollection<KeyValuePair<TKey, TValue>> values, IComparer<TKey>? comparer = null)
+    internal Lictionary(IReadOnlyCollection<KeyValuePair<TKey, TValue>> values, IComparer<TKey>? comparer = null)
     {
+        Argument.ThrowIfNull(values, nameof(values));
         this.comparer = comparer is null ? DefaultComparer : new EntryKeyComparer(comparer);
         this.items = [.. values];
         this.items.Sort(this.comparer);
-
-        if (default(TKey) is null && this.ContainsKey(default!))
-        {
-            throw new ArgumentNullException(nameof(values));
-        }
 
         KeyValuePair<TKey, TValue> lastEntry = default;
         foreach (KeyValuePair<TKey, TValue> entry in this.items)
@@ -54,45 +50,15 @@ internal readonly struct Lictionary<TKey, TValue> : IReadOnlyDictionary<TKey, TV
         }
     }
 
-    public void Add(TKey key, TValue value)
-    {
-        if (!this.TryAdd(key, value))
-        {
-            throw new ArgumentException("Duplicate property name has " + key, nameof(key));
-        }
-    }
+    public IEnumerable<TKey> Keys => this.Select(x => x.Key);
 
-    internal bool TryAdd(TKey key, TValue value)
-    {
-        int index = this.BinarySearch(key);
-        if (index >= 0)
-        {
-            return false;
-        }
-        else
-        {
-            this.items.Insert(~index, new KeyValuePair<TKey, TValue>(key, value));
-            return true;
-        }
-    }
+    public IEnumerable<TValue> Values => this.Select(x => x.Value);
 
-    public bool Remove(TKey key)
-    {
-        int index = this.BinarySearch(key);
-        if (index >= 0)
-        {
-            this.items.RemoveAt(index);
-            return true;
-        }
-
-        return false;
-    }
-
-    public void Clear() => this.items.Clear();
+    public int Count => this.items.Count;
 
     public TValue this[TKey key]
     {
-        get => this.TryGetValue(key, out TValue? value) ? value : throw new ArgumentOutOfRangeException(nameof(key));
+        get => this.TryGetValue(key, out TValue? value) ? value : throw new KeyNotFoundException(nameof(key));
         set
         {
             int index = this.BinarySearch(key);
@@ -106,12 +72,6 @@ internal readonly struct Lictionary<TKey, TValue> : IReadOnlyDictionary<TKey, TV
             }
         }
     }
-
-    public IEnumerable<TKey> Keys => this.Select(x => x.Key);
-
-    public IEnumerable<TValue> Values => this.Select(x => x.Value);
-
-    public int Count => this.items.Count;
 
     public bool ContainsKey(TKey key) => this.BinarySearch(key) >= 0;
 
@@ -136,16 +96,47 @@ internal readonly struct Lictionary<TKey, TValue> : IReadOnlyDictionary<TKey, TV
         }
     }
 
-    public List<KeyValuePair<TKey, TValue>>.Enumerator GetEnumerator() => this.items.GetEnumerator();
-
     IEnumerator<KeyValuePair<TKey, TValue>> IEnumerable<KeyValuePair<TKey, TValue>>.GetEnumerator() => this.items.GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() => this.items.GetEnumerator();
 
-    private int BinarySearch(TKey key)
+    public List<KeyValuePair<TKey, TValue>>.Enumerator GetEnumerator() => this.items.GetEnumerator();
+
+    internal void Add(TKey key, TValue value)
     {
-        return this.items.BinarySearch(new(key, default!), this.comparer);
+        if (!this.TryAdd(key, value))
+        {
+            throw new ArgumentException("Duplicate property name has " + key, nameof(key));
+        }
     }
+
+    internal bool TryAdd(TKey key, TValue value)
+    {
+        int index = this.BinarySearch(key);
+        if (index >= 0)
+        {
+            return false;
+        }
+        else
+        {
+            this.items.Insert(~index, new KeyValuePair<TKey, TValue>(key, value));
+            return true;
+        }
+    }
+
+    internal bool Remove(TKey key)
+    {
+        int index = this.BinarySearch(key);
+        if (index >= 0)
+        {
+            this.items.RemoveAt(index);
+            return true;
+        }
+
+        return false;
+    }
+
+    internal void Clear() => this.items.Clear();
 
     internal bool TryFindNext(TKey key, [MaybeNullWhen(false)] out TValue? value)
     {
@@ -158,6 +149,24 @@ internal readonly struct Lictionary<TKey, TValue> : IReadOnlyDictionary<TKey, TV
 
         value = default;
         return false;
+    }
+
+    internal void EnsureCapacity(int capacity)
+    {
+#if NETFRAMEWORK
+        if (capacity > this.items.Capacity)
+        {
+            this.items.Capacity = capacity;
+        }
+#else
+        _ = this.items.EnsureCapacity(capacity);
+#endif
+    }
+
+    private int BinarySearch(TKey key)
+    {
+        Argument.ThrowIfNull(key, nameof(key));
+        return this.items.BinarySearch(new(key, default!), this.comparer);
     }
 
     private sealed class EntryKeyComparer(IComparer<TKey> keyComparer) : IComparer<KeyValuePair<TKey, TValue>>

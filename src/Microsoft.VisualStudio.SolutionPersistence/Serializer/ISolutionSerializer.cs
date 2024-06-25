@@ -13,7 +13,7 @@ public interface ISolutionSerializer
     /// <summary>
     /// Gets the name of the serializer.
     /// </summary>
-    public string Name { get; }
+    string Name { get; }
 
     /// <summary>
     /// Creates a default model extension for the serializer.

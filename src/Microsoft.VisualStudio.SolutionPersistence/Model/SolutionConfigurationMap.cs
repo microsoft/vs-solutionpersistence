@@ -16,7 +16,7 @@ internal sealed partial class SolutionConfigurationMap
 
     private readonly int matrixSize;
 
-    public SolutionConfigurationMap(SolutionModel solutionModel)
+    internal SolutionConfigurationMap(SolutionModel solutionModel)
     {
         this.solutionModel = solutionModel;
         for (int i = 0; i < solutionModel.BuildTypes.Count; i++)
@@ -32,51 +32,24 @@ internal sealed partial class SolutionConfigurationMap
         this.matrixSize = this.BuildTypesCount * this.PlatformsCount;
     }
 
-    private SolutionConfigIndex ToIndex(int iBuildType, int iPlatform) => new SolutionConfigIndex(this, iBuildType, iPlatform);
+    internal int BuildTypesCount => this.buildTypesIndex.Count;
 
-    public int GetBuildTypeIndex(string buildType)
+    internal int PlatformsCount => this.platformsIndex.Count;
+
+    internal int GetBuildTypeIndex(string buildType)
     {
         return !string.IsNullOrEmpty(buildType) && this.buildTypesIndex.TryGetValue(buildType, out int index) ? index : ScopedRules.All;
     }
 
-    public int GetPlatformIndex(string platform)
+    internal int GetPlatformIndex(string platform)
     {
         return !string.IsNullOrEmpty(platform) && this.platformsIndex.TryGetValue(PlatformNames.Canonical(platform), out int index) ? index : ScopedRules.All;
     }
 
-    // This should only be called from ConfigIndex
-    private string BuildTypeFromIndex(SolutionConfigIndex index)
-    {
-        if (index.MatrixIndex < 0 || index.MatrixIndex >= this.matrixSize)
-        {
-            throw new ArgumentOutOfRangeException(nameof(index), "Bug, invalid configuration index");
-        }
-
-        int config = index.MatrixIndex / this.PlatformsCount;
-        return this.solutionModel.BuildTypes[config];
-    }
-
-    // This should only be called from ConfigIndex
-    private string PlatformFromIndex(SolutionConfigIndex index)
-    {
-        if (index.MatrixIndex < 0 || index.MatrixIndex >= this.matrixSize)
-        {
-            throw new ArgumentOutOfRangeException(nameof(index), "Bug, invalid configuration index");
-        }
-
-        int plat = index.MatrixIndex % this.PlatformsCount;
-        return this.solutionModel.Platforms[plat];
-    }
-
-    public int BuildTypesCount => this.buildTypesIndex.Count;
-
-    public int PlatformsCount => this.platformsIndex.Count;
-
     /// <summary>
     /// Used to convert this model to a full list of all solution to project configurations.
-    /// This is used to serialize the .SLN file.
     /// </summary>
-    public void GetProjectConfigMap(
+    internal void GetProjectConfigMap(
         SolutionProjectModel projectModel,
         out SolutionToProjectMappings projectMappings,
         out bool supportsConfigs)
@@ -142,6 +115,32 @@ internal sealed partial class SolutionConfigurationMap
         }
     }
 
+    private SolutionConfigIndex ToIndex(int iBuildType, int iPlatform) => new SolutionConfigIndex(this, iBuildType, iPlatform);
+
+    // This should only be called from ConfigIndex
+    private string BuildTypeFromIndex(SolutionConfigIndex index)
+    {
+        if (index.MatrixIndex < 0 || index.MatrixIndex >= this.matrixSize)
+        {
+            throw new ArgumentOutOfRangeException(nameof(index), "Bug, invalid configuration index");
+        }
+
+        int config = index.MatrixIndex / this.PlatformsCount;
+        return this.solutionModel.BuildTypes[config];
+    }
+
+    // This should only be called from ConfigIndex
+    private string PlatformFromIndex(SolutionConfigIndex index)
+    {
+        if (index.MatrixIndex < 0 || index.MatrixIndex >= this.matrixSize)
+        {
+            throw new ArgumentOutOfRangeException(nameof(index), "Bug, invalid configuration index");
+        }
+
+        int plat = index.MatrixIndex % this.PlatformsCount;
+        return this.solutionModel.Platforms[plat];
+    }
+
     /// <summary>
     /// Represents all project configurations that are mapped from
     /// all solution configurations for a single project.
@@ -154,7 +153,7 @@ internal sealed partial class SolutionConfigurationMap
 #endif
         private readonly ProjectConfigMapping[] mappings;
 
-        public SolutionToProjectMappings(
+        internal SolutionToProjectMappings(
             SolutionConfigurationMap configMap,
             SolutionProjectModel projectModel,
             out bool isConfigurable,
@@ -187,13 +186,14 @@ internal sealed partial class SolutionConfigurationMap
             }
         }
 
-        public ProjectConfigMapping this[SolutionConfigIndex index]
+        internal ProjectConfigMapping this[SolutionConfigIndex index]
         {
             get => this.mappings[index.MatrixIndex];
             set => this.mappings[index.MatrixIndex] = value;
         }
 
 #if DEBUG
+        /// <inheritdoc/>
         public override string ToString()
         {
             return this.projectModel.DisplayName ?? string.Empty;
@@ -210,21 +210,21 @@ internal sealed partial class SolutionConfigurationMap
 
         public SolutionConfigIndex() => this.index = -1;
 
-        public SolutionConfigIndex(SolutionConfigurationMap map, string buildType, string platform)
+        internal SolutionConfigIndex(SolutionConfigurationMap map, string buildType, string platform)
             : this(map, map.GetBuildTypeIndex(buildType), map.GetPlatformIndex(platform))
         {
         }
 
-        public SolutionConfigIndex(SolutionConfigurationMap map, int buildType, int platForm)
+        internal SolutionConfigIndex(SolutionConfigurationMap map, int buildType, int platForm)
         {
             bool unknown = buildType < 0 || buildType >= map.BuildTypesCount || platForm < 0 || platForm >= map.PlatformsCount;
             this.index = unknown ? -1 : (buildType * map.PlatformsCount) + platForm;
         }
 
-        public int MatrixIndex => this.index;
+        internal int MatrixIndex => this.index;
 
-        public string BuildType(SolutionConfigurationMap map) => map.BuildTypeFromIndex(this);
+        internal string BuildType(SolutionConfigurationMap map) => map.BuildTypeFromIndex(this);
 
-        public string Platform(SolutionConfigurationMap map) => map.PlatformFromIndex(this);
+        internal string Platform(SolutionConfigurationMap map) => map.PlatformFromIndex(this);
     }
 }

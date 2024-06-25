@@ -9,5 +9,5 @@ namespace Microsoft.VisualStudio.SolutionPersistence.Serializer.Xml.XmlDecorator
 internal sealed class XmlConfigurationPlatform(SlnxFile root, XmlElement element) :
     XmlConfiguration(root, element, Keyword.Platform)
 {
-    public override BuildDimension Dimension => BuildDimension.Platform;
+    internal override BuildDimension Dimension => BuildDimension.Platform;
 }

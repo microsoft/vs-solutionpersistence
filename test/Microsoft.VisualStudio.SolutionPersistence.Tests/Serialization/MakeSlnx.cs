@@ -9,37 +9,11 @@ using Xunit;
 namespace Serialization;
 
 #pragma warning disable CS9113 // Parameter is unread.
-public class MakeSlnx(MakeSlnx.MakeSlnxFixture fixture) : IClassFixture<MakeSlnx.MakeSlnxFixture>
+public partial class MakeSlnx(MakeSlnx.MakeSlnxFixture fixture) : IClassFixture<MakeSlnx.MakeSlnxFixture>
 #pragma warning restore CS9113 // Parameter is unread.
 {
     public static TheoryData<ResourceName> ClassicSlnFiles =>
         new TheoryData<ResourceName>(SlnAssets.ClassicSlnFiles);
-
-    public class MakeSlnxFixture
-    {
-        public MakeSlnxFixture()
-        {
-            ClearDirectory();
-        }
-
-        public static void ClearDirectory()
-        {
-            string outputDirectory = Path.Combine(Path.GetTempPath(), "OutputSln");
-            if (Directory.Exists(outputDirectory))
-            {
-                Directory.Delete(outputDirectory, true);
-            }
-
-            _ = Directory.CreateDirectory(outputDirectory);
-
-            string convertedSlnx = Path.Join(outputDirectory, "slnx");
-            string sln = Path.Join(outputDirectory, "sln");
-            string slnThruSlnxStream = Path.Join(outputDirectory, "slnThruSlnxStream");
-            _ = Directory.CreateDirectory(convertedSlnx);
-            _ = Directory.CreateDirectory(sln);
-            _ = Directory.CreateDirectory(slnThruSlnxStream);
-        }
-    }
 
     /// <summary>
     /// Converts all the sample SLN files into SLNX and puts them in the temp "OutputSln" directory.

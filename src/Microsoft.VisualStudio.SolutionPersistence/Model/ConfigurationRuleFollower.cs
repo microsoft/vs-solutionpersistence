@@ -10,20 +10,7 @@ internal readonly struct ConfigurationRuleFollower(IReadOnlyList<ConfigurationRu
 {
     private readonly IReadOnlyList<ConfigurationRule>? configurationRules = configurationRules;
 
-    public bool HasRules => !this.configurationRules.IsNullOrEmpty();
-
-    private readonly string GetDimensionValue(BuildDimension dimension, string? solutionBuildType, string? solutionPlatform)
-    {
-        foreach (ConfigurationRule rule in this.configurationRules.GetStructReverseEnumerable())
-        {
-            if (RuleAppliesTo(rule, dimension, solutionBuildType, solutionPlatform))
-            {
-                return rule.ProjectValue;
-            }
-        }
-
-        return string.Empty;
-    }
+    internal bool HasRules => !this.configurationRules.IsNullOrEmpty();
 
     internal readonly bool? GetIsBuildable(string? solutionBuildType = null, string? solutionPlatform = null)
     {
@@ -91,5 +78,18 @@ internal readonly struct ConfigurationRuleFollower(IReadOnlyList<ConfigurationRu
             StringComparer.OrdinalIgnoreCase.Equals(rule.SolutionBuildType, solutionBuildType);
         static bool IsSamePlatform(ConfigurationRule rule, string solutionPlatform) =>
             StringComparer.OrdinalIgnoreCase.Equals(PlatformNames.Canonical(rule.SolutionPlatform), PlatformNames.Canonical(solutionPlatform));
+    }
+
+    private readonly string GetDimensionValue(BuildDimension dimension, string? solutionBuildType, string? solutionPlatform)
+    {
+        foreach (ConfigurationRule rule in this.configurationRules.GetStructReverseEnumerable())
+        {
+            if (RuleAppliesTo(rule, dimension, solutionBuildType, solutionPlatform))
+            {
+                return rule.ProjectValue;
+            }
+        }
+
+        return string.Empty;
     }
 }

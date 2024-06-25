@@ -50,6 +50,98 @@ public sealed class SolutionProjectModel : SolutionItemModel
         }
     }
 
+    /// <inheritdoc/>
+    public override Guid TypeId => this.typeId;
+
+    /// <summary>
+    /// Gets or sets the project type.
+    /// This can be empty if the project file extension is known.
+    /// This can be a type name of a defined project type.
+    /// This can be a project type id (Guid).
+    /// </summary>
+    public string Type
+    {
+        get => this.type;
+
+        set
+        {
+            this.type = value;
+            this.typeId = this.Solution.ProjectTypeTable.GetProjectType(value, this.Extension.AsSpan())?.ProjectTypeId ?? Guid.Empty;
+        }
+    }
+
+    /// <summary>
+    /// Gets or sets the path to the project file.
+    /// </summary>
+    public string FilePath
+    {
+        get => this.filePath;
+
+        [MemberNotNull(nameof(filePath), nameof(Extension))]
+        set
+        {
+            if (!StringComparer.OrdinalIgnoreCase.Equals(this.filePath, value) || this.Extension is null)
+            {
+                this.filePath = value;
+                this.Extension = this.Solution.StringTable.GetString(PathExtensions.GetExtension(value));
+                this.OnItemRefChanged();
+            }
+        }
+    }
+
+    /// <inheritdoc/>
+    public override string ItemRef => this.FilePath;
+
+    /// <summary>
+    /// Gets the file extension of the project file.
+    /// </summary>
+    /// <remarks>
+    /// Some project types, like web site projects, do not have a file extension.
+    /// </remarks>
+    public string Extension { get; private set; }
+
+    /// <summary>
+    /// Gets or sets the display name of the project.
+    /// This will be ignored if the project has a file name.
+    /// </summary>
+    public string? DisplayName { get; set; }
+
+    /// <inheritdoc/>
+    public override string ActualDisplayName
+    {
+        get
+        {
+            // If the project has a file name, use that as the display name.
+            // This historically takes precedence over the DisplayName property.
+            StringSpan fileName = PathExtensions.GetStandardDisplayName(this.FilePath.AsSpan());
+            if (fileName.IsEmpty)
+            {
+                return this.DisplayName ?? string.Empty;
+            }
+
+            return this.Solution.StringTable.GetString(fileName);
+        }
+    }
+
+    /// <summary>
+    /// Gets the list of the dependencies of this project.
+    /// </summary>
+    /// <remarks>
+    /// Project to project dependencies are normally stored in the project file itself,
+    /// this is used for solution level dependencies.
+    /// </remarks>
+    public IReadOnlyList<SolutionProjectModel>? Dependencies => this.dependencies;
+
+    /// <summary>
+    /// Gets or sets a list of configuration rules for this project.
+    /// These rules can be simplified to essential rules by calling <see cref="SolutionModel.DistillProjectConfigurations"/>.
+    /// </summary>
+    public IReadOnlyList<ConfigurationRule>? ProjectConfigurationRules
+    {
+        get => this.projectConfigurationRules;
+        set => this.projectConfigurationRules = value is null ? null : [.. value];
+    }
+
     /// <summary>
     /// Gets the project configuration for the given solution configuration.
     /// </summary>
@@ -66,51 +158,6 @@ public sealed class SolutionProjectModel : SolutionItemModel
             projectTypeRules.GetIsBuildable(solutionBuildType, solutionPlatform) ?? true,
             projectTypeRules.GetIsDeployable(solutionBuildType, solutionPlatform) ?? false);
     }
-
-    public override Guid TypeId => this.typeId;
-
-    public string Type => this.type;
-
-    public void SetType(string type)
-    {
-        this.type = type;
-        this.typeId = this.Solution.ProjectTypeTable.GetProjectType(type, this.Extension.AsSpan())?.ProjectTypeId ?? Guid.Empty;
-    }
-
-    public string FilePath
-    {
-        get => this.filePath;
-
-        [MemberNotNull(nameof(filePath), nameof(Extension))]
-        set
-        {
-            this.filePath = value;
-            this.Extension = PathExtensions.GetExtension(this.FilePath).ToString();
-            this.OnItemRefChanged();
-        }
-    }
-
-    public override string ItemRef => this.FilePath;
-
-    public string Extension { get; private set; }
-
-    public string? DisplayName { get; set; }
-
-    public override string ActualDisplayName => this.DisplayName ?? PathExtensions.GetStandardDisplayName(this.FilePath).ToString();
-
-    private protected override Guid GetDefaultId()
-    {
-        return DefaultIdGenerator.CreateIdFrom(this.FilePath);
-    }
-
-    /// <summary>
-    /// Gets the list of the dependencies of this project.
-    /// </summary>
-    /// <remarks>
-    /// Project to project dependencies are normally stored in the project file itself,
-    /// this is used for solution level dependencies.
-    /// </remarks>
-    public IReadOnlyList<SolutionProjectModel>? Dependencies => this.dependencies;
 
     /// <summary>
     /// Adds a dependency to this project.
@@ -145,16 +192,6 @@ public sealed class SolutionProjectModel : SolutionItemModel
     }
 
     /// <summary>
-    /// Gets or sets a list of configuration rules for this project.
-    /// These rules can be simplified to essential rules by calling <see cref="SolutionModel.DistillProjectConfigurations"/>.
-    /// </summary>
-    public IReadOnlyList<ConfigurationRule>? ProjectConfigurationRules
-    {
-        get => this.projectConfigurationRules;
-        set => this.projectConfigurationRules = value is null ? null : [.. value];
-    }
-
-    /// <summary>
     /// Adds a configuration rule to this project.
     /// </summary>
     /// <param name="rule">The rule to add.</param>
@@ -163,5 +200,10 @@ public sealed class SolutionProjectModel : SolutionItemModel
         Argument.ThrowIfNull(rule, nameof(rule));
         this.projectConfigurationRules ??= [];
         this.projectConfigurationRules.Add(rule);
+    }
+
+    private protected override Guid GetDefaultId()
+    {
+        return DefaultIdGenerator.CreateIdFrom(this.FilePath);
     }
 }

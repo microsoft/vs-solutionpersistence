@@ -18,63 +18,37 @@ internal sealed class XmlProjectType(SlnxFile root, XmlElement element) :
 
     public Keyword ItemRefAttribute => Keyword.TypeId;
 
-    private protected override bool AllowEmptyItemRef => true;
-
-    public Guid TypeId
+    internal Guid TypeId
     {
         get => this.GetXmlAttributeGuid(Keyword.TypeId);
         set => this.UpdateXmlAttributeGuid(Keyword.TypeId, value);
     }
 
-    public string? Name
+    internal string? Name
     {
         get => this.GetXmlAttribute(Keyword.Name);
         set => this.UpdateXmlAttribute(Keyword.Name, value);
     }
 
-    public string? Extension
+    internal string? Extension
     {
         get => this.GetXmlAttribute(Keyword.Extension);
         set => this.UpdateXmlAttribute(Keyword.Extension, value);
     }
 
-    public string? BasedOn
+    internal string? BasedOn
     {
         get => this.GetXmlAttribute(Keyword.BasedOn);
         set => this.UpdateXmlAttribute(Keyword.BasedOn, value);
     }
 
-    public bool IsBuildable
+    internal bool IsBuildable
     {
         get => this.GetXmlAttributeBool(Keyword.IsBuildable, defaultValue: true);
         set => this.UpdateXmlAttributeBool(Keyword.IsBuildable, value, defaultValue: true);
     }
 
-    /// <inheritdoc/>
-    public override XmlDecorator? ChildDecoratorFactory(XmlElement element, Keyword elementName)
-    {
-        return elementName switch
-        {
-            Keyword.BuildType => new XmlConfigurationBuildType(this.Root, element),
-            Keyword.Platform => new XmlConfigurationPlatform(this.Root, element),
-            Keyword.Build => new XmlConfigurationBuild(this.Root, element),
-            Keyword.Deploy => new XmlConfigurationDeploy(this.Root, element),
-            _ => base.ChildDecoratorFactory(element, elementName),
-        };
-    }
-
-    /// <inheritdoc/>
-    public override void OnNewChildDecoratorAdded(XmlDecorator childDecorator)
-    {
-        switch (childDecorator)
-        {
-            case XmlConfiguration configuration:
-                this.configurationRules.Add(configuration);
-                break;
-        }
-
-        base.OnNewChildDecoratorAdded(childDecorator);
-    }
+    private protected override bool AllowEmptyItemRef => true;
 
     /// <summary>
     /// Gets or sets although every project type should have a TypeId, there may be multiple project types with the same TypeId.
@@ -103,7 +77,7 @@ internal sealed class XmlProjectType(SlnxFile root, XmlElement element) :
         }
     }
 
-    public static string GetItemRef(string? name, string? extension, Guid typeId)
+    internal static string GetItemRef(string? name, string? extension, Guid typeId)
     {
         // Return empty string for default project type ItemRef.
         return name is null && extension is null && typeId == Guid.Empty ?
@@ -111,12 +85,38 @@ internal sealed class XmlProjectType(SlnxFile root, XmlElement element) :
             name ?? $"{extension}⁂";
     }
 
-    public override bool IsValid()
+    /// <inheritdoc/>
+    internal override XmlDecorator? ChildDecoratorFactory(XmlElement element, Keyword elementName)
+    {
+        return elementName switch
+        {
+            Keyword.BuildType => new XmlConfigurationBuildType(this.Root, element),
+            Keyword.Platform => new XmlConfigurationPlatform(this.Root, element),
+            Keyword.Build => new XmlConfigurationBuild(this.Root, element),
+            Keyword.Deploy => new XmlConfigurationDeploy(this.Root, element),
+            _ => base.ChildDecoratorFactory(element, elementName),
+        };
+    }
+
+    /// <inheritdoc/>
+    internal override void OnNewChildDecoratorAdded(XmlDecorator childDecorator)
+    {
+        switch (childDecorator)
+        {
+            case XmlConfiguration configuration:
+                this.configurationRules.Add(configuration);
+                break;
+        }
+
+        base.OnNewChildDecoratorAdded(childDecorator);
+    }
+
+    internal override bool IsValid()
     {
         return base.IsValid();
     }
 
-    public ProjectType ToModel()
+    internal ProjectType ToModel()
     {
         ConfigurationRule[] rules = this.IsBuildable ? [.. this.configurationRules.ToModel()] : ProjectTypeTable.NoBuildRules;
 

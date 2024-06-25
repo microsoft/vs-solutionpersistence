@@ -15,7 +15,7 @@ internal static class SpanExtensions
     /// <param name="separator">The delimiter to use.</param>
     /// <param name="splitOptions"><see cref="StringSplitOptions"/> enum indicating how split should function.</param>
     /// <returns>A <see cref="CharSpanSplitEnumerator"/> that can be enumerated to evaluate the segments.</returns>
-    public static CharSpanSplitEnumerator Split(this ReadOnlySpan<char> span, char separator, StringSplitOptions splitOptions = StringSplitOptions.None)
+    internal static CharSpanSplitEnumerator Split(this ReadOnlySpan<char> span, char separator, StringSplitOptions splitOptions = StringSplitOptions.None)
     {
         return new CharSpanSplitEnumerator(span, separator, int.MaxValue, splitOptions);
     }
@@ -28,7 +28,7 @@ internal static class SpanExtensions
     /// <param name="count">The maximum number of elements to return.</param>
     /// <param name="splitOptions"><see cref="StringSplitOptions"/> enum indicating how split should function.</param>
     /// <returns>A <see cref="CharSpanSplitEnumerator"/> that can be enumerated to evaluate the segments.</returns>
-    public static CharSpanSplitEnumerator Split(this ReadOnlySpan<char> span, char separator, int count, StringSplitOptions splitOptions = StringSplitOptions.None)
+    internal static CharSpanSplitEnumerator Split(this ReadOnlySpan<char> span, char separator, int count, StringSplitOptions splitOptions = StringSplitOptions.None)
     {
         if (count < 0)
         {
@@ -45,7 +45,7 @@ internal static class SpanExtensions
     /// <param name="separator">The separator to use.</param>
     /// <param name="splitOptions"><see cref="StringSplitOptions"/> enum indicating how split should function.</param>
     /// <returns>A <see cref="CharSpanSplitEnumerator"/> that can be enumerated to evaluate the segments.</returns>
-    public static CharSpanSplitEnumerator Split(this ReadOnlySpan<char> span, ReadOnlySpan<char> separator, StringSplitOptions splitOptions = StringSplitOptions.None)
+    internal static CharSpanSplitEnumerator Split(this ReadOnlySpan<char> span, ReadOnlySpan<char> separator, StringSplitOptions splitOptions = StringSplitOptions.None)
     {
         return new CharSpanSplitEnumerator(span, separator, int.MaxValue, splitOptions);
     }
@@ -58,7 +58,7 @@ internal static class SpanExtensions
     /// <param name="count">The maximum number of elements to return.</param>
     /// <param name="splitOptions"><see cref="StringSplitOptions"/> enum indicating how split should function.</param>
     /// <returns>A <see cref="CharSpanSplitEnumerator"/> that can be enumerated to evaluate the segments.</returns>
-    public static CharSpanSplitEnumerator Split(this ReadOnlySpan<char> span, ReadOnlySpan<char> separator, int count, StringSplitOptions splitOptions = StringSplitOptions.None)
+    internal static CharSpanSplitEnumerator Split(this ReadOnlySpan<char> span, ReadOnlySpan<char> separator, int count, StringSplitOptions splitOptions = StringSplitOptions.None)
     {
         if (count < 0)
         {
@@ -75,7 +75,7 @@ internal static class SpanExtensions
     /// <param name="separator">The separator to use.</param>
     /// <param name="splitOptions"><see cref="StringSplitOptions"/> enum indicating how split should function.</param>
     /// <returns>A <see cref="CharSpanSplitEnumerator"/> that can be enumerated to evaluate the segments.</returns>
-    public static StringSplitEnumerator Split(this ReadOnlySpan<char> span, string separator, StringSplitOptions splitOptions = StringSplitOptions.None)
+    internal static StringSplitEnumerator Split(this ReadOnlySpan<char> span, string separator, StringSplitOptions splitOptions = StringSplitOptions.None)
     {
         return new StringSplitEnumerator(span, separator, int.MaxValue, splitOptions);
     }
@@ -88,7 +88,7 @@ internal static class SpanExtensions
     /// <param name="count">The maximum number of elements to return.</param>
     /// <param name="splitOptions"><see cref="StringSplitOptions"/> enum indicating how split should function.</param>
     /// <returns>A <see cref="CharSpanSplitEnumerator"/> that can be enumerated to evaluate the segments.</returns>
-    public static StringSplitEnumerator Split(this ReadOnlySpan<char> span, string separator, int count, StringSplitOptions splitOptions = StringSplitOptions.None)
+    internal static StringSplitEnumerator Split(this ReadOnlySpan<char> span, string separator, int count, StringSplitOptions splitOptions = StringSplitOptions.None)
     {
         return new StringSplitEnumerator(span, separator, count, splitOptions);
     }
@@ -100,7 +100,7 @@ internal static class SpanExtensions
     /// <param name="separator">The separator to use.</param>
     /// <param name="splitOptions"><see cref="StringSplitOptions"/> enum indicating how split should function.</param>
     /// <returns>A <see cref="CharSpanSplitEnumerator"/> that can be enumerated to evaluate the segments.</returns>
-    public static StringSplitEnumerator Split(this ReadOnlySpan<char> span, ReadOnlySpan<string> separator, StringSplitOptions splitOptions = StringSplitOptions.None)
+    internal static StringSplitEnumerator Split(this ReadOnlySpan<char> span, ReadOnlySpan<string> separator, StringSplitOptions splitOptions = StringSplitOptions.None)
     {
         return new StringSplitEnumerator(span, separator, int.MaxValue, splitOptions);
     }
@@ -113,7 +113,7 @@ internal static class SpanExtensions
     /// <param name="count">The maximum number of elements to return.</param>
     /// <param name="splitOptions"><see cref="StringSplitOptions"/> enum indicating how split should function.</param>
     /// <returns>A <see cref="CharSpanSplitEnumerator"/> that can be enumerated to evaluate the segments.</returns>
-    public static StringSplitEnumerator Split(this ReadOnlySpan<char> span, string[] separator, int count, StringSplitOptions splitOptions = StringSplitOptions.None)
+    internal static StringSplitEnumerator Split(this ReadOnlySpan<char> span, string[] separator, int count, StringSplitOptions splitOptions = StringSplitOptions.None)
     {
         return new StringSplitEnumerator(span, separator, count, splitOptions);
     }
@@ -123,7 +123,7 @@ internal static class SpanExtensions
     /// </summary>
     /// <param name="span">The <see cref="ReadOnlySpan{Char}"/>.</param>
     /// <returns>The zero-based index of the first whitespace character or -1.</returns>
-    public static int IndexOfFirstWhitespaceCharacter(this ReadOnlySpan<char> span)
+    internal static int IndexOfFirstWhitespaceCharacter(this ReadOnlySpan<char> span)
     {
         for (int i = 0; i < span.Length; ++i)
         {
@@ -139,7 +139,7 @@ internal static class SpanExtensions
     /// <summary>
     /// A struct enumerator for a split span.
     /// </summary>
-    public ref struct CharSpanSplitEnumerator
+    internal ref struct CharSpanSplitEnumerator
     {
         private readonly StringSplitOptions splitOptions;
         private readonly ReadOnlySpan<char> separators;
@@ -162,8 +162,8 @@ internal static class SpanExtensions
         /// <param name="separator">The separator to use.</param>
         /// <param name="count">The maximum number of elements to return.</param>
         /// <param name="splitOptions"><see cref="StringSplitOptions"/> enum indicating how split should function.</param>
-        public CharSpanSplitEnumerator(ReadOnlySpan<char> span, char separator, int count, StringSplitOptions splitOptions)
-            : this(span, separator, ReadOnlySpan<char>.Empty, multiCharSeparator: false, count, splitOptions)
+        internal CharSpanSplitEnumerator(ReadOnlySpan<char> span, char separator, int count, StringSplitOptions splitOptions)
+            : this(span, separator, [], multiCharSeparator: false, count, splitOptions)
         {
         }
 
@@ -174,7 +174,7 @@ internal static class SpanExtensions
         /// <param name="separator">The separator to use.</param>
         /// <param name="count">The maximum number of elements to return.</param>
         /// <param name="splitOptions"><see cref="StringSplitOptions"/> enum indicating how split should function.</param>
-        public CharSpanSplitEnumerator(ReadOnlySpan<char> span, ReadOnlySpan<char> separator, int count, StringSplitOptions splitOptions)
+        internal CharSpanSplitEnumerator(ReadOnlySpan<char> span, ReadOnlySpan<char> separator, int count, StringSplitOptions splitOptions)
             : this(span, default, separator, multiCharSeparator: true, count, splitOptions)
         {
         }
@@ -243,7 +243,7 @@ internal static class SpanExtensions
                 if (separatorIndex < 0)
                 {
                     this.Current = this.internalSpan;
-                    this.internalSpan = ReadOnlySpan<char>.Empty;
+                    this.internalSpan = [];
                     this.endReached = true;
 
                     return this.NextSectionFound();
@@ -266,7 +266,7 @@ internal static class SpanExtensions
         /// <summary>
         /// Resets the <see cref="CharSpanSplitEnumerator"/> to its initial state.
         /// </summary>
-        public void Reset()
+        internal void Reset()
         {
             this.internalSpan = this.originalSpan;
             this.count = this.originalCount;
@@ -279,13 +279,13 @@ internal static class SpanExtensions
         /// This method doesn't modify the current <see cref="CharSpanSplitEnumerator"/> and starts at the beginning.
         /// </summary>
         /// <returns>The array of <see cref="string"/>.</returns>
-        public readonly string[] ToArray()
+        internal readonly string[] ToArray()
         {
             int count = this.Count();
 
             if (count == 0)
             {
-                return Array.Empty<string>();
+                return [];
             }
 
             CharSpanSplitEnumerator toArrayEnumerator = new(this.originalSpan, this.separator, this.separators, this.multiCharSeparator, this.originalCount, this.splitOptions);
@@ -304,7 +304,7 @@ internal static class SpanExtensions
         /// This method doesn't modify the current <see cref="CharSpanSplitEnumerator"/> and starts at the beginning.
         /// </summary>
         /// <returns>A <see cref="List{T}"/> of <see cref="string"/>.</returns>
-        public readonly List<string> ToList()
+        internal readonly List<string> ToList()
         {
             int count = this.Count();
             List<string> result = new(count);
@@ -328,7 +328,7 @@ internal static class SpanExtensions
         /// This method doesn't modify the current <see cref="CharSpanSplitEnumerator"/> and starts at the beginning.
         /// </summary>
         /// <returns>A count of the results.</returns>
-        public readonly int Count()
+        internal readonly int Count()
         {
             int count = 0;
             CharSpanSplitEnumerator countEnumerator = new(this.originalSpan, this.separator, this.separators, this.multiCharSeparator, this.originalCount, this.splitOptions);
@@ -345,7 +345,7 @@ internal static class SpanExtensions
         /// This method doesn't modify the current <see cref="CharSpanSplitEnumerator"/> and starts at the beginning.
         /// </summary>
         /// <returns>The first result or throws if there are none.</returns>
-        public readonly ReadOnlySpan<char> First()
+        internal readonly ReadOnlySpan<char> First()
         {
             CharSpanSplitEnumerator firstEnumerator = new(this.originalSpan, this.separator, this.separators, this.multiCharSeparator, this.originalCount, this.splitOptions);
             if (!firstEnumerator.MoveNext())
@@ -361,10 +361,10 @@ internal static class SpanExtensions
         /// This method doesn't modify the current <see cref="CharSpanSplitEnumerator"/> and starts at the beginning.
         /// </summary>
         /// <returns>The last result or throws if there are none.</returns>
-        public readonly ReadOnlySpan<char> Last()
+        internal readonly ReadOnlySpan<char> Last()
         {
             CharSpanSplitEnumerator lastEnumerator = new(this.originalSpan, this.separator, this.separators, this.multiCharSeparator, this.originalCount, this.splitOptions);
-            ReadOnlySpan<char> result = ReadOnlySpan<char>.Empty;
+            ReadOnlySpan<char> result = [];
             bool anyFound = false;
 
             foreach (ReadOnlySpan<char> section in lastEnumerator)
@@ -441,14 +441,14 @@ internal static class SpanExtensions
                 }
                 else
                 {
-                    this.internalSpan = ReadOnlySpan<char>.Empty;
+                    this.internalSpan = [];
                 }
             }
 
             this.count = 0;
             this.endReached = true;
             this.Current = this.internalSpan;
-            this.internalSpan = ReadOnlySpan<char>.Empty;
+            this.internalSpan = [];
 
             return this.NextSectionFound();
         }
@@ -496,7 +496,7 @@ internal static class SpanExtensions
     /// <summary>
     /// A struct enumerator for a split span.
     /// </summary>
-    public ref struct StringSplitEnumerator
+    internal ref struct StringSplitEnumerator
     {
         private readonly StringSplitOptions splitOptions;
         private readonly ReadOnlySpan<string> separators;
@@ -523,8 +523,8 @@ internal static class SpanExtensions
         /// <param name="separator">The separator to use.</param>
         /// <param name="count">The maximum number of elements to return.</param>
         /// <param name="splitOptions"><see cref="StringSplitOptions"/> enum indicating how split should function.</param>
-        public StringSplitEnumerator(ReadOnlySpan<char> span, string separator, int count, StringSplitOptions splitOptions)
-            : this(span, separator.AsSpan(), ReadOnlySpan<string>.Empty, multiStringSeparator: false, count, splitOptions)
+        internal StringSplitEnumerator(ReadOnlySpan<char> span, string separator, int count, StringSplitOptions splitOptions)
+            : this(span, separator.AsSpan(), [], multiStringSeparator: false, count, splitOptions)
         {
         }
 
@@ -535,8 +535,8 @@ internal static class SpanExtensions
         /// <param name="separator">The separator to use.</param>
         /// <param name="count">The maximum number of elements to return.</param>
         /// <param name="splitOptions"><see cref="StringSplitOptions"/> enum indicating how split should function.</param>
-        public StringSplitEnumerator(ReadOnlySpan<char> span, ReadOnlySpan<string> separator, int count, StringSplitOptions splitOptions)
-            : this(span, ReadOnlySpan<char>.Empty, separator, multiStringSeparator: true, count, splitOptions)
+        internal StringSplitEnumerator(ReadOnlySpan<char> span, ReadOnlySpan<string> separator, int count, StringSplitOptions splitOptions)
+            : this(span, [], separator, multiStringSeparator: true, count, splitOptions)
         {
         }
 
@@ -602,7 +602,7 @@ internal static class SpanExtensions
             if (!this.multiStringSeparator && this.separator.IsEmpty)
             {
                 this.Current = this.internalSpan;
-                this.internalSpan = ReadOnlySpan<char>.Empty;
+                this.internalSpan = [];
                 this.endReached = true;
 
                 return this.NextSectionFound();
@@ -615,7 +615,7 @@ internal static class SpanExtensions
                 if (separatorIndex < 0 || separatorLength < 0)
                 {
                     this.Current = this.internalSpan;
-                    this.internalSpan = ReadOnlySpan<char>.Empty;
+                    this.internalSpan = [];
                     this.endReached = true;
 
 #if NET5_0_OR_GREATER
@@ -651,7 +651,7 @@ internal static class SpanExtensions
         /// This method doesn't modify the current <see cref="StringSplitEnumerator"/> and starts at the beginning.
         /// </summary>
         /// <returns>A count of the results.</returns>
-        public readonly int Count()
+        internal readonly int Count()
         {
             int count = 0;
             StringSplitEnumerator countEnumerator = new(this.originalSpan, this.separator, this.separators, this.multiStringSeparator, this.originalCount, this.splitOptions);
@@ -668,7 +668,7 @@ internal static class SpanExtensions
         /// This method doesn't modify the current <see cref="StringSplitEnumerator"/> and starts at the beginning.
         /// </summary>
         /// <returns>The first result or throws if there are none.</returns>
-        public readonly ReadOnlySpan<char> First()
+        internal readonly ReadOnlySpan<char> First()
         {
             StringSplitEnumerator firstEnumerator = new(this.originalSpan, this.separator, this.separators, this.multiStringSeparator, this.originalCount, this.splitOptions);
             if (!firstEnumerator.MoveNext())
@@ -684,10 +684,10 @@ internal static class SpanExtensions
         /// This method doesn't modify the current <see cref="StringSplitEnumerator"/> and starts at the beginning.
         /// </summary>
         /// <returns>The last result or throws if there are none.</returns>
-        public readonly ReadOnlySpan<char> Last()
+        internal readonly ReadOnlySpan<char> Last()
         {
             StringSplitEnumerator lastEnumerator = new(this.originalSpan, this.separator, this.separators, this.multiStringSeparator, this.originalCount, this.splitOptions);
-            ReadOnlySpan<char> result = ReadOnlySpan<char>.Empty;
+            ReadOnlySpan<char> result = [];
             bool anyFound = false;
             while (lastEnumerator.MoveNext())
             {
@@ -708,13 +708,13 @@ internal static class SpanExtensions
         /// This method doesn't modify the current <see cref="StringSplitEnumerator"/> and starts at the beginning.
         /// </summary>
         /// <returns>The array of <see cref="string"/>.</returns>
-        public readonly string[] ToArray()
+        internal readonly string[] ToArray()
         {
             int count = this.Count();
 
             if (count == 0)
             {
-                return Array.Empty<string>();
+                return [];
             }
 
             StringSplitEnumerator toArrayEnumerator = new(this.originalSpan, this.separator, this.separators, this.multiStringSeparator, this.originalCount, this.splitOptions);
@@ -733,7 +733,7 @@ internal static class SpanExtensions
         /// This method doesn't modify the current <see cref="StringSplitEnumerator"/> and starts at the beginning.
         /// </summary>
         /// <returns>A <see cref="List{T}"/> of <see cref="string"/>.</returns>
-        public readonly List<string> ToList()
+        internal readonly List<string> ToList()
         {
             int count = this.Count();
 
@@ -755,7 +755,7 @@ internal static class SpanExtensions
         /// <summary>
         /// Resets the <see cref="StringSplitEnumerator"/> to its initial state.
         /// </summary>
-        public void Reset()
+        internal void Reset()
         {
             this.internalSpan = this.originalSpan;
             this.count = this.originalCount;
@@ -810,7 +810,7 @@ internal static class SpanExtensions
             this.count = 0;
             this.endReached = true;
             this.Current = this.internalSpan;
-            this.internalSpan = ReadOnlySpan<char>.Empty;
+            this.internalSpan = [];
 
             return this.NextSectionFound();
         }

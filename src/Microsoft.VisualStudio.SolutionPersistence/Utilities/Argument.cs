@@ -10,9 +10,20 @@ internal static class Argument
     /// <summary>Throws an <see cref="ArgumentNullException"/> if <paramref name="argument"/> is null.</summary>
     /// <param name="argument">The reference type argument to validate as non-null.</param>
     /// <param name="paramName">The name of the parameter with which <paramref name="argument"/> corresponds.</param>
-    public static void ThrowIfNull([NotNull] object? argument, string? paramName)
+    internal static void ThrowIfNull([NotNull] object? argument, string? paramName)
     {
         if (argument is null)
+        {
+            Throw(paramName);
+        }
+    }
+
+    /// <summary>Throws an <see cref="ArgumentNullException"/> if <paramref name="argument"/> is null.</summary>
+    /// <param name="argument">The reference type argument to validate as non-null.</param>
+    /// <param name="paramName">The name of the parameter with which <paramref name="argument"/> corresponds.</param>
+    internal static void ThrowIfNullOrEmpty([NotNull] string? argument, string? paramName)
+    {
+        if (argument.IsNullOrEmpty())
         {
             Throw(paramName);
         }
@@ -24,9 +35,15 @@ internal static class Argument
 #else
 
     /// <inheritdoc cref="ArgumentNullException.ThrowIfNull(object?, string?)"/>
-    public static void ThrowIfNull([NotNull] object? argument, [System.Runtime.CompilerServices.CallerArgumentExpression(nameof(argument))] string? paramName = null)
+    internal static void ThrowIfNull([NotNull] object? argument, [System.Runtime.CompilerServices.CallerArgumentExpression(nameof(argument))] string? paramName = null)
     {
         ArgumentNullException.ThrowIfNull(argument, paramName);
+    }
+
+    /// <inheritdoc cref="ArgumentException.ThrowIfNullOrEmpty(string?, string?)"/>
+    internal static void ThrowIfNullOrEmpty([NotNull] string? argument, [System.Runtime.CompilerServices.CallerArgumentExpression(nameof(argument))] string? paramName = null)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(argument, paramName);
     }
 
 #endif

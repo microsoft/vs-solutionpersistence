@@ -43,49 +43,31 @@ public sealed class SolutionFolderModel : SolutionItemModel
     public IReadOnlyList<string>? Files => this.files;
 
     /// <summary>
-    /// Adds a file to this solution folder.
+    /// Gets or sets the name of the solution folder.
     /// </summary>
-    /// <param name="file">The file to add.</param>
-    public void AddFile(string file)
-    {
-        this.files ??= [];
-
-        if (!this.files.Contains(file))
-        {
-            this.files.Add(file);
-        }
-    }
-
-    /// <summary>
-    /// Removes a file from this solution folder.
-    /// </summary>
-    /// <param name="file">The file to remove.</param>
-    /// <returns><see langword="true"/> if the item was found and removed.</returns>
-    public bool RemoveFile(string file)
-    {
-        return this.files is not null && this.files.Remove(file);
-    }
-
     public string Name
     {
         get => this.name;
         set
         {
+            Argument.ThrowIfNullOrEmpty(value, nameof(value));
+            if (value.Contains('/') || value.Contains('\\'))
+            {
+                throw new ArgumentException(@"Solution Folder Name cannot contain '/' or '\'", nameof(value));
+            }
+
             this.name = value;
             this.OnItemRefChanged();
         }
     }
 
+    /// <inheritdoc/>
     public override string ActualDisplayName => this.Name;
 
-    private protected override Guid GetDefaultId()
-    {
-        Guid parentId = this.Parent is null ? Guid.Empty : this.Parent.Id;
-        return DefaultIdGenerator.CreateIdFrom(parentId, this.Name);
-    }
-
+    /// <inheritdoc/>
     public override Guid TypeId => ProjectTypeTable.SolutionFolder;
 
+    /// <inheritdoc/>
     public override string ItemRef
     {
         get
@@ -111,6 +93,36 @@ public sealed class SolutionFolderModel : SolutionItemModel
             this.itemRef = $"/{this.Name}/";
             return this.itemRef;
         }
+    }
+
+    /// <summary>
+    /// Adds a file to this solution folder.
+    /// </summary>
+    /// <param name="file">The file to add.</param>
+    public void AddFile(string file)
+    {
+        this.files ??= [];
+
+        if (!this.files.Contains(file))
+        {
+            this.files.Add(file);
+        }
+    }
+
+    /// <summary>
+    /// Removes a file from this solution folder.
+    /// </summary>
+    /// <param name="file">The file to remove.</param>
+    /// <returns><see langword="true"/> if the item was found and removed.</returns>
+    public bool RemoveFile(string file)
+    {
+        return this.files is not null && this.files.Remove(file);
+    }
+
+    private protected override Guid GetDefaultId()
+    {
+        Guid parentId = this.Parent is null ? Guid.Empty : this.Parent.Id;
+        return DefaultIdGenerator.CreateIdFrom(parentId, this.Name);
     }
 
     private protected override void OnParentChanged()

@@ -10,19 +10,19 @@ namespace Microsoft.VisualStudio.SolutionPersistence.Model;
 [method: SetsRequiredMembers]
 internal readonly struct ProjectConfigMapping(string buildType, string platform, bool build, bool deploy)
 {
-    public required string BuildType { get; init; } = buildType;
+    internal required string BuildType { get; init; } = buildType;
 
-    public required string Platform { get; init; } = platform;
+    internal required string Platform { get; init; } = platform;
 
-    public bool Build { get; init; } = build;
+    internal bool Build { get; init; } = build;
 
-    public bool Deploy { get; init; } = deploy;
+    internal bool Deploy { get; init; } = deploy;
 
     internal readonly bool IsValidBuildType => !string.IsNullOrEmpty(this.BuildType) && this.BuildType != BuildTypeNames.All;
 
     internal readonly bool IsValidPlatform => !string.IsNullOrEmpty(this.Platform) && this.Platform != PlatformNames.All;
 
-    public readonly bool IsSame(in ProjectConfigMapping other)
+    internal readonly bool IsSame(in ProjectConfigMapping other)
     {
         return other.Build == this.Build &&
             other.Deploy == this.Deploy &&

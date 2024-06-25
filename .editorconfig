@@ -212,12 +212,3 @@ dotnet_diagnostic.SA1124.severity = silent
 
 # SA1129: Do not use default value type constructor. This code uses many struct helpers.
 dotnet_diagnostic.SA1129.severity = silent
-
-###################################################
-# Turn off XML comment rules for now
-dotnet_diagnostic.CS1591.severity = silent
-dotnet_diagnostic.SA1600.severity = silent
-
-# Turn off member ordering rules for now
-dotnet_diagnostic.SA1201.severity = silent
-dotnet_diagnostic.SA1202.severity = silent

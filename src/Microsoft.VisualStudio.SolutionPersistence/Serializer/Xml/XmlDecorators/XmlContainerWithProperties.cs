@@ -17,7 +17,7 @@ internal abstract partial class XmlContainerWithProperties(SlnxFile root, XmlEle
 #pragma warning restore SA1401 // Fields should be private
 
     /// <inheritdoc/>
-    public override XmlDecorator? ChildDecoratorFactory(XmlElement element, Keyword elementName)
+    internal override XmlDecorator? ChildDecoratorFactory(XmlElement element, Keyword elementName)
     {
         return elementName switch
         {
@@ -27,7 +27,7 @@ internal abstract partial class XmlContainerWithProperties(SlnxFile root, XmlEle
     }
 
     /// <inheritdoc/>
-    public override void OnNewChildDecoratorAdded(XmlDecorator childDecorator)
+    internal override void OnNewChildDecoratorAdded(XmlDecorator childDecorator)
     {
         switch (childDecorator)
         {
@@ -40,7 +40,7 @@ internal abstract partial class XmlContainerWithProperties(SlnxFile root, XmlEle
     }
 
     // Update the Xml DOM with changes from the model.
-    public bool ApplyModelToXml(IReadOnlyList<SolutionPropertyBag>? modelPropertyBags)
+    internal bool ApplyModelToXml(IReadOnlyList<SolutionPropertyBag>? modelPropertyBags)
     {
         return this.ApplyModelToXmlGeneric(
             modelCollection: modelPropertyBags ?? [],

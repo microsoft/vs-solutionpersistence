@@ -7,158 +7,22 @@ namespace Microsoft.VisualStudio.SolutionPersistence.Model;
 
 internal sealed partial class SolutionConfigurationMap
 {
-    // Keeps track of changes to a specific dimension value.
-    // This is used to tell if the values are the same and a configuration rule can be created.
-    private struct DimensionDiffTracker<T>
-    {
-        private int itemsChecked;
-        private int differences;
-        private T firstDifferent;
-        private bool anyDifferent;
-
-        public void ObserveDifferentValue(T current)
-        {
-            this.itemsChecked++;
-            this.differences++;
-            if (this.differences == 1)
-            {
-                this.firstDifferent = current;
-            }
-            else
-            {
-                this.anyDifferent = this.anyDifferent || !EqualityComparer<T>.Default.Equals(this.firstDifferent, current);
-            }
-        }
-
-        public void ObserveValue(T expected, T current)
-        {
-            if (!EqualityComparer<T>.Default.Equals(expected, current))
-            {
-                this.ObserveDifferentValue(current);
-            }
-            else
-            {
-                this.itemsChecked++;
-            }
-        }
-
-        public void ClearDifferences()
-        {
-            this.differences = 0;
-            this.itemsChecked = 0;
-            this.anyDifferent = false;
-            this.firstDifferent = default!;
-        }
-
-        public readonly bool TryGetSame(out T sameChanged)
-        {
-            sameChanged = this.firstDifferent;
-            return this.SameDifference;
-        }
-
-        public readonly bool TryGetSame(DimensionDiffTracker<T> alternate, out T sameChanged)
-        {
-            if (this.TryGetSame(out sameChanged))
-            {
-                return true;
-            }
-
-            if (this.HasDifferences)
-            {
-                return alternate.TryGetSame(out sameChanged);
-            }
-
-            return false;
-        }
-
-        // There was at least one item that was different than the expected value.
-        public readonly bool HasDifferences => this.differences > 0;
-
-        // All items are different than expected, but they are the same as each other.
-        public readonly bool SameDifference => !this.anyDifferent && this.itemsChecked == this.differences && this.itemsChecked > 0;
-    }
-
-    // Keeps track of changes to all project configuration dimensions.
-    // This is used to tell if the values are the same and configuration rules can be created.
-    private struct ProjectDiffTracker
-    {
-        public DimensionDiffTracker<string> BuildTypeTracker;
-        public DimensionDiffTracker<string> PlatformTracker;
-        public DimensionDiffTracker<bool> BuildTracker;
-        public DimensionDiffTracker<bool> DeployTracker;
-
-        // The ProjectDiffTracker is a struct, so this passes the array to
-        // make sure this actually clears the diffs and a boxed copy.
-        public static void ClearDiffs(BuildDimension dimension, ProjectDiffTracker[] trackers)
-        {
-            for (int i = 0; i < trackers.Length; i++)
-            {
-                ref ProjectDiffTracker tracker = ref trackers[i];
-                tracker.ClearDiffs(dimension);
-            }
-        }
-
-        // The ProjectDiffTracker is a struct, so this passes the array to
-        // make sure this actually clears the diffs and a boxed copy.
-        public static void ClearDiffs(ProjectDiffTracker[] trackers)
-        {
-            for (int i = 0; i < trackers.Length; i++)
-            {
-                ref ProjectDiffTracker tracker = ref trackers[i];
-                tracker.ClearDiffs();
-            }
-        }
-
-        public void ObserveDifferentValue(in ProjectConfigMapping currentMapping)
-        {
-            this.BuildTypeTracker.ObserveDifferentValue(currentMapping.BuildType);
-            this.PlatformTracker.ObserveDifferentValue(PlatformNames.Canonical(currentMapping.Platform));
-            this.BuildTracker.ObserveDifferentValue(currentMapping.Build);
-            this.DeployTracker.ObserveDifferentValue(currentMapping.Deploy);
-        }
-
-        public void ObserveValue(in ProjectConfigMapping expectedMapping, in ProjectConfigMapping currentMapping)
-        {
-            this.BuildTypeTracker.ObserveValue(expectedMapping.BuildType, currentMapping.BuildType);
-            this.PlatformTracker.ObserveValue(PlatformNames.Canonical(expectedMapping.Platform), PlatformNames.Canonical(currentMapping.Platform));
-            this.BuildTracker.ObserveValue(expectedMapping.Build, currentMapping.Build);
-            this.DeployTracker.ObserveValue(expectedMapping.Deploy, currentMapping.Deploy);
-        }
-
-        public readonly bool HasDifferences => this.BuildTypeTracker.HasDifferences || this.PlatformTracker.HasDifferences || this.BuildTracker.HasDifferences || this.DeployTracker.HasDifferences;
-
-        public readonly bool HasSame => this.BuildTypeTracker.SameDifference || this.PlatformTracker.SameDifference || this.BuildTracker.SameDifference || this.DeployTracker.SameDifference;
-
-        public void ClearDiffs()
-        {
-            this.BuildTypeTracker.ClearDifferences();
-            this.PlatformTracker.ClearDifferences();
-            this.BuildTracker.ClearDifferences();
-            this.DeployTracker.ClearDifferences();
-        }
-
-        public void ClearDiffs(BuildDimension dimension)
-        {
-            switch (dimension)
-            {
-                case BuildDimension.BuildType: this.BuildTypeTracker.ClearDifferences(); break;
-                case BuildDimension.Platform: this.PlatformTracker.ClearDifferences(); break;
-                case BuildDimension.Build: this.BuildTracker.ClearDifferences(); break;
-                case BuildDimension.Deploy: this.DeployTracker.ClearDifferences(); break;
-            }
-        }
-    }
-
     /// <summary>
-    /// A list of rules and a specific or range of build types and platforms that the rules apply to.
+    /// This is used to create a simplified set of rules for a project to get project
+    /// configurations. This uses the cached set of mappings to determine what rules to create.
     /// </summary>
-    private readonly ref struct ScopedRules(int buildTypeIndex, int platformIndex, IReadOnlyList<ConfigurationRule> rules)
+    internal List<ConfigurationRule>? CreateProjectRules(SolutionProjectModel projectModel)
     {
-        public const int All = -1;
-        public readonly int BuildTypeIndex = buildTypeIndex;
-        public readonly int PlatformIndex = platformIndex;
+        // If this project doesn't have any mappings, then we can't create any rules for it.
+        if (!this.perProjectCurrent.TryGetValue(projectModel, out SolutionToProjectMappings currentMatrix))
+        {
+            return null;
+        }
 
-        public readonly ConfigurationRuleFollower Rules = new ConfigurationRuleFollower(rules);
+        // What a project would look like with the default configuration rules.
+        SolutionToProjectMappings expectedMatrix = new SolutionToProjectMappings(this, projectModel, out bool _);
+
+        return this.CreateRules(in expectedMatrix, in currentMatrix);
     }
 
     /// <summary>
@@ -197,24 +61,6 @@ internal sealed partial class SolutionConfigurationMap
                 projectMappings[idx] = new ProjectConfigMapping(projectBuildType, projectPlatform, build, deploy);
             }
         }
-    }
-
-    /// <summary>
-    /// This is used to create a simplified set of rules for a project to get project
-    /// configurations. This uses the cached set of mappings to determine what rules to create.
-    /// </summary>
-    public List<ConfigurationRule>? CreateProjectRules(SolutionProjectModel projectModel)
-    {
-        // If this project doesn't have any mappings, then we can't create any rules for it.
-        if (!this.perProjectCurrent.TryGetValue(projectModel, out SolutionToProjectMappings currentMatrix))
-        {
-            return null;
-        }
-
-        // What a project would look like with the default configuration rules.
-        SolutionToProjectMappings expectedMatrix = new SolutionToProjectMappings(this, projectModel, out bool _);
-
-        return this.CreateRules(in expectedMatrix, in currentMatrix);
     }
 
     /// <summary>
@@ -483,5 +329,17 @@ internal sealed partial class SolutionConfigurationMap
         }
 
         return rules;
+    }
+
+    /// <summary>
+    /// A list of rules and a specific or range of build types and platforms that the rules apply to.
+    /// </summary>
+    private readonly ref struct ScopedRules(int buildTypeIndex, int platformIndex, IReadOnlyList<ConfigurationRule> rules)
+    {
+        internal const int All = -1;
+        internal readonly int BuildTypeIndex = buildTypeIndex;
+        internal readonly int PlatformIndex = platformIndex;
+
+        internal readonly ConfigurationRuleFollower Rules = new ConfigurationRuleFollower(rules);
     }
 }

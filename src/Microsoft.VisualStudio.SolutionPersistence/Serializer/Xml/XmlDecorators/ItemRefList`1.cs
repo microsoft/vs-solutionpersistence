@@ -27,9 +27,13 @@ internal struct ItemRefList<T>(bool ignoreCase)
     {
     }
 
-    public readonly bool IgnoreCase { get; } = ignoreCase;
+    internal readonly bool IgnoreCase { get; } = ignoreCase;
 
-    public void Add(T item)
+    internal readonly int ItemsCount => this.items.Count;
+
+    internal readonly int InvalidItemsCount => this.invalidItems?.Count ?? 0;
+
+    internal void Add(T item)
     {
         // Missing Name attribute.
         if (!item.IsValid() || item.ItemRef is null)
@@ -52,7 +56,7 @@ internal struct ItemRefList<T>(bool ignoreCase)
         }
     }
 
-    public readonly void Remove(T item)
+    internal readonly void Remove(T item)
     {
         _ = this.items.Remove(item.ItemRef);
     }
@@ -60,52 +64,48 @@ internal struct ItemRefList<T>(bool ignoreCase)
     /// <summary>
     /// Finds the item that would be next in the list after the given item.
     /// </summary>
-    public readonly T? FindNext(string itemRef)
+    internal readonly T? FindNext(string itemRef)
     {
         return this.items.TryFindNext(itemRef, out T? next) ? next : null;
     }
 
-    public readonly int ItemsCount => this.items.Count;
-
-    public readonly EnumForwarder GetItems()
+    internal readonly EnumForwarder GetItems()
     {
         return new EnumForwarder(this);
     }
 
-    public ref struct EnumForwarder(ItemRefList<T> me)
-    {
-        public readonly ItemsEnumerator GetEnumerator() => new ItemsEnumerator(me.items.GetEnumerator());
-    }
-
-    public ref struct ItemsEnumerator(List<KeyValuePair<string, T>>.Enumerator enumerator)
-    {
-        public bool MoveNext() => enumerator.MoveNext();
-
-        public T Current => enumerator.Current.Value;
-    }
-
-    public readonly int InvalidItemsCount => this.invalidItems?.Count ?? 0;
-
-    public readonly ReadOnlyListStructEnumerable<T> GetInvalidItems()
+    internal readonly ReadOnlyListStructEnumerable<T> GetInvalidItems()
     {
         return this.invalidItems.GetStructEnumerable();
     }
 
-    public void ClearInvalidItems()
+    internal void ClearInvalidItems()
     {
         this.invalidItems = null;
     }
 
-    internal sealed class OrdinalComparer : IComparer<T>
+    internal ref struct EnumForwarder(ItemRefList<T> me)
     {
-        public static readonly OrdinalComparer Instance = new OrdinalComparer();
+        public readonly ItemsEnumerator GetEnumerator() => new ItemsEnumerator(me.items.GetEnumerator());
+    }
+
+    internal ref struct ItemsEnumerator(List<KeyValuePair<string, T>>.Enumerator enumerator)
+    {
+        public T Current => enumerator.Current.Value;
+
+        public bool MoveNext() => enumerator.MoveNext();
+    }
+
+    private sealed class OrdinalComparer : IComparer<T>
+    {
+        internal static readonly OrdinalComparer Instance = new OrdinalComparer();
 
         public int Compare(T? x, T? y) => StringComparer.Ordinal.Compare(x?.ItemRef, y?.ItemRef);
     }
 
-    internal sealed class OrdinalIgnoreCaseComparer : IComparer<T>
+    private sealed class OrdinalIgnoreCaseComparer : IComparer<T>
     {
-        public static readonly OrdinalIgnoreCaseComparer Instance = new OrdinalIgnoreCaseComparer();
+        internal static readonly OrdinalIgnoreCaseComparer Instance = new OrdinalIgnoreCaseComparer();
 
         public int Compare(T? x, T? y) => StringComparer.OrdinalIgnoreCase.Compare(x?.ItemRef, y?.ItemRef);
     }
