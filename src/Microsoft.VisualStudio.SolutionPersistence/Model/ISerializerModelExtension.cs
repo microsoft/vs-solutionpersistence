@@ -11,7 +11,7 @@ public interface ISerializerModelExtension
     /// <summary>
     /// Gets the serializer that is extending the model.
     /// </summary>
-    public ISolutionSerializer Serializer { get; }
+    ISolutionSerializer Serializer { get; }
 }
 
 /// <summary>
@@ -23,5 +23,5 @@ public interface ISerializerModelExtension<TSettings> : ISerializerModelExtensio
     /// <summary>
     /// Gets the settings that are specific to the serializer.
     /// </summary>
-    public TSettings Settings { get; }
+    TSettings Settings { get; }
 }

@@ -14,16 +14,16 @@ internal sealed partial class XmlProperty(SlnxFile root, XmlElement element) :
 {
     public Keyword ItemRefAttribute => Keyword.Name;
 
-    public string Name => this.ItemRef;
+    internal string Name => this.ItemRef;
 
-    public string Value
+    internal string Value
     {
         get => this.GetXmlAttribute(Keyword.Value) ?? string.Empty;
         set => this.UpdateXmlAttribute(Keyword.Value, value);
     }
 
     // Update the Xml DOM with changes from the model.
-    public bool ApplyModelToXml(string newValue)
+    internal bool ApplyModelToXml(string newValue)
     {
         // Don't update the value if it is already the same.
         if (StringComparer.Ordinal.Equals(this.Value, newValue))

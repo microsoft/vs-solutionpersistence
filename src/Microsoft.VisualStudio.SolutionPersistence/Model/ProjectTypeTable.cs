@@ -117,17 +117,6 @@ internal sealed partial class ProjectTypeTable
             null;
     }
 
-    private ProjectType? GetProjectType(ProjectType? type)
-    {
-        // If the type doesn't have a project type id, keep searching on the BasedOn type.
-        while (type is not null && type.ProjectTypeId == Guid.Empty)
-        {
-            type = this.GetBasedOnType(type);
-        }
-
-        return type;
-    }
-
     // Figures out what the most concise friendly type name of the project type is, if it fails use the project type id.
     internal string? GetConciseType(SolutionProjectModel projectModel)
     {
@@ -182,6 +171,22 @@ internal sealed partial class ProjectTypeTable
         }
     }
 
+    internal bool TryGetProjectType(Guid projectTypeId, [NotNullWhen(true)] out ProjectType? projectType)
+    {
+        return this.fromProjectTypeId.TryGetValue(projectTypeId, out projectType);
+    }
+
+    private ProjectType? GetProjectType(ProjectType? type)
+    {
+        // If the type doesn't have a project type id, keep searching on the BasedOn type.
+        while (type is not null && type.ProjectTypeId == Guid.Empty)
+        {
+            type = this.GetBasedOnType(type);
+        }
+
+        return type;
+    }
+
     private ProjectType? GetBasedOnType(ProjectType? type)
     {
         return type is not null && !type.BasedOn.IsNullOrEmpty() &&
@@ -189,11 +194,6 @@ internal sealed partial class ProjectTypeTable
             BuiltInTypes.TryGetProjectType(Guid.Empty, null, type.BasedOn, out basedOnType, out _)) ?
             basedOnType :
             null;
-    }
-
-    internal bool TryGetProjectType(Guid projectTypeId, [NotNullWhen(true)] out ProjectType? projectType)
-    {
-        return this.fromProjectTypeId.TryGetValue(projectTypeId, out projectType);
     }
 
     private bool TryGetProjectType(

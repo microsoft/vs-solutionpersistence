@@ -5,52 +5,52 @@ namespace Microsoft.VisualStudio.SolutionPersistence.Serializer.SlnV12;
 
 internal static class SlnConstants
 {
-    public const string ProjectSeparators = " ()=\",";
-    public const string SectionSeparators = " \t()=";
-    public const string SectionSeparators2 = "\t()=";
-    public const string VersionSeparators = " =";
-    public const char DoubleQuote = '"';
+    internal const string ProjectSeparators = " ()=\",";
+    internal const string SectionSeparators = " \t()=";
+    internal const string SectionSeparators2 = "\t()=";
+    internal const string VersionSeparators = " =";
+    internal const char DoubleQuote = '"';
 
-    public const string SLNFileHeaderNoVersion = "Microsoft Visual Studio Solution File, Format Version";
-    public const string SLNFileHeaderVersion = " 12.00";
+    internal const string SLNFileHeaderNoVersion = "Microsoft Visual Studio Solution File, Format Version";
+    internal const string SLNFileHeaderVersion = " 12.00";
 
     // Special property Visual Studio property names
-    public const string OpenWith = nameof(OpenWith);
-    public const string HideSolutionNode = nameof(HideSolutionNode);
-    public const string SolutionGuid = nameof(SolutionGuid);
+    internal const string OpenWith = nameof(OpenWith);
+    internal const string HideSolutionNode = nameof(HideSolutionNode);
+    internal const string SolutionGuid = nameof(SolutionGuid);
 
     // Special property names
-    public const string Description = nameof(Description);
+    internal const string Description = nameof(Description);
 
     // Used in .SLN to determine with version of VS to open when opening from explorer.
-    public const string OpenWithPrefix = "# ";
+    internal const string OpenWithPrefix = "# ";
 
-    public const string TagProjectStart = "Project(";
-    public const string TagProjectSectionStart = "ProjectSection(";
-    public const string TagGlobalSectionStart = "GlobalSection(";
+    internal const string TagProjectStart = "Project(";
+    internal const string TagProjectSectionStart = "ProjectSection(";
+    internal const string TagGlobalSectionStart = "GlobalSection(";
 
-    public const string TagProject = "Project";
-    public const string TagGlobal = "Global";
-    public const string TagSection = "Section";
-    public const string TagGlobalSection = "GlobalSection";
-    public const string TagProjectSection = "ProjectSection";
+    internal const string TagProject = "Project";
+    internal const string TagGlobal = "Global";
+    internal const string TagSection = "Section";
+    internal const string TagGlobalSection = "GlobalSection";
+    internal const string TagProjectSection = "ProjectSection";
 
-    public const string TagEndProject = "EndProject";
-    public const string TagEndGlobal = "EndGlobal";
-    public const string TagEndGlobalSection = "EndGlobalSection";
-    public const string TagEndProjectSection = "EndProjectSection";
+    internal const string TagEndProject = "EndProject";
+    internal const string TagEndGlobal = "EndGlobal";
+    internal const string TagEndGlobalSection = "EndGlobalSection";
+    internal const string TagEndProjectSection = "EndProjectSection";
 
-    public const string TagPreSolution = "preSolution";
-    public const string TagPostSolution = "postSolution";
-    public const string TagPreProject = "preProject";
-    public const string TagPostProject = "postProject";
+    internal const string TagPreSolution = "preSolution";
+    internal const string TagPostSolution = "postSolution";
+    internal const string TagPreProject = "preProject";
+    internal const string TagPostProject = "postProject";
 
-    public const string TagVisualStudioVersion = "VisualStudioVersion";
-    public const string TagMinimumVisualStudioVersion = "MinimumVisualStudioVersion";
-    public const string TagAssignValue = " = ";
-    public const string TagQuoteCommaQuote = "\", \"";
-    public const string TagTabTab = "\t\t";
+    internal const string TagVisualStudioVersion = "VisualStudioVersion";
+    internal const string TagMinimumVisualStudioVersion = "MinimumVisualStudioVersion";
+    internal const string TagAssignValue = " = ";
+    internal const string TagQuoteCommaQuote = "\", \"";
+    internal const string TagTabTab = "\t\t";
 
     // This should only be use in SLN files.
-    public static string ToSlnString(this Guid guid) => guid.ToString("B").ToUpperInvariant();
+    internal static string ToSlnString(this Guid guid) => guid.ToString("B").ToUpperInvariant();
 }

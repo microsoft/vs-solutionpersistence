@@ -12,9 +12,9 @@ namespace Microsoft.VisualStudio.SolutionPersistence.Serializer.Xml.XmlDecorator
 internal abstract partial class XmlDecorator
 {
     // CONSIDER: Use StringTable if strings will be kept.
-    public string? GetXmlAttribute(Keyword keyword) => this.XmlElement.GetAttribute(keyword.ToXmlString()).Trim().NullIfEmpty();
+    internal string? GetXmlAttribute(Keyword keyword) => this.XmlElement.GetAttribute(keyword.ToXmlString()).Trim().NullIfEmpty();
 
-    public void UpdateXmlAttribute<T>(Keyword keyword, bool isDefault, T value, Func<T, string> toString)
+    internal void UpdateXmlAttribute<T>(Keyword keyword, bool isDefault, T value, Func<T, string> toString)
     {
         if (isDefault)
         {
@@ -26,7 +26,7 @@ internal abstract partial class XmlDecorator
         }
     }
 
-    public List<XmlNode> GetElementAndTrivia()
+    internal List<XmlNode> GetElementAndTrivia()
     {
         List<XmlNode> trivia = new(8);
 
@@ -41,7 +41,7 @@ internal abstract partial class XmlDecorator
         return trivia;
     }
 
-    public XmlNode GetFirstTrivia()
+    internal XmlNode GetFirstTrivia()
     {
         XmlNode? previous = this.XmlElement.PreviousSibling;
         while (previous is XmlWhitespace or XmlComment)
@@ -52,7 +52,7 @@ internal abstract partial class XmlDecorator
         return previous ?? this.XmlElement;
     }
 
-    public StringSpan GetNewLineAndIndent()
+    internal StringSpan GetNewLineAndIndent()
     {
         // The solution node doesn't have a newline before it, so create one.
         if (this.ElementName == Keyword.Solution)

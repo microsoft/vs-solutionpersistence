@@ -5,8 +5,6 @@ namespace Microsoft.VisualStudio.SolutionPersistence.Utilities;
 
 internal static class PathExtensions
 {
-    private static bool IsUri(this StringSpan filePath) => !filePath.IsEmpty && filePath.Contains("://".AsSpan(), StringComparison.Ordinal);
-
     private static readonly bool IsWindows = Environment.OSVersion.Platform == PlatformID.Win32NT;
 
     [return: NotNullIfNotNull(nameof(persistencePath))]
@@ -25,12 +23,12 @@ internal static class PathExtensions
             modelPath.Replace(Path.DirectorySeparatorChar, '\\');
     }
 
-    public static StringSpan GetStandardDisplayName(string filePath)
+    internal static StringSpan GetStandardDisplayName(string filePath)
     {
         return GetStandardDisplayName(filePath.AsSpan());
     }
 
-    public static StringSpan GetStandardDisplayName(StringSpan filePath)
+    internal static StringSpan GetStandardDisplayName(StringSpan filePath)
     {
         if (filePath.IsEmpty || filePath.IsUri())
         {
@@ -40,13 +38,15 @@ internal static class PathExtensions
         return Path.GetFileNameWithoutExtension(filePath);
     }
 
-    public static StringSpan GetExtension(string filePath)
+    internal static StringSpan GetExtension(string filePath)
     {
         return GetExtension(filePath.AsSpan());
     }
 
-    public static StringSpan GetExtension(StringSpan filePath)
+    internal static StringSpan GetExtension(StringSpan filePath)
     {
         return filePath.IsUri() ? StringSpan.Empty : Path.GetExtension(filePath);
     }
+
+    private static bool IsUri(this StringSpan filePath) => !filePath.IsEmpty && filePath.Contains("://".AsSpan(), StringComparison.Ordinal);
 }

@@ -20,10 +20,16 @@ internal sealed class XmlFolder(SlnxFile root, XmlSolution xmlSolution, XmlEleme
 
     public Keyword ItemRefAttribute => Keyword.Name;
 
-    public string Name => this.ItemRef;
+    internal string Name => this.ItemRef;
+
+#if DEBUG
+
+    internal override string DebugDisplay => $"{base.DebugDisplay} Files={this.files}";
+
+#endif
 
     /// <inheritdoc/>
-    public override XmlDecorator? ChildDecoratorFactory(XmlElement element, Keyword elementName)
+    internal override XmlDecorator? ChildDecoratorFactory(XmlElement element, Keyword elementName)
     {
         return elementName switch
         {
@@ -35,7 +41,7 @@ internal sealed class XmlFolder(SlnxFile root, XmlSolution xmlSolution, XmlEleme
     }
 
     /// <inheritdoc/>
-    public override void OnNewChildDecoratorAdded(XmlDecorator childDecorator)
+    internal override void OnNewChildDecoratorAdded(XmlDecorator childDecorator)
     {
         switch (childDecorator)
         {
@@ -53,7 +59,7 @@ internal sealed class XmlFolder(SlnxFile root, XmlSolution xmlSolution, XmlEleme
 
     #region Deserialize model
 
-    public void AddToModel(SolutionModel solutionModel)
+    internal void AddToModel(SolutionModel solutionModel)
     {
         SolutionFolderModel folderModel = solutionModel.AddFolder(this.Name);
 
@@ -71,7 +77,7 @@ internal sealed class XmlFolder(SlnxFile root, XmlSolution xmlSolution, XmlEleme
     #endregion
 
     // Update the Xml DOM with changes from the model.
-    public bool ApplyModelToXml(SolutionModel modelSolution, SolutionFolderModel modelFolder)
+    internal bool ApplyModelToXml(SolutionModel modelSolution, SolutionFolderModel modelFolder)
     {
         bool modified = false;
 
@@ -99,10 +105,4 @@ internal sealed class XmlFolder(SlnxFile root, XmlSolution xmlSolution, XmlEleme
 
         return modified;
     }
-
-#if DEBUG
-
-    public override string DebugDisplay => $"{base.DebugDisplay} Files={this.files}";
-
-#endif
 }

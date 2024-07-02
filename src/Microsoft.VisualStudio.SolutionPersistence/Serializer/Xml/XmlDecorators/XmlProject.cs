@@ -19,26 +19,26 @@ internal sealed partial class XmlProject(SlnxFile root, XmlFolder? xmlParentFold
 
     public Keyword ItemRefAttribute => Keyword.Path;
 
-    public string Path => this.ItemRef;
+    internal string Path => this.ItemRef;
 
-    public StringSpan DefaultDisplayName => PathExtensions.GetStandardDisplayName(PathExtensions.ConvertFromPersistencePath(this.Path));
+    internal StringSpan DefaultDisplayName => PathExtensions.GetStandardDisplayName(PathExtensions.ConvertFromPersistencePath(this.Path));
 
-    public string? DisplayName
+    internal string? DisplayName
     {
         get => this.GetXmlAttribute(Keyword.DisplayName);
         set => this.UpdateXmlAttribute(Keyword.DisplayName, value);
     }
 
-    public string? Type
+    internal string? Type
     {
         get => this.GetXmlAttribute(Keyword.Type);
         set => this.UpdateXmlAttribute(Keyword.Type, value);
     }
 
-    public XmlFolder? ParentFolder { get; } = xmlParentFolder;
+    internal XmlFolder? ParentFolder { get; } = xmlParentFolder;
 
     /// <inheritdoc/>
-    public override XmlDecorator? ChildDecoratorFactory(XmlElement element, Keyword elementName)
+    internal override XmlDecorator? ChildDecoratorFactory(XmlElement element, Keyword elementName)
     {
         return elementName switch
         {
@@ -52,7 +52,7 @@ internal sealed partial class XmlProject(SlnxFile root, XmlFolder? xmlParentFold
     }
 
     /// <inheritdoc/>
-    public override void OnNewChildDecoratorAdded(XmlDecorator childDecorator)
+    internal override void OnNewChildDecoratorAdded(XmlDecorator childDecorator)
     {
         switch (childDecorator)
         {
@@ -69,7 +69,7 @@ internal sealed partial class XmlProject(SlnxFile root, XmlFolder? xmlParentFold
 
     #region Deserialize model
 
-    public SolutionProjectModel AddToModel(SolutionModel solution)
+    internal SolutionProjectModel AddToModel(SolutionModel solution)
     {
         SolutionProjectModel projectModel = solution.AddProject(
             filePath: PathExtensions.ConvertFromPersistencePath(this.Path),
@@ -102,7 +102,7 @@ internal sealed partial class XmlProject(SlnxFile root, XmlFolder? xmlParentFold
         return projectModel;
     }
 
-    public void AddDependenciesToModel(SolutionModel solution, SolutionProjectModel projectModel)
+    internal void AddDependenciesToModel(SolutionModel solution, SolutionProjectModel projectModel)
     {
         foreach (XmlBuildDependency buildDependency in this.buildDependencies.GetItems())
         {

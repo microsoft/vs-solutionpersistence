@@ -1,90 +1,32 @@
-# Your Library
+# Microsoft.VisualStudio.SolutionPersistence
 
-***An awesome template for your awesome library***
+## About
+
+Shared serializers and models for Visual Studio solution files. Handles traditional .sln file and new .slnx file.
 
 [![NuGet package](https://img.shields.io/nuget/v/Microsoft.VisualStudio.SolutionPersistence.svg)](https://nuget.org/packages/Microsoft.VisualStudio.SolutionPersistence)
 
 
 ## Features
 
-* Follow the best and simplest patterns of build, pack and test with dotnet CLI.
-* Init script that installs prerequisites and auth helpers, supporting both non-elevation and elevation modes.
-* Static analyzers: default [Code Analysis](https://docs.microsoft.com/dotnet/fundamentals/code-analysis/overview) and [StyleCop](https://github.com/DotNetAnalyzers/StyleCopAnalyzers)
-* Read-only source tree (builds to top-level bin/obj folders)
-* Auto-versioning (via [Nerdbank.GitVersioning](https://github.com/dotnet/nerdbank.gitversioning))
-* Builds with a "pinned" .NET Core SDK to ensure reproducible builds across machines and across time.
-* Automatically pack the library and publish it as an artifact, and even push it to some NuGet feed for consumption.
-* Testing
-  * Testing on .NET Framework, multiple .NET Core versions
-  * Testing on Windows, Linux and OSX
-  * Tests that crash or hang in Azure Pipelines automatically collect dumps and publish as a pipeline artifact for later investigation.
-* Cloud build support
-  * YAML based build for long-term serviceability, and PR review opportunities for any changes.
-  * Azure Pipelines and GitHub Action support
-  * Emphasis on PowerShell scripts over reliance on tasks for a more locally reproducible build.
-  * Code coverage published to Azure Pipelines
-  * Code coverage published to codecov.io so GitHub PRs get code coverage results added as a PR comment
-* MicroBuild ready
-  * MicroBuild signing built-in, with several more MicroBuild plugins' use streamlined for local installation via a switch passed to `init.ps1`.
-  * Insertions to VS streamlined and automated with all inputs computed during the build and saved for the release pipeline.
+* Serializers for solution files, traditional text based .sln file, and XML based .slnx file.
+* Object model for manipulating file contents in common way.
+* SLN File Format
+  - Consistent with legacy Visual Studio parsing code to ensure consistent behavior when reading .sln files.
+  - Model extension that allows specifying the file encoding.
+* SLNX File Format
+  - Simplified format to make merge conflicts easier to resolve.
+  - Preserves user added elements, comments and whitespace when possible. Updaing only modifies changed elements to reduce chances of changing user content.
+  - Simplified configuration rules and default logic reduce the file size.
+  - Model extension that allows specifying XML formatting.
 
-## Consumption
+## Using
 
-Once you've expanded this template for your own use, you should **run the `Expand-Template.ps1` script** to customize the template for your own project.
+The entry point to serializers can be found on the SolutionSerializers static class. This has the helper GetSerializerByMoniker that can pick the serializer for a file extension, or a specific serializers can be used.
 
-Further customize your repo by:
+SolutionModel is the class that represents a solution, it has a SolutionProjectModel for each project in the solution as well as SolutionFolderModel to represent solution folders (which are logical constructs and do not necessarily represent directories).
 
-1. Verify the license is suitable for your goal as it appears in the LICENSE and stylecop.json files and the Directory.Build.props file's `PackageLicenseExpression` property.
-1. Reset or replace the badges at the top of this file.
-1. Check and maybe change any variable groups referenced in the .yml files. Search for `- group:` to find them.
+For the most part any serializer specific concepts are removed from the model, but it does allow for serializer specific properties to be added using a ISerializerModelExtension. Each serializer has a CreateModelExtension method for creating a default model extension, as well as overloads for specifying options that are specific to each file format. For example .sln files support writing different encodings (ASCII, UTF-8 w/ BOM, and UTF-16). While .slnx files have options to customize XML formatting.
 
-### Maintaining your repo based on this template
+See [Samples Wiki](https://github.com/microsoft/vs-solutionpersistence/wiki/Samples)
 
-The best way to keep your repo in sync with this template's evolving features and best practices is to periodically merge the template into your repo:
-
-```ps1
-git checkout main          # your default branch
-git pull                   # make sure you're at tip
-git fetch libtemplate      # fetch latest Library.Template
-git merge libtemplate/microbuild
-```
-
-There will frequently be merge conflicts to work out, but they will be easier to resolve than running the `Apply-Template.ps1` script every time, which simply blows away all your local changes with the latest from the template.
-
-If you do not already have Library.Template history in your repo or have never completed a merge before, the above steps may produce errors.
-To get it working the first time, follow these steps:
-
-```ps1
-git remote add libtemplate https://github.com/AArnott/Library.Template.git
-git fetch libtemplate
-```
-
-If the `git merge` step described earlier still fails for you, you may need to artificially create your first merge.
-First, you must have a local clone of Library.Template on your box:
-
-```ps1
-git clone https://github.com/AArnott/Library.Template.git
-```
-
-Make sure you have either `main` checked out in that clone, as appropriate to match.
-Use `git rev-parse HEAD` within the Library.Template repo and record the resulting commit as we'll use it later.
-
-Run the `Apply-Template.ps1` script, passing in the path to your own Library.Template-based repo. This will blow away most customizations you may have made to your repo's build authoring. You should *carefully* review all changes to your repo, staging those changes that you want to keep and reverting those that remove customizations you made.
-
-Now it's time to commit your changes. We do this in a very low-level way in order to have git record this as a *merge* commit even though it didn't start as a merge.
-By doing this, git will allow future merges from `libtemplate/microbuild` and only new changes will be brought down, which will be much easier than the `Apply-Template.ps1` script you just ran.
-We create the merge commit with these commands:
-
-1. Be sure to have staged or reverted all the changes in your repo.
-1. Run `git write-tree` within your repo. This will print out a git tree hash.
-1. Run `git commit-tree -p HEAD -p A B -m "Merged latest Library.Template"`, where `A` is the output from `git rev-parse HEAD` that you recorded earlier, and `B` is the output from your prior `git write-tree` command.
-1. Run `git merge X` where `X` is the output of the `git commit-tree` command.
-
-**IMPORTANT**: If using a pull request to get your changes into your repo, you must *merge* your PR. If you *squash* your PR, history will be lost and you will have to repeatedly resolve the same merge conflicts at the next Library.Template update.
-
-**CAUTION**: when merging this for the first time, a github-hosted repo may close issues in your repo with the same number as issues that this repo closed in git commit messages.
-Verify after completing your PR by visiting your github closed issues, sorted by recently updated, and reactivate any that were inadvertently closed by this merge.
-This shouldn't be a recurring issue because going forward, we will avoid referencing github issues with simple `#123` syntax in this repo's history.
-
-Congratulations. You're all done.
-Next time you want to sync to latest from Library.Template, you can the simple `git merge` steps given at the start of this section.

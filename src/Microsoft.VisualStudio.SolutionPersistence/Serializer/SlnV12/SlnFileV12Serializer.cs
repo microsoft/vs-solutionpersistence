@@ -11,9 +11,10 @@ namespace Microsoft.VisualStudio.SolutionPersistence.Serializer.SlnV12;
 /// </summary>
 internal sealed partial class SlnFileV12Serializer : SingleFileSerializerBase<SlnV12SerializerSettings>
 {
-    private static string Extension => ".sln";
-
-    private static string SerializerName => "SlnV12";
+    [Obsolete("Use Instance")]
+    public SlnFileV12Serializer()
+    {
+    }
 
     internal enum ParseError
     {
@@ -21,18 +22,24 @@ internal sealed partial class SlnFileV12Serializer : SingleFileSerializerBase<Sl
         BadSln12File,
     }
 
-    [Obsolete("Use Instance")]
-    public SlnFileV12Serializer()
-    {
-    }
-
     public static SlnFileV12Serializer Instance => Singleton<SlnFileV12Serializer>.Instance;
 
+    /// <inheritdoc/>
+    public override string Name => SerializerName;
+
+    private protected override string FileExtension => Extension;
+
+    private static string Extension => ".sln";
+
+    private static string SerializerName => "SlnV12";
+
+    /// <inheritdoc/>
     public override ISerializerModelExtension CreateModelExtension()
     {
         return new SlnV12ModelExtension(this, new SlnV12SerializerSettings() { Encoding = Encoding.ASCII });
     }
 
+    /// <inheritdoc/>
     public override ISerializerModelExtension CreateModelExtension(SlnV12SerializerSettings settings)
     {
         if (settings.Encoding is not null && settings.Encoding.CodePage != Encoding.ASCII.CodePage &&
@@ -44,10 +51,6 @@ internal sealed partial class SlnFileV12Serializer : SingleFileSerializerBase<Sl
 
         return new SlnV12ModelExtension(this, settings);
     }
-
-    private protected override string FileExtension => Extension;
-
-    public override string Name => SerializerName;
 
     private protected override async Task<SolutionModel> ReadModelAsync(string? fullPath, Stream reader, CancellationToken cancellationToken)
     {

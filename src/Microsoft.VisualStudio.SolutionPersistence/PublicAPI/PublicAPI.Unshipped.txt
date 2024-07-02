@@ -64,8 +64,6 @@ Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel.AddPlatform(strin
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel.AddProject(string! filePath, string? projectTypeName) -> Microsoft.VisualStudio.SolutionPersistence.Model.SolutionProjectModel!
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel.AddProject(string! filePath, System.Guid projectTypeId) -> Microsoft.VisualStudio.SolutionPersistence.Model.SolutionProjectModel!
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel.BuildTypes.get -> System.Collections.Generic.IReadOnlyList<string!>!
-Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel.DefaultId.get -> System.Guid
-Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel.DefaultId.set -> void
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel.Description.get -> string?
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel.Description.set -> void
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel.DistillProjectConfigurations() -> void
@@ -106,10 +104,10 @@ Microsoft.VisualStudio.SolutionPersistence.Model.SolutionProjectModel.GetProject
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionProjectModel.ProjectConfigurationRules.get -> System.Collections.Generic.IReadOnlyList<Microsoft.VisualStudio.SolutionPersistence.Model.ConfigurationRule>?
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionProjectModel.ProjectConfigurationRules.set -> void
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionProjectModel.RemoveDependency(Microsoft.VisualStudio.SolutionPersistence.Model.SolutionProjectModel! dependency) -> bool
-Microsoft.VisualStudio.SolutionPersistence.Model.SolutionProjectModel.SetType(string! type) -> void
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionProjectModel.Type.get -> string!
+Microsoft.VisualStudio.SolutionPersistence.Model.SolutionProjectModel.Type.set -> void
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionPropertyBag
-Microsoft.VisualStudio.SolutionPersistence.Model.SolutionPropertyBag.Add(string? name, string! value) -> void
+Microsoft.VisualStudio.SolutionPersistence.Model.SolutionPropertyBag.Add(string! name, string! value) -> void
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionPropertyBag.AddRange(System.Collections.Generic.IReadOnlyCollection<System.Collections.Generic.KeyValuePair<string!, string!>>! properties) -> void
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionPropertyBag.ContainsKey(string! key) -> bool
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionPropertyBag.Count.get -> int
@@ -117,12 +115,8 @@ Microsoft.VisualStudio.SolutionPersistence.Model.SolutionPropertyBag.GetEnumerat
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionPropertyBag.Id.get -> string!
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionPropertyBag.Keys.get -> System.Collections.Generic.IEnumerable<string!>!
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionPropertyBag.PropertyNames.get -> System.Collections.Generic.IReadOnlyList<string!>!
-Microsoft.VisualStudio.SolutionPersistence.Model.SolutionPropertyBag.Remove(string! name) -> void
+Microsoft.VisualStudio.SolutionPersistence.Model.SolutionPropertyBag.Remove(string! name) -> bool
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionPropertyBag.Scope.get -> Microsoft.VisualStudio.SolutionPersistence.Model.PropertiesScope
-Microsoft.VisualStudio.SolutionPersistence.Model.SolutionPropertyBag.SolutionPropertyBag(Microsoft.VisualStudio.SolutionPersistence.Model.SolutionPropertyBag! propertyBag) -> void
-Microsoft.VisualStudio.SolutionPersistence.Model.SolutionPropertyBag.SolutionPropertyBag(string! id) -> void
-Microsoft.VisualStudio.SolutionPersistence.Model.SolutionPropertyBag.SolutionPropertyBag(string! id, Microsoft.VisualStudio.SolutionPersistence.Model.PropertiesScope scope) -> void
-Microsoft.VisualStudio.SolutionPersistence.Model.SolutionPropertyBag.SolutionPropertyBag(string! id, Microsoft.VisualStudio.SolutionPersistence.Model.PropertiesScope scope, int capacity) -> void
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionPropertyBag.this[string! key].get -> string!
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionPropertyBag.TryGetValue(string! key, out string! value) -> bool
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionPropertyBag.Values.get -> System.Collections.Generic.IEnumerable<string!>!

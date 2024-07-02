@@ -10,6 +10,9 @@ namespace Utilities;
 internal static class SlnAssets
 {
     private const string SlnAssetsRoot = "SlnAssets.";
+    private static readonly Assembly ResourceAssembly = typeof(SlnAssets).Assembly;
+
+    public static ResourceName[] ClassicSlnFiles => GetAllSampleFiles(".sln").ToArray();
 
     #region Sample Classic Sln
 
@@ -29,40 +32,6 @@ internal static class SlnAssets
 
     // A single C++ project with "Mobile"->"ARM64" platform, doesn't and build ARM64 sln platform. UTF8 BOM encoding.
     public static ResourceStream ClassicSlnSingleNativeProject => LoadResource("SingleNativeProject.sln");
-
-    private static readonly Assembly ResourceAssembly = typeof(SlnAssets).Assembly;
-
-    public static IEnumerable<ResourceName> GetAllSampleFiles(string postFix)
-    {
-        string[] allResources = ResourceAssembly.GetManifestResourceNames();
-        foreach (string fullResourceId in allResources)
-        {
-            StringSpan resourceName = fullResourceId.AsSpan();
-            if (!resourceName.StartsWith(SlnAssetsRoot))
-            {
-                continue;
-            }
-
-            resourceName = resourceName.Slice(SlnAssetsRoot.Length);
-
-            if (!resourceName.StartsWithIgnoreCase("Invalid") &&
-                (resourceName.EndsWith(postFix + ".txt") || resourceName.EndsWith(postFix + ".xml")))
-            {
-                Stream? stream = ResourceAssembly.GetManifestResourceStream(fullResourceId);
-                if (stream is not null)
-                {
-                    yield return new ResourceName(Path.GetFileNameWithoutExtension(resourceName).ToString(), fullResourceId);
-                }
-            }
-        }
-    }
-
-    public static ResourceStream Load(this ResourceName resourceName)
-    {
-        return new ResourceStream(resourceName.Name, ResourceAssembly.GetManifestResourceStream(resourceName.FullResourceId)!);
-    }
-
-    public static ResourceName[] ClassicSlnFiles => GetAllSampleFiles(".sln").ToArray();
 
     #endregion
 
@@ -109,6 +78,36 @@ internal static class SlnAssets
     public static ResourceStream XmlSlnxProperties_NoComments => LoadResource(@"Properties\JustProperties-nocomments.slnx");
 
     #endregion
+
+    public static IEnumerable<ResourceName> GetAllSampleFiles(string postFix)
+    {
+        string[] allResources = ResourceAssembly.GetManifestResourceNames();
+        foreach (string fullResourceId in allResources)
+        {
+            StringSpan resourceName = fullResourceId.AsSpan();
+            if (!resourceName.StartsWith(SlnAssetsRoot))
+            {
+                continue;
+            }
+
+            resourceName = resourceName.Slice(SlnAssetsRoot.Length);
+
+            if (!resourceName.StartsWithIgnoreCase("Invalid") &&
+                (resourceName.EndsWith(postFix + ".txt") || resourceName.EndsWith(postFix + ".xml")))
+            {
+                Stream? stream = ResourceAssembly.GetManifestResourceStream(fullResourceId);
+                if (stream is not null)
+                {
+                    yield return new ResourceName(Path.GetFileNameWithoutExtension(resourceName).ToString(), fullResourceId);
+                }
+            }
+        }
+    }
+
+    public static ResourceStream Load(this ResourceName resourceName)
+    {
+        return new ResourceStream(resourceName.Name, ResourceAssembly.GetManifestResourceStream(resourceName.FullResourceId)!);
+    }
 
     public static ResourceStream LoadResource(string name)
     {

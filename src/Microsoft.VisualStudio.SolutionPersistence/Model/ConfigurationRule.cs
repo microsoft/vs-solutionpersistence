@@ -40,8 +40,27 @@ public readonly struct ConfigurationRule(
     string solutionPlatform,
     string projectValue)
 {
+    /// <summary>
+    /// The dimension that is being configured.
+    /// </summary>
     public readonly BuildDimension Dimension = dimension;
+
+    /// <summary>
+    /// The solution build type that gets mapped to the project value.
+    /// If string.Empty, then the project value is applied for all solution build types.
+    /// </summary>
     public readonly string SolutionBuildType = solutionBuildType;
+
+    /// <summary>
+    /// The solution platform that gets mapped to the project value.
+    /// If string.Empty, then the project value is applied for all solution platforms.
+    /// </summary>
     public readonly string SolutionPlatform = solutionPlatform;
+
+    /// <summary>
+    /// The value that the project configuration should be set to.
+    /// For BuildType or Dimension, this string represents the project configuration value.
+    /// For Build or Deploy, this string is a string boolean value. (True or False).
+    /// </summary>
     public readonly string ProjectValue = projectValue;
 }

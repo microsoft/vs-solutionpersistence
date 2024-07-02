@@ -16,21 +16,21 @@ internal abstract partial class XmlContainer(SlnxFile root, XmlElement element, 
     /// if it is not an expected child for the current item.
     /// Implementor should just create the decorator, do not initialize it or add it to the cache.
     /// </summary>
-    public virtual XmlDecorator? ChildDecoratorFactory(XmlElement element, Keyword elementName) => null;
+    internal virtual XmlDecorator? ChildDecoratorFactory(XmlElement element, Keyword elementName) => null;
 
     /// <summary>
     /// Called on any newly added child decorator.
     /// </summary>
-    public virtual void OnNewChildDecoratorAdded(XmlDecorator childDecorator)
+    internal virtual void OnNewChildDecoratorAdded(XmlDecorator childDecorator)
     {
     }
 
-    public virtual XmlDecorator? FindChildDecorator(string itemRef) => null;
+    internal virtual XmlDecorator? FindChildDecorator(string itemRef) => null;
 
     #region Update decorator from XML
 
     /// <inheritdoc/>
-    public override void UpdateFromXml()
+    internal override void UpdateFromXml()
     {
         base.UpdateFromXml();
 

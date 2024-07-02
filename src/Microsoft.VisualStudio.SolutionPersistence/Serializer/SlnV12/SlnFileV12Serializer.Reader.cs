@@ -19,6 +19,10 @@ internal sealed partial class SlnFileV12Serializer
     /// </summary>
     internal ref struct Reader(StreamReader reader, string? fullPath)
     {
+        private int lineNumber = 0;
+
+        private bool corrupted = false;
+
         private enum LineType
         {
             Project,
@@ -39,11 +43,7 @@ internal sealed partial class SlnFileV12Serializer
             Property,
         }
 
-        private int lineNumber = 0;
-
-        private bool corrupted = false;
-
-        public ValueTask<SolutionModel> ParseAsync(ISolutionSerializer serializer, string? fullPath, CancellationToken cancellationToken)
+        internal ValueTask<SolutionModel> ParseAsync(ISolutionSerializer serializer, string? fullPath, CancellationToken cancellationToken)
         {
             string? vsVersion = null;
             string? minVsVersion = null;

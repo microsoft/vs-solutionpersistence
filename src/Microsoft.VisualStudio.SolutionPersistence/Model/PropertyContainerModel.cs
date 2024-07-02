@@ -34,7 +34,7 @@ public abstract class PropertyContainerModel
     /// <summary>
     /// Gets properties associated with this model.
     /// </summary>
-    public IReadOnlyList<SolutionPropertyBag> Properties => this.properties ?? [];
+    public IReadOnlyList<SolutionPropertyBag> Properties => this.properties.IReadOnlyList() ?? [];
 
     /// <summary>
     /// Gets a property bag by its id.

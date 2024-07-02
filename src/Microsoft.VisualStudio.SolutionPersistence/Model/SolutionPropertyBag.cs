@@ -7,6 +7,9 @@ using PropertyBag = Microsoft.VisualStudio.SolutionPersistence.Utilities.Liction
 
 namespace Microsoft.VisualStudio.SolutionPersistence.Model;
 
+/// <summary>
+/// Used by Visual Studio's extensibility to determine when to notify the extensibility extensions for a property bag.
+/// </summary>
 public enum PropertiesScope : byte
 {
     /// <summary>
@@ -20,22 +23,21 @@ public enum PropertiesScope : byte
     PostLoad,
 }
 
+/// <summary>
+/// Represents a dictionary of property names and values that are associated
+/// with a solution, project, or solution folder.
+/// </summary>
 public sealed class SolutionPropertyBag : IReadOnlyDictionary<string, string>
 {
     private List<string> propertyNamesInOrder;
     private PropertyBag properties;
 
-    public SolutionPropertyBag(string id)
-        : this(id, PropertiesScope.PreLoad)
-    {
-    }
-
-    public SolutionPropertyBag(string id, PropertiesScope scope)
+    internal SolutionPropertyBag(string id, PropertiesScope scope)
         : this(id, scope, capacity: 0)
     {
     }
 
-    public SolutionPropertyBag(string id, PropertiesScope scope, int capacity)
+    internal SolutionPropertyBag(string id, PropertiesScope scope, int capacity)
     {
         this.Id = id;
         this.Scope = scope;
@@ -43,8 +45,8 @@ public sealed class SolutionPropertyBag : IReadOnlyDictionary<string, string>
         this.properties = new PropertyBag(capacity);
     }
 
-    // Create a new property bag that isn't frozen.
-    public SolutionPropertyBag(SolutionPropertyBag propertyBag)
+    // Copy constructor.
+    internal SolutionPropertyBag(SolutionPropertyBag propertyBag)
     {
         Argument.ThrowIfNull(propertyBag, nameof(propertyBag));
         this.Id = propertyBag.Id;
@@ -53,14 +55,34 @@ public sealed class SolutionPropertyBag : IReadOnlyDictionary<string, string>
         this.properties = new PropertyBag(propertyBag.properties);
     }
 
+    /// <summary>
+    /// Gets the unique name of the property bag.
+    /// </summary>
     public string Id { get; }
 
+    /// <summary>
+    /// Gets the scope of the property bag.
+    /// </summary>
     public PropertiesScope Scope { get; }
 
+    /// <inheritdoc/>
     public int Count => this.propertyNamesInOrder.Count;
 
+    /// <summary>
+    /// Gets a list of property names in the order they were declared.
+    /// </summary>
     public IReadOnlyList<string> PropertyNames => this.propertyNamesInOrder;
 
+    /// <inheritdoc/>
+    public IEnumerable<string> Keys => this.PropertyNames;
+
+    /// <inheritdoc/>
+    public IEnumerable<string> Values => this.PropertyNames.Select(x => this[x]);
+
+    /// <inheritdoc/>
+    public string this[string key] => this.properties[key];
+
+    /// <inheritdoc/>
 #if NETFRAMEWORK
 #nullable disable warnings
 #endif
@@ -70,11 +92,13 @@ public sealed class SolutionPropertyBag : IReadOnlyDictionary<string, string>
 #endif
         this.properties.TryGetValue(key, out value);
 
+    /// <inheritdoc/>
     public bool ContainsKey(string key)
     {
         return this.properties.ContainsKey(key);
     }
 
+    /// <inheritdoc/>
     public IEnumerator<KeyValuePair<string, string>> GetEnumerator()
     {
         foreach (string key in this.propertyNamesInOrder)
@@ -83,23 +107,21 @@ public sealed class SolutionPropertyBag : IReadOnlyDictionary<string, string>
         }
     }
 
+    /// <inheritdoc/>
     IEnumerator IEnumerable.GetEnumerator()
     {
         return this.GetEnumerator();
     }
 
-    public IEnumerable<string> Keys => this.PropertyNames;
-
-    public IEnumerable<string> Values => this.PropertyNames.Select(x => this[x]);
-
-    public string this[string key] => this.TryGetValue(key, out string? value) ? value : throw new KeyNotFoundException();
-
-    public void Add(string? name, string value)
+    /// <summary>
+    /// Adds a property to the property bag.
+    /// </summary>
+    /// <param name="name">The property name.</param>
+    /// <param name="value">The property value.</param>
+    public void Add(string name, string value)
     {
-        if (name is null || name.Length == 0)
-        {
-            return;
-        }
+        Argument.ThrowIfNullOrEmpty(name, nameof(name));
+        Argument.ThrowIfNull(value, nameof(value));
 
         if (this.properties.TryAdd(name, value))
         {
@@ -111,6 +133,10 @@ public sealed class SolutionPropertyBag : IReadOnlyDictionary<string, string>
         }
     }
 
+    /// <summary>
+    /// Adds multiple properties to the property bag.
+    /// </summary>
+    /// <param name="properties">The properties to add.</param>
     public void AddRange(IReadOnlyCollection<KeyValuePair<string, string>> properties)
     {
         Argument.ThrowIfNull(properties, nameof(properties));
@@ -123,6 +149,7 @@ public sealed class SolutionPropertyBag : IReadOnlyDictionary<string, string>
         }
         else
         {
+            this.properties.EnsureCapacity(this.properties.Count + properties.Count);
             foreach ((string key, string value) in properties)
             {
                 this.Add(key, value);
@@ -130,11 +157,19 @@ public sealed class SolutionPropertyBag : IReadOnlyDictionary<string, string>
         }
     }
 
-    public void Remove(string name)
+    /// <summary>
+    /// Removes a property.
+    /// </summary>
+    /// <param name="name">The name of the property to remove.</param>
+    /// <returns><see langword="true"/> if the property was found and removed.</returns>
+    public bool Remove(string name)
     {
         if (this.properties.Remove(name))
         {
             _ = this.propertyNamesInOrder.Remove(name);
+            return true;
         }
+
+        return false;
     }
 }

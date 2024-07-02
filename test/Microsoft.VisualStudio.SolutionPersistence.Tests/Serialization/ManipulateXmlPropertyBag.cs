@@ -27,8 +27,8 @@ public class ManipulateXmlPropertyBag
         {
             // Remove some of the properties
             SolutionPropertyBag? properties = solution.FindProperties("TestProperties") ?? throw new InvalidOperationException();
-            properties.Remove("Prop2");
-            properties.Remove("Prop4");
+            _ = properties.Remove("Prop2");
+            _ = properties.Remove("Prop4");
         });
     }
 
@@ -44,7 +44,7 @@ public class ManipulateXmlPropertyBag
             SolutionPropertyBag? properties = solution.FindProperties("TestProperties") ?? throw new InvalidOperationException();
             foreach (string? propertyName in properties.PropertyNames.ToArray())
             {
-                properties.Remove(propertyName);
+                _ = properties.Remove(propertyName);
             }
         });
     }

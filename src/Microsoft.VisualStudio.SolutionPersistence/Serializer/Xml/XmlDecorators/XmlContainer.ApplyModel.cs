@@ -12,103 +12,10 @@ namespace Microsoft.VisualStudio.SolutionPersistence.Serializer.Xml.XmlDecorator
 /// </summary>
 internal abstract partial class XmlContainer
 {
-    #region Manipulate XML
-
-    /// <summary>
-    /// Creates a new child element and wraps it with a new decorator.
-    /// The new decorator is initialized and requested to add it to the cache.
-    /// </summary>
-    private protected XmlDecorator CreateAndAddChild(Keyword type, string? itemRef, XmlDecorator? insertBefore)
-    {
-        XmlElement newElement = this.CreateXmlChild(type, insertBefore);
-        XmlDecorator? newDecorator = this.CreateChildDecorator(newElement, itemRef, validateItemRef: true);
-        return newDecorator ?? throw new InvalidOperationException("Requested item doesn't not created by child factory.");
-    }
-
-    private XmlElement CreateXmlChild(Keyword type, XmlDecorator? insertBefore)
-    {
-        XmlElement newElement = this.XmlElement.OwnerDocument.CreateElement(type.ToXmlString());
-
-        return insertBefore is null ?
-            this.AppendChildWithWhitespace(newElement) :
-            this.InsertBeforeWithWhitespace(newElement, insertBefore);
-    }
-
-    private XmlElement AppendChildWithWhitespace(XmlElement newElement)
-    {
-        if (this.Root.SerializationSettings.PreserveWhitespace == true)
-        {
-            // This is the whitespace that goes after the last child element. If it exists reuse it, otherwise this
-            // indent should be the same at the parent level.
-            if (this.XmlElement.LastChild is not XmlWhitespace afterWhitespace)
-            {
-                afterWhitespace = this.XmlElement.OwnerDocument.CreateWhitespace(this.GetNewLineAndIndent().ToString());
-                _ = this.XmlElement.AppendChild(afterWhitespace);
-            }
-
-            _ = this.XmlElement.InsertBefore(newElement, afterWhitespace);
-
-            // This is the new line whitespace between this and the previous element.
-            // Just add an indent to the parent level.
-            XmlWhitespace beforeWhitespace = this.XmlElement.OwnerDocument.CreateWhitespace(
-                this.GetNewLineAndIndent().ToString() + this.Root.SerializationSettings.IndentChars);
-            _ = this.XmlElement.InsertBefore(beforeWhitespace, newElement);
-        }
-        else
-        {
-            _ = this.XmlElement.AppendChild(newElement);
-        }
-
-        return newElement;
-    }
-
-    private XmlElement InsertBeforeWithWhitespace(XmlElement newElement, XmlDecorator insertBefore)
-    {
-        if (this.Root.SerializationSettings.PreserveWhitespace == true)
-        {
-            XmlNode insertBeforeNode = insertBefore.GetFirstTrivia();
-
-            _ = this.XmlElement.InsertBefore(newElement, insertBeforeNode);
-
-            // This is the new line whitespace between this and the previous element.
-            // Just add an indent to the parent level.
-            XmlWhitespace beforeWhitespace = this.XmlElement.OwnerDocument.CreateWhitespace(
-                this.GetNewLineAndIndent().ToString() + this.Root.SerializationSettings.IndentChars);
-            _ = this.XmlElement.InsertBefore(beforeWhitespace, newElement);
-        }
-        else
-        {
-            _ = this.XmlElement.AppendChild(newElement);
-        }
-
-        return newElement;
-    }
-
-    private protected void RemoveXmlChild(XmlDecorator? childToRemove)
-    {
-        if (childToRemove is null)
-        {
-            return;
-        }
-
-        foreach (XmlNode node in childToRemove.GetElementAndTrivia())
-        {
-            // For now use the node's parent instead of this.XmlElement, because when
-            // projects are moved to different folders they may not still be in this container.
-            _ = node.ParentNode?.RemoveChild(node);
-        }
-
-        if (!this.XmlElement.ChildElements().Any())
-        {
-            // This clears out all child nodes and collapses the element to a self-closing tag.
-            this.XmlElement.IsEmpty = true;
-        }
-    }
-
 #if DEBUG
 
     // Diagnostic view of the child nodes.
-    public List<string> DebugChildNodes
+    internal List<string> DebugChildNodes
     {
         get
         {
@@ -140,8 +47,6 @@ internal abstract partial class XmlContainer
 
 #endif // DEBUG
 
-    #endregion
-
     /// <summary>
     /// Attempt to encapsulate the logic of updating the Xml DOM to match the model.
     /// Applies a model collection to the XML by updating existing elements, adding new elements, and removing elements that are no longer in the model.
@@ -157,7 +62,7 @@ internal abstract partial class XmlContainer
     /// <param name="applyModelToXml">Applies the model item changes to the decorator.</param>
     /// <returns>true if the XML was changed.</returns>
     /// <exception cref="InvalidOperationException">Thrown if <paramref name="getModelItem"/> cannot find an item that was returned from <paramref name="getItemRefs"/>.</exception>
-    public bool ApplyModelToXmlGeneric<TModelCollection, TModelItem, TDecorator>(
+    internal bool ApplyModelToXmlGeneric<TModelCollection, TModelItem, TDecorator>(
         TModelCollection modelCollection,
         ref ItemRefList<TDecorator> decoratorItems,
         Keyword decoratorElementName,
@@ -193,7 +98,7 @@ internal abstract partial class XmlContainer
     /// <param name="state">The state to pass to the functions.</param>
     /// <returns>true if the XML was changed.</returns>
     /// <exception cref="InvalidOperationException">Thrown if <paramref name="getModelItem"/> cannot find an item that was returned from <paramref name="getItemRefs"/>.</exception>
-    public bool ApplyModelToXmlGeneric<TModelCollection, TModelItem, TDecorator, TState>(
+    internal bool ApplyModelToXmlGeneric<TModelCollection, TModelItem, TDecorator, TState>(
         TModelCollection modelCollection,
         ref ItemRefList<TDecorator> decoratorItems,
         Keyword decoratorElementName,
@@ -285,4 +190,99 @@ internal abstract partial class XmlContainer
 
         return modified;
     }
+
+    #region Manipulate XML
+
+    private protected void RemoveXmlChild(XmlDecorator? childToRemove)
+    {
+        if (childToRemove is null)
+        {
+            return;
+        }
+
+        foreach (XmlNode node in childToRemove.GetElementAndTrivia())
+        {
+            // For now use the node's parent instead of this.XmlElement, because when
+            // projects are moved to different folders they may not still be in this container.
+            _ = node.ParentNode?.RemoveChild(node);
+        }
+
+        if (!this.XmlElement.ChildElements().Any())
+        {
+            // This clears out all child nodes and collapses the element to a self-closing tag.
+            this.XmlElement.IsEmpty = true;
+        }
+    }
+
+    /// <summary>
+    /// Creates a new child element and wraps it with a new decorator.
+    /// The new decorator is initialized and requested to add it to the cache.
+    /// </summary>
+    private protected XmlDecorator CreateAndAddChild(Keyword type, string? itemRef, XmlDecorator? insertBefore)
+    {
+        XmlElement newElement = this.CreateXmlChild(type, insertBefore);
+        XmlDecorator? newDecorator = this.CreateChildDecorator(newElement, itemRef, validateItemRef: true);
+        return newDecorator ?? throw new InvalidOperationException("Requested item doesn't not created by child factory.");
+    }
+
+    private XmlElement CreateXmlChild(Keyword type, XmlDecorator? insertBefore)
+    {
+        XmlElement newElement = this.XmlElement.OwnerDocument.CreateElement(type.ToXmlString());
+
+        return insertBefore is null ?
+            this.AppendChildWithWhitespace(newElement) :
+            this.InsertBeforeWithWhitespace(newElement, insertBefore);
+    }
+
+    private XmlElement AppendChildWithWhitespace(XmlElement newElement)
+    {
+        if (this.Root.SerializationSettings.PreserveWhitespace == true)
+        {
+            // This is the whitespace that goes after the last child element. If it exists reuse it, otherwise this
+            // indent should be the same at the parent level.
+            if (this.XmlElement.LastChild is not XmlWhitespace afterWhitespace)
+            {
+                afterWhitespace = this.XmlElement.OwnerDocument.CreateWhitespace(this.GetNewLineAndIndent().ToString());
+                _ = this.XmlElement.AppendChild(afterWhitespace);
+            }
+
+            _ = this.XmlElement.InsertBefore(newElement, afterWhitespace);
+
+            // This is the new line whitespace between this and the previous element.
+            // Just add an indent to the parent level.
+            XmlWhitespace beforeWhitespace = this.XmlElement.OwnerDocument.CreateWhitespace(
+                this.GetNewLineAndIndent().ToString() + this.Root.SerializationSettings.IndentChars);
+            _ = this.XmlElement.InsertBefore(beforeWhitespace, newElement);
+        }
+        else
+        {
+            _ = this.XmlElement.AppendChild(newElement);
+        }
+
+        return newElement;
+    }
+
+    private XmlElement InsertBeforeWithWhitespace(XmlElement newElement, XmlDecorator insertBefore)
+    {
+        if (this.Root.SerializationSettings.PreserveWhitespace == true)
+        {
+            XmlNode insertBeforeNode = insertBefore.GetFirstTrivia();
+
+            _ = this.XmlElement.InsertBefore(newElement, insertBeforeNode);
+
+            // This is the new line whitespace between this and the previous element.
+            // Just add an indent to the parent level.
+            XmlWhitespace beforeWhitespace = this.XmlElement.OwnerDocument.CreateWhitespace(
+                this.GetNewLineAndIndent().ToString() + this.Root.SerializationSettings.IndentChars);
+            _ = this.XmlElement.InsertBefore(beforeWhitespace, newElement);
+        }
+        else
+        {
+            _ = this.XmlElement.AppendChild(newElement);
+        }
+
+        return newElement;
+    }
+
+    #endregion
 }

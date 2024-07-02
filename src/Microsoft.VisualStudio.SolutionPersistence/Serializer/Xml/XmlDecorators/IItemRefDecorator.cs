@@ -15,10 +15,10 @@ internal interface IItemRefDecorator
     /// <remarks>
     /// For some complicated elements, this may be a compound attribute.
     /// </remarks>
-    public Keyword ItemRefAttribute { get; }
+    Keyword ItemRefAttribute { get; }
 
     /// <summary>
     /// Gets the unique identifier for the item.
     /// </summary>
-    public string ItemRef { get; }
+    string ItemRef { get; }
 }

@@ -16,25 +16,25 @@ internal abstract class XmlConfiguration(SlnxFile root, XmlElement element, Keyw
 {
     public Keyword ItemRefAttribute => Keyword.Solution;
 
-    private protected override bool AllowEmptyItemRef => true;
+    internal abstract BuildDimension Dimension { get; }
 
-    public abstract BuildDimension Dimension { get; }
-
-    public string Solution
+    internal string Solution
     {
         get => this.GetXmlAttribute(Keyword.Solution) ?? string.Empty;
         set => this.UpdateXmlAttribute(Keyword.Solution, value);
     }
 
-    public string Project
+    internal string Project
     {
         get => this.GetXmlAttribute(Keyword.Project) ?? string.Empty;
         set => this.UpdateXmlAttribute(Keyword.Project, value);
     }
 
+    private protected override bool AllowEmptyItemRef => true;
+
     #region Deserialize model
 
-    public ConfigurationRule? ToModel()
+    internal ConfigurationRule? ToModel()
     {
         BuildDimension dimension = this.Dimension;
 
@@ -81,7 +81,7 @@ internal abstract class XmlConfiguration(SlnxFile root, XmlElement element, Keyw
     #endregion
 
     // Update the Xml DOM with changes from the model.
-    public bool ApplyModelToXml(ConfigurationRule configurationRule)
+    internal bool ApplyModelToXml(ConfigurationRule configurationRule)
     {
         string value = configurationRule.Dimension switch
         {

@@ -36,8 +36,14 @@ public abstract class SolutionItemModel : PropertyContainerModel
         this.parent = itemModel.Parent;
     }
 
+    /// <summary>
+    /// Gets the solution model that contains this item.
+    /// </summary>
     public SolutionModel Solution { get; }
 
+    /// <summary>
+    /// Gets or sets the parent solution folder.
+    /// </summary>
     public SolutionFolderModel? Parent
     {
         get => this.parent;
@@ -51,6 +57,54 @@ public abstract class SolutionItemModel : PropertyContainerModel
         }
     }
 
+    /// <summary>
+    /// Gets or sets the unique Id of the item within the solution.
+    /// </summary>
+    public Guid Id
+    {
+        get => this.id ?? this.DefaultId;
+
+        set
+        {
+            if (value != (this.id ?? this.defaultId))
+            {
+                if (this.Solution.FindItemById(value) is not null)
+                {
+                    throw new ArgumentException(@"An item with the same Id already exists in the solution.", nameof(value));
+                }
+
+                Guid? oldId = this.id ?? this.defaultId;
+                this.id = value == this.DefaultId ? null : value.NullIfEmpty();
+                this.Solution.OnUpdateId(this, oldId);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Gets a value indicating whether the Id is the default Id generated from the ItemRef.
+    /// </summary>
+    public bool IsDefaultId => this.id is null;
+
+    /// <summary>
+    /// Gets the display name of the item. If there is a filename it will be used, otherwise the actual display name.
+    /// </summary>
+    public abstract string ActualDisplayName { get; }
+
+    /// <summary>
+    /// Gets a unique reference to the item in the solution.
+    /// This is designed as a replacement to Id and provides a human readable reference to the item.
+    /// </summary>
+    public abstract string ItemRef { get; }
+
+    /// <summary>
+    /// Gets the project type id of the item.
+    /// </summary>
+    public abstract Guid TypeId { get; }
+
+    private Guid DefaultId => this.defaultId ??= this.GetDefaultId();
+
+    private protected abstract Guid GetDefaultId();
+
     private protected virtual void OnParentChanged()
     {
     }
@@ -63,31 +117,4 @@ public abstract class SolutionItemModel : PropertyContainerModel
             this.Id = Guid.Empty;
         }
     }
-
-    public Guid Id
-    {
-        get => this.id ?? this.DefaultId;
-
-        set
-        {
-            if (value != (this.id ?? this.defaultId))
-            {
-                Guid? oldId = this.id ?? this.defaultId;
-                this.id = value == this.DefaultId ? null : value.NullIfEmpty();
-                this.Solution.OnUpdateId(this, oldId);
-            }
-        }
-    }
-
-    public bool IsDefaultId => this.id is null;
-
-    private Guid DefaultId => this.defaultId ??= this.GetDefaultId();
-
-    private protected abstract Guid GetDefaultId();
-
-    public abstract string ActualDisplayName { get; }
-
-    public abstract string ItemRef { get; }
-
-    public abstract Guid TypeId { get; }
 }

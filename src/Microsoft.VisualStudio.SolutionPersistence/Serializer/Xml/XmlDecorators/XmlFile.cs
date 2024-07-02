@@ -14,5 +14,5 @@ internal sealed class XmlFile(SlnxFile root, XmlElement element) :
 {
     public Keyword ItemRefAttribute => Keyword.Path;
 
-    public string Path => this.ItemRef;
+    internal string Path => this.ItemRef;
 }

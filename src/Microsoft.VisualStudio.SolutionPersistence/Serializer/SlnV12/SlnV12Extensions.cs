@@ -14,6 +14,18 @@ namespace Microsoft.VisualStudio.SolutionPersistence.Serializer.SlnV12;
 /// </summary>
 public static class SlnV12Extensions
 {
+    private const string ActiveCfgSuffix = ".ActiveCfg";
+    private const string BuildSuffix = ".Build.0";
+    private const string DeploySuffix = ".Deploy.0";
+
+    private enum ConfigLineType
+    {
+        Unknown = 0,
+        ActiveCfg = 1,
+        Build = 2,
+        Deploy = 3,
+    }
+
     /// <summary>
     /// Gets extra info for VS to open the solution with a specific installed version.
     /// (e.g. # Visual Studio Version 17 in SLN file).
@@ -76,7 +88,7 @@ public static class SlnV12Extensions
             SolutionPropertyBag? solutionProperties = solution.FindProperties(SectionName.SolutionProperties);
             if (solutionProperties is not null)
             {
-                solutionProperties.Remove(SlnConstants.HideSolutionNode);
+                _ = solutionProperties.Remove(SlnConstants.HideSolutionNode);
                 if (solutionProperties.Count == 0)
                 {
                     _ = solution.RemoveProperties(SectionName.SolutionProperties);
@@ -126,6 +138,14 @@ public static class SlnV12Extensions
         }
     }
 
+    /// <summary>
+    /// Creates solution property bags (or "sections") that used to exist in the .sln file.
+    /// These properties were used to store solution files and project dependencies.
+    /// These are now represented symantically in the model.
+    /// This can be useful for code that used to handle parsing .sln files manually.
+    /// </summary>
+    /// <param name="solutionItem">The solution item.</param>
+    /// <returns>All the solution property bags that are used in solution files.</returns>
     public static IEnumerable<SolutionPropertyBag> GetSlnProperties(this SolutionItemModel solutionItem)
     {
         Argument.ThrowIfNull(solutionItem, nameof(solutionItem));
@@ -281,122 +301,118 @@ public static class SlnV12Extensions
                 solution.AddProperties(properties.Id, properties.Scope).AddRange(properties);
                 break;
         }
-    }
 
-    private const string ActiveCfgSuffix = ".ActiveCfg";
-    private const string BuildSuffix = ".Build.0";
-    private const string DeploySuffix = ".Deploy.0";
-
-    private enum ConfigLineType
-    {
-        Unknown = 0,
-        ActiveCfg = 1,
-        Build = 2,
-        Deploy = 3,
-    }
-
-    // Handles reading the .sln file configuration mappings and
-    // applying them to the model's project configurations.
-    private static void SetProjectConfigurationPlatforms(SolutionModel solution, SolutionPropertyBag properties)
-    {
-        StringTable stringTable = solution.StringTable;
-
-        if (properties.Count > 0)
+        // Handles reading the .sln file configuration mappings and
+        // applying them to the model's project configurations.
+        static void SetProjectConfigurationPlatforms(SolutionModel solution, SolutionPropertyBag properties)
         {
-            // Converts the .sln style project configuration platforms into a mappings for each configuration.
-            foreach ((string projectKey, string projectValue) in properties)
+            StringTable stringTable = solution.StringTable;
+
+            if (properties.Count > 0)
             {
-                ParseProjectConfigLine(solution, projectKey, projectValue);
+                // Converts the .sln style project configuration platforms into a mappings for each configuration.
+                foreach ((string projectKey, string projectValue) in properties)
+                {
+                    ParseProjectConfigLine(solution, projectKey, projectValue);
+                }
+
+                solution.DistillProjectConfigurations();
             }
 
-            solution.DistillProjectConfigurations();
-        }
-
-        // Applies a .SLN configuration line to the current project configuration.
-        // This converts each line into un-optimal config rules for each project, these
-        // rules can then be distilled into a more optimal set of rules.
-        void ParseProjectConfigLine(SolutionModel solutionModel, string name, string value)
-        {
-            /*
-             * The configurations lines have this format:
-             * {ProjectId}.SolutionBuildType|SolutionPlatform.ConfigLineType = ProjectBuildType|ProjectPlatform
-             * {190CE348-596E-435A-9E5B-12A689F9FC29}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-             * {190CE348-596E-435A-9E5B-12A689F9FC29}.Debug|Any CPU.Build.0 = Debug|Any CPU
-            */
-
-            int firstDot = name.IndexOf('.');
-            if (firstDot < 0)
+            // Applies a .SLN configuration line to the current project configuration.
+            // This converts each line into un-optimal config rules for each project, these
+            // rules can then be distilled into a more optimal set of rules.
+            void ParseProjectConfigLine(SolutionModel solutionModel, string name, string value)
             {
-                return;
-            }
+                /*
+                 * The configurations lines have this format:
+                 * {ProjectId}.SolutionBuildType|SolutionPlatform.ConfigLineType = ProjectBuildType|ProjectPlatform
+                 * {190CE348-596E-435A-9E5B-12A689F9FC29}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+                 * {190CE348-596E-435A-9E5B-12A689F9FC29}.Debug|Any CPU.Build.0 = Debug|Any CPU
+                */
+
+                int firstDot = name.IndexOf('.');
+                if (firstDot < 0)
+                {
+                    return;
+                }
 
 #if NETFRAMEWORK
-            Guid projectId = Guid.TryParse(name.Substring(0, firstDot), out Guid id) ? id : Guid.Empty;
+                Guid projectId = Guid.TryParse(name.Substring(0, firstDot), out Guid id) ? id : Guid.Empty;
 #else
-            Guid projectId = Guid.TryParse(name.AsSpan(0, firstDot), out Guid id) ? id : Guid.Empty;
+                Guid projectId = Guid.TryParse(name.AsSpan(0, firstDot), out Guid id) ? id : Guid.Empty;
 #endif
 
-            if (projectId == Guid.Empty || solutionModel.FindItemById(projectId) is not SolutionProjectModel projectModel)
-            {
-                return;
-            }
+                if (projectId == Guid.Empty || solutionModel.FindItemById(projectId) is not SolutionProjectModel projectModel)
+                {
+                    return;
+                }
 
-            ConfigLineType lineType =
-                name.EndsWith(ActiveCfgSuffix) ? ConfigLineType.ActiveCfg :
-                name.EndsWith(BuildSuffix) ? ConfigLineType.Build :
-                name.EndsWith(DeploySuffix) ? ConfigLineType.Deploy :
-                ConfigLineType.Unknown;
+                ConfigLineType lineType =
+                    name.EndsWith(ActiveCfgSuffix) ? ConfigLineType.ActiveCfg :
+                    name.EndsWith(BuildSuffix) ? ConfigLineType.Build :
+                    name.EndsWith(DeploySuffix) ? ConfigLineType.Deploy :
+                    ConfigLineType.Unknown;
 
-            if (lineType == ConfigLineType.Unknown)
-            {
-                return;
-            }
+                if (lineType == ConfigLineType.Unknown)
+                {
+                    return;
+                }
 
-            int slnCfgEnd = name.Length - lineType switch
-            {
-                ConfigLineType.ActiveCfg => ActiveCfgSuffix.Length,
-                ConfigLineType.Build => BuildSuffix.Length,
-                ConfigLineType.Deploy => DeploySuffix.Length,
-                _ => throw new InvalidOperationException(),
-            };
+                int slnCfgEnd = name.Length - lineType switch
+                {
+                    ConfigLineType.ActiveCfg => ActiveCfgSuffix.Length,
+                    ConfigLineType.Build => BuildSuffix.Length,
+                    ConfigLineType.Deploy => DeploySuffix.Length,
+                    _ => throw new InvalidOperationException(),
+                };
 
-            firstDot++;
-            if (firstDot >= slnCfgEnd)
-            {
-                return;
-            }
+                firstDot++;
+                if (firstDot >= slnCfgEnd)
+                {
+                    return;
+                }
 
-            string slnCfg = name.Substring(firstDot, slnCfgEnd - firstDot);
+                string slnCfg = name.Substring(firstDot, slnCfgEnd - firstDot);
 
-            if (!ModelHelper.TrySplitFullConfiguration(stringTable, slnCfg, out string? solutionBuildType, out string? solutionPlatform))
-            {
-                return;
-            }
+                if (!ModelHelper.TrySplitFullConfiguration(stringTable, slnCfg, out string? solutionBuildType, out string? solutionPlatform))
+                {
+                    return;
+                }
 
-            switch (lineType)
-            {
-                case ConfigLineType.ActiveCfg:
-                    // In the old .sln file the default configuration is not to build unless there is a build line.
-                    // This rule will get overwritten by the build line if it exists.
-                    projectModel.AddProjectConfigurationRule(new ConfigurationRule(BuildDimension.Build, solutionBuildType, solutionPlatform, bool.FalseString));
+                switch (lineType)
+                {
+                    case ConfigLineType.ActiveCfg:
+                        // In the old .sln file the default configuration is not to build unless there is a build line.
+                        // This rule will get overwritten by the build line if it exists.
+                        projectModel.AddProjectConfigurationRule(new ConfigurationRule(BuildDimension.Build, solutionBuildType, solutionPlatform, bool.FalseString));
 
-                    if (ModelHelper.TrySplitFullConfiguration(stringTable, value, out string? projectBuildType, out string? projectPlatform))
-                    {
-                        projectModel.AddProjectConfigurationRule(new ConfigurationRule(BuildDimension.BuildType, solutionBuildType, solutionPlatform, projectBuildType));
-                        projectModel.AddProjectConfigurationRule(new ConfigurationRule(BuildDimension.Platform, solutionBuildType, solutionPlatform, projectPlatform));
-                    }
+                        if (ModelHelper.TrySplitFullConfiguration(stringTable, value, out string? projectBuildType, out string? projectPlatform))
+                        {
+                            projectModel.AddProjectConfigurationRule(new ConfigurationRule(BuildDimension.BuildType, solutionBuildType, solutionPlatform, projectBuildType));
+                            projectModel.AddProjectConfigurationRule(new ConfigurationRule(BuildDimension.Platform, solutionBuildType, solutionPlatform, projectPlatform));
+                        }
 
-                    break;
-                case ConfigLineType.Build:
-                    projectModel.AddProjectConfigurationRule(new ConfigurationRule(BuildDimension.Build, solutionBuildType, solutionPlatform, bool.TrueString));
-                    break;
-                case ConfigLineType.Deploy:
-                    projectModel.AddProjectConfigurationRule(new ConfigurationRule(BuildDimension.Deploy, solutionBuildType, solutionPlatform, bool.TrueString));
-                    break;
+                        break;
+                    case ConfigLineType.Build:
+                        projectModel.AddProjectConfigurationRule(new ConfigurationRule(BuildDimension.Build, solutionBuildType, solutionPlatform, bool.TrueString));
+                        break;
+                    case ConfigLineType.Deploy:
+                        projectModel.AddProjectConfigurationRule(new ConfigurationRule(BuildDimension.Deploy, solutionBuildType, solutionPlatform, bool.TrueString));
+                        break;
+                }
             }
         }
     }
 
+    /// <summary>
+    /// Creates solution property bags (or "sections") that used to exist in the .sln file.
+    /// These properties were used to store configurations, solution folders, and global properties.
+    /// These are now represented symantically in the model.
+    /// This can be useful for code that used to handle parsing .sln files manually.
+    /// </summary>
+    /// <param name="solution">The solution.</param>
+    /// <returns>All the solution property bags that are used in solution files.</returns>
     public static IEnumerable<SolutionPropertyBag> GetSlnProperties(this SolutionModel solution)
     {
         Argument.ThrowIfNull(solution, nameof(solution));

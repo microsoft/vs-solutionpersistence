@@ -28,7 +28,7 @@ internal ref struct ListBuilderStruct<T>
     {
     }
 
-    public ListBuilderStruct(int capacity)
+    internal ListBuilderStruct(int capacity)
     {
         if (capacity > 4)
         {
@@ -36,60 +36,9 @@ internal ref struct ListBuilderStruct<T>
         }
     }
 
-    public int Count { get; private set; }
+    internal int Count { get; private set; }
 
-    public void Add(T item)
-    {
-        switch (this.Count)
-        {
-            case 0: this.item0 = item; break;
-            case 1: this.item1 = item; break;
-            case 2: this.item2 = item; break;
-            case 3: this.item3 = item; break;
-            default:
-                this.items ??= [];
-                this.items.Add(item);
-                break;
-        }
-
-        this.Count++;
-    }
-
-    internal void AddRange(IReadOnlyCollection<T> items)
-    {
-        int newCapacity = this.Count + items.Count;
-        if (newCapacity > 4)
-        {
-            this.items ??= new List<T>(newCapacity - 4);
-            this.items.Capacity = newCapacity - 4;
-        }
-
-        foreach (T item in items)
-        {
-            this.Add(item);
-        }
-    }
-
-    public readonly T[] ToArray()
-    {
-        return this.Count switch
-        {
-            0 => [],
-            1 => [this.item0],
-            2 => [this.item0, this.item1],
-            3 => [this.item0, this.item1, this.item2],
-            4 => [this.item0, this.item1, this.item2, this.item3],
-            _ => [this.item0, this.item1, this.item2, this.item3, .. this.items],
-        };
-    }
-
-    public void Clear()
-    {
-        this.Count = 0;
-        this.items = null;
-    }
-
-    public T this[int index]
+    internal T this[int index]
     {
         readonly get
         {
@@ -121,7 +70,58 @@ internal ref struct ListBuilderStruct<T>
         return new Enumerator(this);
     }
 
-    public ref struct Enumerator(ListBuilderStruct<T> builder)
+    internal void Add(T item)
+    {
+        switch (this.Count)
+        {
+            case 0: this.item0 = item; break;
+            case 1: this.item1 = item; break;
+            case 2: this.item2 = item; break;
+            case 3: this.item3 = item; break;
+            default:
+                this.items ??= [];
+                this.items.Add(item);
+                break;
+        }
+
+        this.Count++;
+    }
+
+    internal void AddRange(IReadOnlyCollection<T> items)
+    {
+        int newCapacity = this.Count + items.Count;
+        if (newCapacity > 4)
+        {
+            this.items ??= new List<T>(newCapacity - 4);
+            this.items.Capacity = newCapacity - 4;
+        }
+
+        foreach (T item in items)
+        {
+            this.Add(item);
+        }
+    }
+
+    internal readonly T[] ToArray()
+    {
+        return this.Count switch
+        {
+            0 => [],
+            1 => [this.item0],
+            2 => [this.item0, this.item1],
+            3 => [this.item0, this.item1, this.item2],
+            4 => [this.item0, this.item1, this.item2, this.item3],
+            _ => [this.item0, this.item1, this.item2, this.item3, .. this.items],
+        };
+    }
+
+    internal void Clear()
+    {
+        this.Count = 0;
+        this.items = null;
+    }
+
+    internal ref struct Enumerator(ListBuilderStruct<T> builder)
     {
         private readonly ListBuilderStruct<T> builder = builder;
         private int index = -1;

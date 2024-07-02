@@ -20,7 +20,7 @@ internal struct ItemConfigurationRulesList
     {
     }
 
-    public void Add(XmlConfiguration configuration)
+    internal void Add(XmlConfiguration configuration)
     {
         switch (configuration)
         {
@@ -41,7 +41,7 @@ internal struct ItemConfigurationRulesList
         }
     }
 
-    public bool ApplyModelToXml(XmlContainer xmlContainer, IReadOnlyList<ConfigurationRule>? configurationRules)
+    internal bool ApplyModelToXml(XmlContainer xmlContainer, IReadOnlyList<ConfigurationRule>? configurationRules)
     {
         bool modified = false;
 
@@ -51,22 +51,22 @@ internal struct ItemConfigurationRulesList
         modified |= ApplyModelToXml(xmlContainer, configurationRules, BuildDimension.Build, Keyword.Build, ref this.buildRules);
         modified |= ApplyModelToXml(xmlContainer, configurationRules, BuildDimension.Deploy, Keyword.Deploy, ref this.deployRules);
         return modified;
-    }
 
-    private static bool ApplyModelToXml(XmlContainer xmlContainer, IReadOnlyList<ConfigurationRule> configurationRules, BuildDimension dimension, Keyword dimensionElementName, ref ItemRefList<XmlConfiguration> configurations)
-    {
-        List<(string ItemRef, ConfigurationRule Item)> dimensionRules = configurationRules.WhereToList(
-            static (x, dimension) => x.Dimension == dimension,
-            static (x, _) => (ItemRef: x.GetSolutionConfiguration(), Item: x),
-            dimension);
+        static bool ApplyModelToXml(XmlContainer xmlContainer, IReadOnlyList<ConfigurationRule> configurationRules, BuildDimension dimension, Keyword dimensionElementName, ref ItemRefList<XmlConfiguration> configurations)
+        {
+            List<(string ItemRef, ConfigurationRule Item)> dimensionRules = configurationRules.WhereToList(
+                static (x, dimension) => x.Dimension == dimension,
+                static (x, _) => (ItemRef: x.GetSolutionConfiguration(), Item: x),
+                dimension);
 
-        return xmlContainer.ApplyModelToXmlGeneric(
-            modelCollection: dimensionRules,
-            decoratorItems: ref configurations,
-            decoratorElementName: dimensionElementName,
-            getItemRefs: static (config) => config.ToList(x => x.ItemRef),
-            getModelItem: static (configs, itemRef) => ModelHelper.FindByItemRef(configs, itemRef, x => x.ItemRef).Item,
-            applyModelToXml: static (newConfiguration, modelConfiguration) => newConfiguration.ApplyModelToXml(modelConfiguration));
+            return xmlContainer.ApplyModelToXmlGeneric(
+                modelCollection: dimensionRules,
+                decoratorItems: ref configurations,
+                decoratorElementName: dimensionElementName,
+                getItemRefs: static (config) => config.ToList(x => x.ItemRef),
+                getModelItem: static (configs, itemRef) => ModelHelper.FindByItemRef(configs, itemRef, x => x.ItemRef).Item,
+                applyModelToXml: static (newConfiguration, modelConfiguration) => newConfiguration.ApplyModelToXml(modelConfiguration));
+        }
     }
 
     internal readonly List<ConfigurationRule> ToModel()
