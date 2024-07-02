@@ -16,6 +16,8 @@ internal partial class SlnXmlSerializer
             SolutionModel model,
             Stream streamWriter)
         {
+            model.ThrowIfProjectValidationSuspended();
+
             SlnXmlModelExtension? modelExtension = model.SerializerExtension as SlnXmlModelExtension;
 
             SlnxSerializerSettings xmlSerializerSettings = modelExtension?.Settings ??

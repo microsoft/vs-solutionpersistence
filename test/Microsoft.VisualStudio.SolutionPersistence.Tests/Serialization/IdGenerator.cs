@@ -6,7 +6,10 @@ using Xunit;
 
 namespace Serialization;
 
-public class IdGenerator
+/// <summary>
+/// Tests for generated model guid ids.
+/// </summary>
+public sealed class IdGenerator
 {
     /// <summary>
     /// Checks that the generated ids are deterministic and unique.

@@ -20,9 +20,14 @@ internal sealed class SlnXmlModelExtension(ISolutionSerializer serializer, SlnxS
         this.Root = root;
     }
 
+    /// <inheritdoc/>
     public required ISolutionSerializer Serializer { get; init; } = serializer;
 
+    /// <inheritdoc/>
     public required SlnxSerializerSettings Settings { get; init; } = settings;
+
+    /// <inheritdoc/>
+    public bool Tarnished => this.Root?.Tarnished ?? false;
 
     internal SlnxFile? Root { get; init; }
 

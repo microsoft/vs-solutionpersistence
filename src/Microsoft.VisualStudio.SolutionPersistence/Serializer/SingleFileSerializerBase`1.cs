@@ -13,22 +13,20 @@ internal abstract class SingleFileSerializerBase<TSettings> : ISolutionSingleFil
 
     private protected abstract string FileExtension { get; }
 
-    private ISolutionSingleFileSerializer<TSettings> AsSingleFileSerializer => this;
-
     public abstract ISerializerModelExtension CreateModelExtension();
 
     public abstract ISerializerModelExtension CreateModelExtension(TSettings settings);
 
-    Task<SolutionModel> ISolutionSingleFileSerializer<TSettings>.OpenAsync(string? fullPath, Stream reader, CancellationToken cancellationToken)
+    Task<SolutionModel> ISolutionSingleFileSerializer<TSettings>.OpenAsync(Stream reader, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        return this.ReadModelAsync(fullPath, reader, cancellationToken);
+        return this.ReadModelAsync(fullPath: null, reader, cancellationToken);
     }
 
-    Task ISolutionSingleFileSerializer<TSettings>.SaveAsync(string? fullPath, Stream writer, SolutionModel model, CancellationToken cancellationToken)
+    Task ISolutionSingleFileSerializer<TSettings>.SaveAsync(Stream writer, SolutionModel model, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        return this.WriteModelAsync(fullPath, model, writer, cancellationToken);
+        return this.WriteModelAsync(fullPath: null, model, writer, cancellationToken);
     }
 
     bool ISolutionSerializer.IsSupported(string fullPath)
@@ -36,10 +34,12 @@ internal abstract class SingleFileSerializerBase<TSettings> : ISolutionSingleFil
         return Path.GetExtension(fullPath.AsSpan()).EqualsOrdinalIgnoreCase(this.FileExtension);
     }
 
-    Task<SolutionModel> ISolutionSerializer.OpenAsync(string moniker, CancellationToken cancellationToken)
+    async Task<SolutionModel> ISolutionSerializer.OpenAsync(string moniker, CancellationToken cancellationToken)
     {
-        using FileStream stream = File.OpenRead(moniker);
-        return this.AsSingleFileSerializer.OpenAsync(moniker, stream, cancellationToken);
+        using (FileStream reader = File.OpenRead(moniker))
+        {
+            return await this.ReadModelAsync(moniker, reader, cancellationToken);
+        }
     }
 
     async Task ISolutionSerializer.SaveAsync(string moniker, SolutionModel model, CancellationToken cancellationToken)
@@ -50,9 +50,9 @@ internal abstract class SingleFileSerializerBase<TSettings> : ISolutionSingleFil
             _ = Directory.CreateDirectory(directory);
         }
 
-        using (FileStream stream = File.OpenWrite(moniker))
+        using (FileStream writer = File.OpenWrite(moniker))
         {
-            await this.AsSingleFileSerializer.SaveAsync(moniker, stream, model, cancellationToken);
+            await this.WriteModelAsync(moniker, model, writer, cancellationToken);
         }
     }
 

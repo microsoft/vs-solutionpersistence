@@ -28,6 +28,8 @@ internal static class StringExtensions
 
     internal static bool StartsWith(this StringSpan span, string str) => span.StartsWith(str.AsSpan());
 
+    internal static bool StartsWith(this StringSpan span, string str, StringComparison comparisonType) => span.StartsWith(str.AsSpan(), comparisonType);
+
     internal static bool StartsWith(this string str, char value) => !str.IsNullOrEmpty() && str[0] == value;
 
     internal static bool EndsWith(this string str, char value) => !str.IsNullOrEmpty() && str[str.Length - 1] == value;
@@ -35,6 +37,11 @@ internal static class StringExtensions
     internal static bool Contains(this StringSpan span, char c)
     {
         return span.IndexOf(c) >= 0;
+    }
+
+    internal static bool ContainsAny(this StringSpan span, string values)
+    {
+        return span.IndexOfAny(values.AsSpan()) >= 0;
     }
 
     internal static void Deconstruct<TKey, TValue>(this KeyValuePair<TKey, TValue> pair, out TKey key, out TValue value)

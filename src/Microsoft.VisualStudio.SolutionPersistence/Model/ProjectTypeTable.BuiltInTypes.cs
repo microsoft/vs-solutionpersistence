@@ -92,6 +92,5 @@ internal sealed partial class ProjectTypeTable
             new ProjectType(new Guid("A07B5EB6-E848-4116-A8D0-A826331D98C6"), NoBuildRules) { Name = "Fabric", Extension = ".sfproj" },
             new ProjectType(new Guid("CC5FD16D-436D-48AD-A40C-5A424C6E3E79"), NoBuildRules) { Name = "Cloud Computing", Extension = ".ccproj" },
             new ProjectType(new Guid("E53339B2-1760-4266-BCC7-CA923CBCF16C"), NoBuildRules) { Name = "Docker", Extension = ".dcproj" },
-        ],
-        logger: null);
+        ]);
 }

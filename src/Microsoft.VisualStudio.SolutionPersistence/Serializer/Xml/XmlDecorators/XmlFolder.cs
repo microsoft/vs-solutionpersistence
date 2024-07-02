@@ -95,7 +95,7 @@ internal sealed class XmlFolder(SlnxFile root, XmlSolution xmlSolution, XmlEleme
             modelCollection: modelSolution.SolutionProjects.ToList(x => (ItemRef: PathExtensions.ConvertToPersistencePath(x.ItemRef), Item: x)),
             ref this.xmlSolution.Projects,
             Keyword.Project,
-            getItemRefs: static (modelProjects, modelFolder) => modelProjects.WhereToList((x, _) => x.Item.Parent == modelFolder, (x, _) => x.ItemRef, false),
+            getItemRefs: static (modelProjects, modelFolder) => modelProjects.WhereToList((x, _) => ReferenceEquals(x.Item.Parent, modelFolder), (x, _) => x.ItemRef, false),
             getModelItem: static (modelProjects, itemRef, modelFolder) => ModelHelper.FindByItemRef(modelProjects, itemRef, x => x.ItemRef),
             applyModelToXml: static (newProject, newValue, modelFolder) => newProject.ApplyModelToXml(newValue.Item),
             modelFolder);

@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Diagnostics;
+using Microsoft.VisualStudio.SolutionPersistence.Model;
 using Microsoft.VisualStudio.SolutionPersistence.Utilities;
 
 namespace Microsoft.VisualStudio.SolutionPersistence.Serializer.Xml.XmlDecorators;
@@ -33,25 +34,19 @@ internal struct ItemRefList<T>(bool ignoreCase)
 
     internal readonly int InvalidItemsCount => this.invalidItems?.Count ?? 0;
 
-    internal void Add(T item)
+    internal readonly void Add(T item)
     {
         // Missing Name attribute.
         if (!item.IsValid() || item.ItemRef is null)
         {
-            item.Root.Logger.LogWarning($"Missing or invalid {item.ItemRefAttribute} attribute in {item.ElementName} element.", item.XmlElement);
-            this.invalidItems ??= [];
-            this.invalidItems.Add(item);
-            return;
+            throw SolutionException.Create(string.Format(Errors.InvalidItemRef_Args2, item.ItemRefAttribute, item.ElementName), item);
         }
         else
         {
             if (!this.items.TryAdd(item.ItemRef, item))
             {
                 // Duplicate Name attribute.
-                item.Root.Logger.LogWarning($"Duplicate {item.ItemRefAttribute} attribute ({item.ItemRef}) in {item.ElementName} element.", item.XmlElement);
-                this.invalidItems ??= [];
-                this.invalidItems.Add(item);
-                return;
+                throw SolutionException.Create(string.Format(Errors.DuplicateItemRef_Args2, item.ItemRef, item.ElementName), item);
             }
         }
     }

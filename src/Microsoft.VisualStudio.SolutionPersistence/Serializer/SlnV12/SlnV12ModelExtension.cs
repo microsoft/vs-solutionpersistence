@@ -19,11 +19,14 @@ internal sealed class SlnV12ModelExtension(ISolutionSerializer serializer, SlnV1
         this.SolutionFileFullPath = fullPath;
     }
 
+    /// <inheritdoc/>
     public required ISolutionSerializer Serializer { get; init; } = serializer;
 
+    /// <inheritdoc/>
+    public bool Tarnished { get; init; }
+
+    /// <inheritdoc/>
     public SlnV12SerializerSettings Settings { get; } = settings;
 
     internal string? SolutionFileFullPath { get; init; }
-
-    internal bool Corrupted { get; init; }
 }

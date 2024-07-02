@@ -17,8 +17,8 @@ public sealed class SolutionProjectModel : SolutionItemModel
     private List<ConfigurationRule>? projectConfigurationRules;
 
     [SetsRequiredMembers]
-    internal SolutionProjectModel(SolutionModel solutionModel, string filePath, Guid typeId, string type)
-        : base(solutionModel)
+    internal SolutionProjectModel(SolutionModel solutionModel, string filePath, Guid typeId, string type, SolutionFolderModel? parent)
+        : base(solutionModel, parent)
     {
         this.typeId = typeId;
         this.type = type;
@@ -66,7 +66,7 @@ public sealed class SolutionProjectModel : SolutionItemModel
         set
         {
             this.type = value;
-            this.typeId = this.Solution.ProjectTypeTable.GetProjectType(value, this.Extension.AsSpan())?.ProjectTypeId ?? Guid.Empty;
+            this.typeId = this.Solution.ProjectTypeTable.GetProjectTypeId(value, this.Extension.AsSpan()) ?? Guid.Empty;
         }
     }
 
@@ -166,9 +166,11 @@ public sealed class SolutionProjectModel : SolutionItemModel
     public void AddDependency(SolutionProjectModel dependency)
     {
         Argument.ThrowIfNull(dependency, nameof(dependency));
-        if (!ReferenceEquals(dependency.Solution, this.Solution) || ReferenceEquals(dependency, this))
+        this.Solution.ValidateInModel(dependency);
+
+        if (ReferenceEquals(dependency, this))
         {
-            throw new ArgumentException(null, nameof(dependency));
+            throw new ArgumentException(string.Format(Errors.InvalidLoop_Args1, dependency.ItemRef), nameof(dependency));
         }
 
         this.dependencies ??= [];
@@ -186,6 +188,9 @@ public sealed class SolutionProjectModel : SolutionItemModel
     /// <returns><see langword="true"/> if the dependency was found and removed.</returns>
     public bool RemoveDependency(SolutionProjectModel dependency)
     {
+        Argument.ThrowIfNull(dependency, nameof(dependency));
+        this.Solution.ValidateInModel(dependency);
+
         return
             this.dependencies is not null &&
             this.dependencies.Remove(dependency);

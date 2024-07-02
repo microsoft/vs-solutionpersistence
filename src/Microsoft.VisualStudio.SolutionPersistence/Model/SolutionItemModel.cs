@@ -8,14 +8,14 @@ namespace Microsoft.VisualStudio.SolutionPersistence.Model;
 /// </summary>
 public abstract class SolutionItemModel : PropertyContainerModel
 {
-    private SolutionFolderModel? parent;
     private Guid? id;
     private Guid? defaultId;
 
-    private protected SolutionItemModel(SolutionModel solutionModel)
+    private protected SolutionItemModel(SolutionModel solutionModel, SolutionFolderModel? parent)
     {
         Argument.ThrowIfNull(solutionModel, nameof(solutionModel));
         this.Solution = solutionModel;
+        this.Parent = parent;
     }
 
     /// <summary>
@@ -33,7 +33,7 @@ public abstract class SolutionItemModel : PropertyContainerModel
 
         // This is a shallow copy of the parent, it needs to be swapped out to finish the deep copy.
         // But we can't find the new parent until all copy constructors have been called.
-        this.parent = itemModel.Parent;
+        this.Parent = itemModel.Parent;
     }
 
     /// <summary>
@@ -42,20 +42,9 @@ public abstract class SolutionItemModel : PropertyContainerModel
     public SolutionModel Solution { get; }
 
     /// <summary>
-    /// Gets or sets the parent solution folder.
+    /// Gets the parent solution folder.
     /// </summary>
-    public SolutionFolderModel? Parent
-    {
-        get => this.parent;
-        set
-        {
-            if (!ReferenceEquals(this.parent, value))
-            {
-                this.parent = value;
-                this.OnParentChanged();
-            }
-        }
-    }
+    public SolutionFolderModel? Parent { get; private set; }
 
     /// <summary>
     /// Gets or sets the unique Id of the item within the solution.
@@ -101,20 +90,62 @@ public abstract class SolutionItemModel : PropertyContainerModel
     /// </summary>
     public abstract Guid TypeId { get; }
 
+    internal SolutionItemModel BeSolutionItemModel => this;
+
     private Guid DefaultId => this.defaultId ??= this.GetDefaultId();
 
-    private protected abstract Guid GetDefaultId();
-
-    private protected virtual void OnParentChanged()
+    /// <summary>
+    /// Moves the item to a new folder.
+    /// </summary>
+    /// <param name="folder">The folder to move to.</param>
+    public void MoveToFolder(SolutionFolderModel? folder)
     {
+        this.Solution.ValidateInModel(folder);
+        if (ReferenceEquals(this.Parent, folder))
+        {
+            return;
+        }
+
+        // Check for moving parent folder under itself.
+        for (SolutionFolderModel? parents = folder; parents is not null; parents = parents.Parent)
+        {
+            if (ReferenceEquals(parents, this))
+            {
+                throw new ArgumentException(Errors.CannotMoveFolderToChildFolder, nameof(folder));
+            }
+        }
+
+        SolutionFolderModel? oldParent = this.Parent;
+        try
+        {
+            this.Parent = folder;
+            if (this is SolutionProjectModel thisProject)
+            {
+                this.Solution.ValidateProjectName(thisProject);
+            }
+        }
+        catch
+        {
+            // Revert the change if it fails validation.
+            this.Parent = oldParent;
+            throw;
+        }
+
+        this.OnParentChanged();
     }
 
-    private protected virtual void OnItemRefChanged()
+    internal virtual void OnItemRefChanged()
     {
         this.defaultId = null;
         if (this.id is null)
         {
             this.Id = Guid.Empty;
         }
+    }
+
+    private protected abstract Guid GetDefaultId();
+
+    private protected virtual void OnParentChanged()
+    {
     }
 }

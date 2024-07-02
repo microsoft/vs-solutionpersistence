@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Runtime.InteropServices;
-using Microsoft.VisualStudio.SolutionPersistence.Utilities;
 
 namespace Microsoft.VisualStudio.SolutionPersistence.Model;
 
@@ -19,16 +18,16 @@ internal sealed partial class ProjectTypeTable
     private readonly List<ProjectType> projectTypesList;
 
     internal ProjectTypeTable()
-        : this([], logger: null)
+        : this([])
     {
     }
 
-    internal ProjectTypeTable(List<ProjectType> projectTypes, ISerializerLogger? logger)
-    : this(isBuiltIn: false, projectTypes, logger)
+    internal ProjectTypeTable(List<ProjectType> projectTypes)
+        : this(isBuiltIn: false, projectTypes: projectTypes)
     {
     }
 
-    private ProjectTypeTable(bool isBuiltIn, List<ProjectType> projectTypes, ISerializerLogger? logger)
+    private ProjectTypeTable(bool isBuiltIn, List<ProjectType> projectTypes)
     {
         this.isBuiltIn = isBuiltIn;
         this.projectTypesList = projectTypes;
@@ -41,23 +40,23 @@ internal sealed partial class ProjectTypeTable
             if (!type.Extension.IsNullOrEmpty() &&
                 !this.fromExtension.TryAdd(GetExtension(type.Extension), type))
             {
-                logger?.LogError($"Duplicate extension '{type.Extension}' for project type '{type.GetDisplayName()}'.");
-                _ = this.projectTypesList.Remove(type);
+                string projectType = type.GetDisplayName();
+                throw new SolutionException(string.Format(Errors.DuplicateExtension_Args2, type.Extension, projectType));
             }
 
             if (!type.Name.IsNullOrEmpty())
             {
                 if (!this.fromName.TryAdd(type.Name, type))
                 {
-                    logger?.LogError($"Duplicate name '{type.Name}' for project type '{type.GetDisplayName()}'.");
-                    _ = this.projectTypesList.Remove(type);
+                    string projectType = type.GetDisplayName();
+                    throw new SolutionException(string.Format(Errors.DuplicateName_Args2, type.Name, projectType));
                 }
 
                 // If a name isn't provided, it is just to map an extension to a project type.
                 if (type.ProjectTypeId != Guid.Empty && !this.fromProjectTypeId.TryAdd(type.ProjectTypeId, type))
                 {
-                    logger?.LogError($"Duplicate project type id '{type.ProjectTypeId}' for project type '{type.GetDisplayName()}'.");
-                    _ = this.projectTypesList.Remove(type);
+                    string projectType = type.GetDisplayName();
+                    throw new SolutionException(string.Format(Errors.DuplicateProjectTypeId_Args2, type.ProjectTypeId, projectType));
                 }
             }
 
@@ -65,8 +64,7 @@ internal sealed partial class ProjectTypeTable
             {
                 if (this.defaultRules is not null)
                 {
-                    logger?.LogError("Multiple default project types defined.");
-                    _ = this.projectTypesList.Remove(type);
+                    throw new SolutionException(Errors.DuplicateDefaultProjectType);
                 }
 
                 this.defaultRules ??= type.ConfigurationRules;
@@ -79,8 +77,7 @@ internal sealed partial class ProjectTypeTable
             {
                 if (this.GetBasedOnType(type) is null)
                 {
-                    logger?.LogError($"BasedOn '{type.BasedOn}' not found for project type '{type.GetDisplayName()}'.");
-                    _ = this.projectTypesList.Remove(type);
+                    throw new SolutionException(string.Format(Errors.InvalidProjectTypeReference_Args1, type.BasedOn));
                 }
 
                 // Check for loops in the BasedOn chain using Floyd's cycle-finding algorithm.
@@ -90,9 +87,8 @@ internal sealed partial class ProjectTypeTable
                 {
                     if (object.ReferenceEquals(currentSlow, currentFast))
                     {
-                        logger?.LogError($"BasedOn loop detected for project type '{type.GetDisplayName()}'.");
-                        _ = this.projectTypesList.Remove(type);
-                        break;
+                        string projectType = type.GetDisplayName();
+                        throw new SolutionException(string.Format(Errors.InvalidLoop_Args1, projectType));
                     }
 
                     currentSlow = this.GetBasedOnType(currentSlow);
@@ -108,13 +104,11 @@ internal sealed partial class ProjectTypeTable
 
     internal IReadOnlyList<ProjectType> ProjectTypes => this.projectTypesList;
 
-    internal ProjectType? GetProjectType(string? alias, StringSpan extension)
+    internal Guid? GetProjectTypeId(string? alias, StringSpan extension)
     {
-        ProjectType? type = this.GetForName(alias) ?? this.GetForExtension(extension.ToString());
         return
-            type is not null ? this.GetProjectType(type) :
-            !this.isBuiltIn ? BuiltInTypes.GetProjectType(alias, extension) :
-            null;
+            this.GetProjectTypeId(this.GetForName(alias) ?? this.GetForExtension(extension.ToString())) ??
+            (this.isBuiltIn ? null : BuiltInTypes.GetProjectTypeId(alias, extension));
     }
 
     // Figures out what the most concise friendly type name of the project type is, if it fails use the project type id.
@@ -127,7 +121,7 @@ internal sealed partial class ProjectTypeTable
             null;
 
         string? GetTypeFromProjectType(ProjectType projectType) =>
-            projectType.Name.NullIfEmpty() ?? this.GetProjectType(projectType)?.ProjectTypeId.ToString() ?? Guid.Empty.ToString();
+            projectType.Name.NullIfEmpty() ?? this.GetProjectTypeId(projectType)?.ToString() ?? Guid.Empty.ToString();
 
         static string? GetTypeFromModel(SolutionProjectModel modelProject) =>
             modelProject.TypeId == Guid.Empty ? modelProject.Type : modelProject.TypeId.ToString();
@@ -183,7 +177,7 @@ internal sealed partial class ProjectTypeTable
         return this.fromProjectTypeId.TryGetValue(projectTypeId, out projectType);
     }
 
-    private ProjectType? GetProjectType(ProjectType? type)
+    private Guid? GetProjectTypeId(ProjectType? type)
     {
         // If the type doesn't have a project type id, keep searching on the BasedOn type.
         while (type is not null && type.ProjectTypeId == Guid.Empty)
@@ -191,7 +185,7 @@ internal sealed partial class ProjectTypeTable
             type = this.GetBasedOnType(type);
         }
 
-        return type;
+        return type?.ProjectTypeId;
     }
 
     private ProjectType? GetBasedOnType(ProjectType? type)
@@ -234,7 +228,7 @@ internal sealed partial class ProjectTypeTable
         type = this.GetForExtension(extension);
         if (type is not null)
         {
-            Guid typeProjectTypeId = this.GetProjectType(type)?.ProjectTypeId ?? Guid.Empty;
+            Guid typeProjectTypeId = this.GetProjectTypeId(type) ?? Guid.Empty;
             if ((projectTypeId == Guid.Empty || typeProjectTypeId == projectTypeId) &&
                 (typeName.IsNullOrEmpty() || StringComparer.OrdinalIgnoreCase.Equals(typeName, type.Name)))
             {

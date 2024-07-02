@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using Microsoft.VisualStudio.SolutionPersistence.Model;
@@ -104,12 +103,13 @@ public static class SlnV12Extensions
     /// </summary>
     /// <param name="solutionItem">A solution item.</param>
     /// <param name="properties">The properties to add to the model.</param>
-    public static void AddSlnProperties(this SolutionItemModel solutionItem, SolutionPropertyBag? properties)
+    /// <returns>True if the properties were successfully added to the model.</returns>
+    public static bool AddSlnProperties(this SolutionItemModel solutionItem, SolutionPropertyBag? properties)
     {
         Argument.ThrowIfNull(solutionItem, nameof(solutionItem));
         if (properties is null)
         {
-            return;
+            return true;
         }
 
         switch (SectionName.InternKnownSectionName(properties.Id))
@@ -120,7 +120,7 @@ public static class SlnV12Extensions
                     folder.AddFile(PathExtensions.ConvertFromPersistencePath(fileName));
                 }
 
-                break;
+                return true;
             case SectionName.ProjectDependencies when solutionItem is SolutionProjectModel project:
                 foreach (string dependencyProjectId in properties.PropertyNames)
                 {
@@ -129,12 +129,16 @@ public static class SlnV12Extensions
                     {
                         project.AddDependency(dependency);
                     }
+                    else
+                    {
+                        return false;
+                    }
                 }
 
-                break;
+                return true;
             default:
                 solutionItem.AddProperties(properties.Id, properties.Scope).AddRange(properties);
-                break;
+                return true;
         }
     }
 
@@ -198,12 +202,13 @@ public static class SlnV12Extensions
     /// </summary>
     /// <param name="solution">A solution.</param>
     /// <param name="properties">The properties to add to the model.</param>
-    public static void AddSlnProperties(this SolutionModel solution, SolutionPropertyBag? properties)
+    /// <returns>True if the properties were successfully added to the model.</returns>
+    public static bool AddSlnProperties(this SolutionModel solution, SolutionPropertyBag? properties)
     {
         Argument.ThrowIfNull(solution, nameof(solution));
         if (properties is null)
         {
-            return;
+            return true;
         }
 
         switch (SectionName.InternKnownSectionName(properties.Id))
@@ -225,11 +230,11 @@ public static class SlnV12Extensions
                     }
                 }
 
-                break;
+                return true;
 
             case SectionName.ProjectConfigurationPlatforms:
                 SetProjectConfigurationPlatforms(solution, properties);
-                break;
+                return true;
 
             case SectionName.NestedProjects:
                 foreach ((string childProjectIdStr, string parentProjectIdStr) in properties)
@@ -241,17 +246,20 @@ public static class SlnV12Extensions
                         SolutionFolderModel? parentFolder = solution.FindItemById(parentProjectId) as SolutionFolderModel;
                         if (childModel is not null && parentFolder is not null)
                         {
-                            childModel.Parent = parentFolder;
+                            childModel.MoveToFolder(parentFolder);
                         }
                         else
                         {
-                            // TODO Log warning that the parent project was not found.
-                            Debug.WriteLine("Parent project not found.");
+                            return false;
                         }
+                    }
+                    else
+                    {
+                        return false;
                     }
                 }
 
-                break;
+                return true;
             case SectionName.SolutionProperties:
                 if (properties.TryGetValue(SlnConstants.HideSolutionNode, out string? hideSolutionNodeStr) &&
                     bool.TryParse(hideSolutionNodeStr, out bool hideSolutionNode))
@@ -261,21 +269,15 @@ public static class SlnV12Extensions
                         solution.SetHideSolutionNode(true);
                     }
 
-                    if (properties.Count == 1)
-                    {
-                        return;
-                    }
-                    else
+                    if (properties.Count != 1)
                     {
                         properties.Remove(SlnConstants.HideSolutionNode);
                         SolutionPropertyBag solutionProperties = solution.AddProperties(SectionName.SolutionProperties, properties.Scope);
                         solutionProperties.AddRange(properties);
                     }
-
-                    break;
                 }
 
-                break;
+                return true;
             case SectionName.ExtensibilityGlobals:
                 if (properties.TryGetValue(SlnConstants.SolutionGuid, out string? solutionGuidStr) &&
                     Guid.TryParse(solutionGuidStr, out Guid solutionId))
@@ -287,7 +289,7 @@ public static class SlnV12Extensions
 
                     if (properties.Count == 1)
                     {
-                        return;
+                        return true;
                     }
                     else
                     {
@@ -296,10 +298,10 @@ public static class SlnV12Extensions
                     }
                 }
 
-                break;
+                return true;
             default:
                 solution.AddProperties(properties.Id, properties.Scope).AddRange(properties);
-                break;
+                return true;
         }
 
         // Handles reading the .sln file configuration mappings and
@@ -608,5 +610,62 @@ public static class SlnV12Extensions
 
             return propertyBag;
         }
+    }
+
+    /// <summary>
+    /// Always adds a solution folder to the solution.
+    /// </summary>
+    /// <remarks>
+    /// This method is used for internal purposes. Use <see cref="SolutionModel.AddFolder(string)"/> instead.
+    /// </remarks>
+    /// <param name="solution">The solution.</param>
+    /// <param name="name">The name of the new solution folder.</param>
+    /// <returns>The model for the new folder.</returns>
+    [Obsolete("This method is used for internal purposes, use AddFolder() instead.")]
+    public static SolutionFolderModel CreateSlnFolder(this SolutionModel solution, string name)
+    {
+        Argument.ThrowIfNull(solution, nameof(solution));
+        return solution.CreateFolder(name);
+    }
+
+    /// <summary>
+    /// Adds a project to the solution.
+    /// </summary>
+    /// <remarks>
+    /// This method is used for internal purposes. Use <see cref="SolutionModel.AddProject(string, string?, SolutionFolderModel?)"/> instead.
+    /// </remarks>
+    /// <param name="solution">The solution.</param>
+    /// <param name="filePath">The relative path to the project.</param>
+    /// <param name="projectTypeId">The project type id of the project.</param>
+    /// <param name="folder">The parent solution folder to add the project to.</param>
+    /// <returns>The model for the new project.</returns>
+    [Obsolete("This method is used for internal purposes, use SolutionModel.AddProject() instead.")]
+    public static SolutionProjectModel AddSlnProject(this SolutionModel solution, string filePath, Guid projectTypeId, SolutionFolderModel? folder)
+    {
+        Argument.ThrowIfNull(solution, nameof(solution));
+        solution.ValidateInModel(folder);
+
+        string? projectTypeName = solution.ProjectTypeTable.TryGetProjectType(projectTypeId, out ProjectType? projectType) ?
+                   projectType.Name ?? projectTypeId.ToString() :
+                   projectTypeId.ToString();
+
+        return solution.AddProject(filePath, projectTypeName, projectTypeId, folder);
+    }
+
+    /// <summary>
+    /// Suspends project validation while adding multiple projects without
+    /// solution folder information.
+    /// This must be called in a using block to properly resume validation.
+    /// </summary>
+    /// <remarks>
+    /// This method is used for internal purposes.
+    /// </remarks>
+    /// <param name="solution">The solution.</param>
+    /// <returns>Use to scope suspension, call <see cref="IDisposable.Dispose"/> to reenable validation.</returns>
+    [Obsolete("This method is used for internal purposes.")]
+    public static IDisposable SuspendProjectValidation(this SolutionModel solution)
+    {
+        Argument.ThrowIfNull(solution, nameof(solution));
+        return solution.SuspendProjectValidation();
     }
 }

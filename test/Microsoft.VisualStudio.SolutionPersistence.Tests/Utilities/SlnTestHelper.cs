@@ -5,8 +5,7 @@ using System.Linq;
 using Microsoft.VisualStudio.SolutionPersistence;
 using Microsoft.VisualStudio.SolutionPersistence.Model;
 using Microsoft.VisualStudio.SolutionPersistence.Serializer;
-using Microsoft.VisualStudio.SolutionPersistence.Serializer.Xml;
-using Microsoft.VisualStudio.SolutionPersistence.Serializer.Xml.XmlDecorators;
+using Microsoft.VisualStudio.SolutionPersistence.Serializer.SlnV12;
 using Xunit;
 
 namespace Utilities;
@@ -16,12 +15,12 @@ namespace Utilities;
 /// </summary>
 internal static class SlnTestHelper
 {
-    public static async Task<FileContents> ModelToLinesAsync<T>(ISolutionSingleFileSerializer<T> serializer, SolutionModel updateModel, string name, int bufferSize = 1024 * 1024)
+    internal static async Task<FileContents> ModelToLinesAsync<T>(ISolutionSingleFileSerializer<T> serializer, SolutionModel updateModel, int bufferSize = 1024 * 1024)
     {
         byte[] buffer = new byte[bufferSize];
         using (MemoryStream memoryStream = new MemoryStream(buffer))
         {
-            await serializer.SaveAsync(name, memoryStream, updateModel, CancellationToken.None);
+            await serializer.SaveAsync(memoryStream, updateModel, CancellationToken.None);
         }
 
         return buffer.ToLines();
@@ -30,7 +29,7 @@ internal static class SlnTestHelper
     /// <summary>
     /// Helper to creating a new model and update it.
     /// </summary>
-    public static SolutionModel CreateCopy(this SolutionModel solution, Action<SolutionModel> modifyModel)
+    internal static SolutionModel CreateCopy(this SolutionModel solution, Action<SolutionModel> modifyModel)
     {
         SolutionModel model = new SolutionModel(solution) { SerializerExtension = solution.SerializerExtension };
         modifyModel(model);
@@ -40,29 +39,28 @@ internal static class SlnTestHelper
     /// <summary>
     /// Save the model using the serializer then reload it into a new model.
     /// </summary>
-    public static async Task<(SolutionModel Model, FileContents Contents)> SaveAndReopenModelAsync<T>(
+    internal static async Task<(SolutionModel Model, FileContents Contents)> SaveAndReopenModelAsync<T>(
         ISolutionSingleFileSerializer<T> serializer,
         SolutionModel oldModel,
-        string name,
         int bufferSize = 1024 * 1024)
     {
         byte[] memoryBuffer = new byte[bufferSize];
         using (MemoryStream saveStream = new MemoryStream(memoryBuffer))
         using (MemoryStream openStream = new MemoryStream(memoryBuffer))
         {
-            await serializer.SaveAsync(name, saveStream, oldModel, CancellationToken.None);
+            await serializer.SaveAsync(saveStream, oldModel, CancellationToken.None);
 
             // Use the length of the save stream to set the length of the open stream.
             openStream.SetLength(saveStream.Position);
 
             FileContents slnxContents = saveStream.ToLines();
 
-            SolutionModel newModel = await serializer.OpenAsync(name, openStream, CancellationToken.None);
+            SolutionModel newModel = await serializer.OpenAsync(openStream, CancellationToken.None);
             return (newModel, slnxContents);
         }
     }
 
-    public static async Task<(SolutionModel Model, FileContents SlnxContents)> ThruSlnStreamAsync(SolutionModel model, string name, int bufferSize)
+    internal static async Task<(SolutionModel Model, FileContents SlnxContents)> ThruSlnxStreamAsync(SolutionModel model, int bufferSize)
     {
         ISerializerModelExtension? originalExtension = model.SerializerExtension;
 
@@ -76,7 +74,7 @@ internal static class SlnTestHelper
         Guid? solutionGuid = model.SolutionId;
         Dictionary<string, Guid> itemGuids = model.SolutionItems.ToDictionary(x => x.ItemRef, x => x.Id);
 
-        (model, FileContents slnxContents) = await SaveAndReopenModelAsync(SolutionSerializers.SlnXml, model, name, bufferSize);
+        (model, FileContents slnxContents) = await SaveAndReopenModelAsync(SolutionSerializers.SlnXml, model, bufferSize);
 
         foreach (KeyValuePair<string, Guid> projectGuid in itemGuids)
         {
@@ -108,7 +106,20 @@ internal static class SlnTestHelper
         }
     }
 
-    public static void AssertSolutionsAreEqual(
+    internal static Encoding GetSlnEncoding(SolutionModel model)
+    {
+        ISerializerModelExtension<SlnV12SerializerSettings>? slnExt = model.SerializerExtension as ISerializerModelExtension<SlnV12SerializerSettings>;
+
+        // Expected SLN serializer for encoding.
+        Assert.NotNull(slnExt);
+
+        Encoding? encoding = slnExt.Settings.Encoding;
+
+        Assert.NotNull(encoding);
+        return encoding;
+    }
+
+    internal static void AssertSolutionsAreEqual(
         FileContents expectedSln,
         FileContents actualSln)
     {
@@ -157,15 +168,28 @@ internal static class SlnTestHelper
     }
 
     // This only works for SLNX right now.
-    public static void AssertEmptySerializationLog(SolutionModel model)
+    internal static void AssertNotTarnished(SolutionModel model)
     {
         Assert.NotNull(model.SerializerExtension);
-        SlnxFile? slnxDOM = ((SlnXmlModelExtension)model.SerializerExtension).Root;
-        Assert.NotNull(slnxDOM);
-        Assert.Equal(slnxDOM.Logger.ToString(), string.Empty);
+        Assert.False(model.SerializerExtension.Tarnished);
     }
 
-    public static FileContents ToLines(this byte[] buffer)
+    internal static void TryDeleteFile(string filePath)
+    {
+        try
+        {
+            if (File.Exists(filePath))
+            {
+                File.Delete(filePath);
+            }
+        }
+        catch
+        {
+            // Ignore any exceptions.
+        }
+    }
+
+    internal static FileContents ToLines(this byte[] buffer)
     {
         int length = Array.IndexOf(buffer, (byte)0);
         using (MemoryStream stream = new MemoryStream(buffer))
@@ -175,9 +199,32 @@ internal static class SlnTestHelper
         }
     }
 
-    public static FileContents ToLines(this ResourceStream resource)
+    internal static FileContents ToLines(this ResourceStream resource)
     {
         return resource.Stream.ToLines();
+    }
+
+    // Saves the resource to a temp file and returns the path.
+    // Used if a test needs to validate reading from disk instead of stream.
+    internal static string SaveResourceToTempFile(this ResourceStream resource)
+    {
+        string filePath = Path.ChangeExtension(Path.GetTempFileName(), resource.Name);
+
+        try
+        {
+            using (FileStream stream = File.OpenWrite(filePath))
+            {
+                resource.Stream.CopyTo(stream);
+                stream.SetLength(stream.Position);
+            }
+        }
+        catch
+        {
+            TryDeleteFile(filePath);
+            throw;
+        }
+
+        return filePath;
     }
 
     private static FileContents ToLines(this Stream stream)

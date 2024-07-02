@@ -21,7 +21,7 @@ internal sealed partial class SlnFileV12Serializer
     {
         private int lineNumber = 0;
 
-        private bool corrupted = false;
+        private bool tarnished = false;
 
         private enum LineType
         {
@@ -62,168 +62,174 @@ internal sealed partial class SlnFileV12Serializer
 
             if (!this.TryParseFormatLine())
             {
-                this.OnParseError(ParseError.NotASln12File);
+                throw new SolutionException(Errors.NotSolution) { File = fullPath, Line = this.lineNumber };
             }
 
             // Some property bags need to be loaded after all projects have been resolved.
             List<(SolutionItemModel, SolutionPropertyBag)> delayLoadProperties = [];
 
-            while (this.ReadLine(out StringTokenizer tokenizer))
+            using (solutionModel.SuspendProjectValidation())
             {
-                cancellationToken.ThrowIfCancellationRequested();
-
-                LineType lineType = GetLineType(ref tokenizer, allowSolutionProperties: !(inProject || inGlobal));
-
-                // there are many legacy errata issues with parsing the solution file
-                // where we accept a lot of "bad/illogical" formatting, and be very strict in other.
-                // generally solution parser will accept large number of logically invalid formats.
-                switch (lineType)
+                while (this.ReadLine(out StringTokenizer tokenizer))
                 {
-                    case LineType.Project:
-                        _ = this.Validate(!inProject);
-                        inProject = true;
-                        currentProject = this.ReadProjectInfo(solutionModel, ref tokenizer);
-                        break;
+                    cancellationToken.ThrowIfCancellationRequested();
 
-                    case LineType.EndProject:
-                        _ = this.Validate(inProject);
-                        inProject = false;
-                        AddProjectProperties(currentProject, currentPropertyBag, delayLoadProperties);
-                        currentPropertyBag = null;
-                        currentProject = null;
-                        break;
+                    LineType lineType = GetLineType(ref tokenizer, allowSolutionProperties: !(inProject || inGlobal));
 
-                    case LineType.Global:
-                        _ = this.Validate(!inProject);
-                        inGlobal = true;
-                        break;
-
-                    case LineType.EndGlobal:
-                        _ = this.Validate(inGlobal);
-                        inGlobal = false;
-                        solutionModel.AddSlnProperties(currentPropertyBag);
-                        currentPropertyBag = null;
-                        break;
-
-                    case LineType.ProjectSection:
-                        _ = this.Validate(inProject);
-                        inProjectSection = true;
-                        bool checkOnly = currentProject is null;
-                        currentPropertyBag = this.ReadPropertyBag(ref tokenizer, isSolution: false, checkOnly);
-                        break;
-
-                    case LineType.EndProjectSection:
-                        _ = this.Validate(inProject && inProjectSection);
-                        inProjectSection = false;
-                        AddProjectProperties(currentProject, currentPropertyBag, delayLoadProperties);
-                        currentPropertyBag = null;
-                        break;
-
-                    case LineType.GlobalSection:
-                        _ = this.Validate(inGlobal);
-                        inGlobalSection = true;
-                        currentPropertyBag = this.ReadPropertyBag(ref tokenizer, isSolution: true, checkOnly: false);
-                        break;
-
-                    case LineType.EndGlobalSection:
-                        _ = this.Validate(inGlobal && inGlobalSection);
-                        inGlobalSection = false;
-                        solutionModel.AddSlnProperties(currentPropertyBag);
-                        currentPropertyBag = null;
-                        break;
-
-                    case LineType.VisualStudioVersion:
-                        // we differ here a little bit. The original parser was very strict here, while it is very inconsequential optional values.
-                        vsVersion = tokenizer.NextToken(SlnConstants.VersionSeparators).ToString();
-                        break;
-
-                    case LineType.MinimumVisualStudioVersion:
-                        minVsVersion = tokenizer.NextToken(SlnConstants.VersionSeparators).ToString();
-                        break;
-
-                    case LineType.CommentLine:
-                        // oddly for valid <Global> first solution this will still work
-                        if (openWithVsVersion is null && solutionModel.SolutionProjects.Count == 0)
-                        {
-                            openWithVsVersion = tokenizer.StringLine;
-                        }
-
-                        break;
-
-                    case LineType.Property:
-                        if (!this.Validate(currentPropertyBag))
-                        {
+                    // there are many legacy errata issues with parsing the solution file
+                    // where we accept a lot of "bad/illogical" formatting, and be very strict in other.
+                    // generally solution parser will accept large number of logically invalid formats.
+                    switch (lineType)
+                    {
+                        case LineType.Project:
+                            this.TarnishIf(inProject);
+                            inProject = true;
+                            currentProject = this.ReadProjectInfo(solutionModel, ref tokenizer);
                             break;
-                        }
 
-                        StringSpan propName = tokenizer.NextToken('=');
+                        case LineType.EndProject:
+                            this.TarnishIf(!inProject);
+                            inProject = false;
+                            this.TarnishIf(!AddProjectProperties(currentProject, currentPropertyBag, delayLoadProperties));
+                            currentPropertyBag = null;
+                            currentProject = null;
+                            break;
 
-                        // note intentionally more relaxed than original parse.
-                        // first it accepts spaces at the start and tabs at the end, and also will not require exactly 2 tabs at start and exactly 1 space at the end.
-                        // original will load the solution as well, but will mark it as "corrupt" with implication to "isDirty" and such.
-                        propName = propName.Trim();
+                        case LineType.Global:
+                            this.TarnishIf(inProject);
+                            inGlobal = true;
+                            break;
 
-                        // similar for values
-                        tokenizer.TrimStart();
-                        StringSpan propValue = tokenizer.Current;
+                        case LineType.EndGlobal:
+                            this.TarnishIf(!inGlobal);
+                            inGlobal = false;
+                            this.TarnishIf(!solutionModel.AddSlnProperties(currentPropertyBag));
+                            currentPropertyBag = null;
+                            break;
 
-                        // note: it does not strip trailing spaces for value. That was obvious bug, but in fact some could exploited it to store spaces at the end of values.
-                        // tokenizer.Trim(ref value);
+                        case LineType.ProjectSection:
+                            this.TarnishIf(!inProject);
+                            inProjectSection = true;
+                            bool checkOnly = currentProject is null;
+                            currentPropertyBag = this.ReadPropertyBag(ref tokenizer, isSolution: false, checkOnly);
+                            break;
 
-                        // NOTE: The value can be an empty string.
-                        string propNameString = propName.ToString();
-                        currentPropertyBag.Add(propNameString, propValue.ToString());
-                        break;
+                        case LineType.EndProjectSection:
+                            this.TarnishIf(!inProject || !inProjectSection);
+                            inProjectSection = false;
+                            this.TarnishIf(!AddProjectProperties(currentProject, currentPropertyBag, delayLoadProperties));
+                            currentPropertyBag = null;
+                            break;
 
-                    case LineType.Empty:
-                    case LineType.CommentLineEx:
-                        break;
+                        case LineType.GlobalSection:
+                            this.TarnishIf(!inGlobal);
+                            inGlobalSection = true;
+                            currentPropertyBag = this.ReadPropertyBag(ref tokenizer, isSolution: true, checkOnly: false);
+                            break;
 
-                    default:
-                        _ = this.Validate(false);
-                        break;
+                        case LineType.EndGlobalSection:
+                            this.TarnishIf(!inGlobal || !inGlobalSection);
+                            inGlobalSection = false;
+                            this.TarnishIf(!solutionModel.AddSlnProperties(currentPropertyBag));
+                            currentPropertyBag = null;
+                            break;
+
+                        case LineType.VisualStudioVersion:
+                            // we differ here a little bit. The original parser was very strict here, while it is very inconsequential optional values.
+                            vsVersion = tokenizer.NextToken(SlnConstants.VersionSeparators).ToString();
+                            break;
+
+                        case LineType.MinimumVisualStudioVersion:
+                            minVsVersion = tokenizer.NextToken(SlnConstants.VersionSeparators).ToString();
+                            break;
+
+                        case LineType.CommentLine:
+                            // oddly for valid <Global> first solution this will still work
+                            if (openWithVsVersion is null && solutionModel.SolutionProjects.Count == 0)
+                            {
+                                openWithVsVersion = tokenizer.StringLine;
+                            }
+
+                            break;
+
+                        case LineType.Property:
+                            if (currentPropertyBag is null)
+                            {
+                                this.TarnishIf(true);
+                                break;
+                            }
+
+                            StringSpan propName = tokenizer.NextToken('=');
+
+                            // note intentionally more relaxed than original parse.
+                            // first it accepts spaces at the start and tabs at the end, and also will not require exactly 2 tabs at start and exactly 1 space at the end.
+                            // original will load the solution as well, but will mark it as "tarnished" with implication to "isDirty" and such.
+                            propName = propName.Trim();
+
+                            // similar for values
+                            tokenizer.TrimStart();
+                            StringSpan propValue = tokenizer.Current;
+
+                            // note: it does not strip trailing spaces for value. That was obvious bug, but in fact some could exploited it to store spaces at the end of values.
+                            // tokenizer.Trim(ref value);
+
+                            // NOTE: The value can be an empty string.
+                            string propNameString = propName.ToString();
+                            currentPropertyBag.Add(propNameString, propValue.ToString());
+                            break;
+
+                        case LineType.Empty:
+                        case LineType.CommentLineEx:
+                            break;
+
+                        default:
+                            this.TarnishIf(true);
+                            break;
+                    }
                 }
+
+                // The project dependencies properties require the projects to all be loaded,
+                // so they are processed after the model has added all of the projects.
+                foreach ((SolutionItemModel item, SolutionPropertyBag properties) in delayLoadProperties)
+                {
+                    this.TarnishIf(!item.AddSlnProperties(properties));
+                }
+
+                string? openWithVS = CommentToOpenWithVS(openWithVsVersion.AsSpan());
+                if (!openWithVS.IsNullOrEmpty())
+                {
+                    solutionModel.SetOpenWithVisualStudio(openWithVS);
+                }
+
+                solutionModel.MinVsVersion = minVsVersion;
+                solutionModel.VsVersion = vsVersion;
+                solutionModel.SerializerExtension = new SlnV12ModelExtension(
+                    serializer,
+                    new SlnV12SerializerSettings() { Encoding = GetSlnFileEncoding(reader) },
+                    fullPath)
+                { Tarnished = this.tarnished };
             }
 
-            // The project dependencies properties require the projects to all be loaded,
-            // so they are processed after the model has added all of the projects.
-            foreach ((SolutionItemModel item, SolutionPropertyBag properties) in delayLoadProperties)
-            {
-                item.AddSlnProperties(properties);
-            }
-
-            string? openWithVS = CommentToOpenWithVS(openWithVsVersion.AsSpan());
-            if (!openWithVS.IsNullOrEmpty())
-            {
-                solutionModel.SetOpenWithVisualStudio(openWithVS);
-            }
-
-            solutionModel.MinVsVersion = minVsVersion;
-            solutionModel.VsVersion = vsVersion;
-            solutionModel.SerializerExtension = new SlnV12ModelExtension(
-                serializer,
-                new SlnV12SerializerSettings() { Encoding = GetSlnFileEncoding(reader) },
-                fullPath)
-            { Corrupted = this.corrupted };
             return new ValueTask<SolutionModel>(solutionModel);
 
-            static void AddProjectProperties(
+            static bool AddProjectProperties(
                 SolutionItemModel? currentProject,
                 SolutionPropertyBag? currentPropertyBag,
                 List<(SolutionItemModel, SolutionPropertyBag)> delayLoadProperties)
             {
                 if (currentProject is null || currentPropertyBag is null)
                 {
-                    return;
+                    return true;
                 }
 
                 if (SectionName.InternKnownSectionName(currentPropertyBag.Id) is SectionName.ProjectDependencies)
                 {
                     delayLoadProperties.Add((currentProject, currentPropertyBag));
+                    return true;
                 }
                 else
                 {
-                    currentProject.AddSlnProperties(currentPropertyBag);
+                    return currentProject.AddSlnProperties(currentPropertyBag);
                 }
             }
         }
@@ -457,7 +463,7 @@ internal sealed partial class SlnFileV12Serializer
         }
 
         // Creates PropertyMap object from [Project|Global]Section( /// <sectionName>) = scope
-        private SolutionPropertyBag? ReadPropertyBag(ref StringTokenizer tokenizer, bool isSolution, bool checkOnly)
+        private readonly SolutionPropertyBag? ReadPropertyBag(ref StringTokenizer tokenizer, bool isSolution, bool checkOnly)
         {
             // Not sure if it was a recent bug or always like thatthe old parser is kind of awkward it will allow any of these:
             // ...Section({any space,tab,(,),=}<Name>[any tab,(,)=]{any space,<tab>,=}<scope>{any space,tab,(,),=}{.*}
@@ -465,9 +471,9 @@ internal sealed partial class SlnFileV12Serializer
             // We have to keep that behaviour, only slight difference  will allow space in adition to tab at the end of name
             // With all wierd syntaxes old will accepet, it will not accept ProjectSection( Foo )  (but will do ) ProjectSection(  Foo) ...
             StringSpan sectionName = tokenizer.NextToken(SlnConstants.SectionSeparators).Trim();
-            this.ValidateAbort(!sectionName.IsEmpty);
+            this.SolutionAssert(!sectionName.IsEmpty, Errors.MissingSectionName);
             StringSpan sectionScopeStr = tokenizer.NextToken(SlnConstants.SectionSeparators).Trim();
-            this.ValidateAbort(TryParseScope(sectionScopeStr, isSolution, out PropertiesScope scope));
+            this.SolutionAssert(TryParseScope(sectionScopeStr, isSolution, out PropertiesScope scope), Errors.InvalidScope);
             return checkOnly ? null : new SolutionPropertyBag(sectionName.ToString(), scope);
         }
 
@@ -479,86 +485,65 @@ internal sealed partial class SlnFileV12Serializer
             StringSpan projectType = tokenizer.NextToken(SlnConstants.ProjectSeparators);
 
             // but it must end with [sep]) ... checked later.
-            this.ValidateAbort(!projectType.IsEmpty);
-
-            this.ValidateAbort(Guid.TryParse(projectType.ToString(), out Guid projectTypeId));
+            this.SolutionAssert(Guid.TryParse(projectType.ToString(), out Guid projectTypeId), Errors.InvalidProjectType);
 
             // this just skips up to Display's name "App1" first quote, position at 'A". The TrimStart is extension to allow spaces before ')';
             // and yes, any characters are allowed for example // Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "App1", valid bad format :P "App1\App1.csproj",
             StringSpan skip = tokenizer.NextToken(SlnConstants.DoubleQuote).TrimStart();
 
             // and do the check for factory guid. ends with ').
-            this.ValidateAbort(!skip.IsEmpty && skip[0] == ')');
+            this.SolutionAssert(!skip.IsEmpty && skip[0] == ')', Errors.SyntaxError);
 
             StringSpan displayName = tokenizer.NextToken(SlnConstants.DoubleQuote);
-            this.ValidateAbort(!displayName.IsEmpty);
+            this.SolutionAssert(!displayName.IsEmpty, Errors.MissingDisplayName);
             skip = tokenizer.NextToken(SlnConstants.DoubleQuote).TrimStart();
-            this.ValidateAbort(!skip.IsEmpty && skip[0] == ',');
+            this.SolutionAssert(!skip.IsEmpty && skip[0] == ',', Errors.SyntaxError);
             StringSpan relativePath = tokenizer.NextToken(SlnConstants.DoubleQuote);
-            this.ValidateAbort(!relativePath.IsEmpty);
+            this.SolutionAssert(!relativePath.IsEmpty, Errors.MissingPath);
 
             // no comma check errata for this so any text between "relPath"{*}"uniqueiId" is valid.
             StringSpan projectUniqueId = tokenizer.NextToken(SlnConstants.ProjectSeparators);
-            this.ValidateAbort(!projectUniqueId.IsEmpty);
-            _ = this.Validate(Guid.TryParse(projectUniqueId.ToString(), out Guid projectId));
+            this.SolutionAssert(!projectUniqueId.IsEmpty, Errors.MissingProjectId);
+            this.TarnishIf(!Guid.TryParse(projectUniqueId.ToString(), out Guid projectId));
 
             if (projectTypeId == ProjectTypeTable.SolutionFolder)
             {
-                SolutionFolderModel folder = solution.AddFolder(name: displayName.ToString());
+#pragma warning disable CS0618 // Type or member is obsolete (Temporaily create a potentially invalid solution folder until nested projects is interpreted.)
+                SolutionFolderModel folder = solution.CreateSlnFolder(name: displayName.ToString());
+#pragma warning restore CS0618 // Type or member is obsolete
                 folder.Id = projectId;
                 return folder;
             }
             else
             {
-                SolutionProjectModel project = solution.AddProject(
+#pragma warning disable CS0618 // Type or member is obsolete (Temporaily create a potentially invalid solution folder until nested projects is interpreted.)
+                SolutionProjectModel project = solution.AddSlnProject(
                     filePath: PathExtensions.ConvertFromPersistencePath(relativePath.ToString()),
-                    projectTypeId: projectTypeId);
+                    projectTypeId: projectTypeId,
+                    folder: null);
+#pragma warning restore CS0618 // Type or member is obsolete
                 project.Id = projectId;
                 project.DisplayName = displayName.ToString();
                 return project;
             }
         }
 
-        private readonly void OnParseError(ParseError code, string? message = null)
-        {
-            int line = this.lineNumber;
-
-            throw new InvalidSolutionFormatException($"Error in {fullPath}: {code} {message ?? string.Empty} {(line != 0 ? $" at line : {line}" : string.Empty)}");
-        }
-
-        // Validate condition, that would mark solution file as "corrupted" if false
+        // Condition that would mark solution file as "tarnished"
         // In these scenarios old parser would ignore the line (potentially throw aways some data) and move on.
-        // CONSIDER: Update this to log the error and location.
-        private bool Validate(bool condition)
+        private void TarnishIf(bool tarnish)
         {
-            if (!condition)
-            {
-                this.corrupted = true;
-            }
-
-            return condition;
-        }
-
-        private bool Validate<T>([NotNullWhen(true)] T? obj)
-            where T : class
-        {
-            return this.Validate(obj is not null) && obj is not null;
+            this.tarnished |= tarnish;
         }
 
         // Validate condition, that if false would make so the old parser will give up and report failure and reject the solution file.
-        private void ValidateAbort(bool condition)
+        private readonly void SolutionAssert([DoesNotReturnIf(false)] bool condition, string message)
         {
             if (condition)
             {
                 return;
             }
 
-            if (this.Validate(condition))
-            {
-                return;
-            }
-
-            this.OnParseError(ParseError.BadSln12File, "Bad solution file");
+            throw new SolutionException(message) { File = fullPath, Line = this.lineNumber };
         }
     }
 }

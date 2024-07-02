@@ -84,9 +84,16 @@ internal sealed class XmlConfigurations(SlnxFile root, XmlElement element) :
             declaredTypes.Add(projectType.ToModel());
         }
 
-        return declaredTypes.Count > 0 ?
-            new ProjectTypeTable(declaredTypes, this.Root.Logger) :
-            null;
+        try
+        {
+            return declaredTypes.Count > 0 ?
+                new ProjectTypeTable(declaredTypes) :
+                null;
+        }
+        catch (SolutionException ex)
+        {
+            throw SolutionException.Create(ex.Message, this, ex);
+        }
     }
 
     #endregion

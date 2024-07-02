@@ -4,7 +4,6 @@
 using System.Diagnostics;
 using System.Xml;
 using Microsoft.VisualStudio.SolutionPersistence.Model;
-using Microsoft.VisualStudio.SolutionPersistence.Utilities;
 
 namespace Microsoft.VisualStudio.SolutionPersistence.Serializer.Xml.XmlDecorators;
 
@@ -36,8 +35,7 @@ internal sealed class SlnxFile
         }
         else
         {
-            this.Logger.LogError("The root element of the slnx file is not a Solution element.");
-            this.ProjectTypes = new ProjectTypeTable();
+            throw new SolutionException(Errors.NotSolution) { File = this.FullPath };
         }
 
         this.SerializationSettings = this.GetDefaultSerializationSettings(serializationSettings);
@@ -53,9 +51,9 @@ internal sealed class SlnxFile
 
     internal StringTable StringTable { get; }
 
-    internal SerializerLogger Logger { get; private set; } = new SerializerLogger();
-
     internal ProjectTypeTable ProjectTypes { get; private set; }
+
+    internal bool Tarnished { get; private set; }
 
     internal SolutionModel ToModel()
     {

@@ -78,19 +78,17 @@ public interface ISolutionSingleFileSerializer<TSettings> : ISolutionSerializer<
     /// <summary>
     /// Opens a solution model from a stream.
     /// </summary>
-    /// <param name="fullPath">[Optional] Full path to file where stream was loaded (if applicable).</param>
     /// <param name="stream">The stream containing the file.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>The solution model of the file.</returns>
-    Task<SolutionModel> OpenAsync(string? fullPath, Stream stream, CancellationToken cancellationToken);
+    Task<SolutionModel> OpenAsync(Stream stream, CancellationToken cancellationToken);
 
     /// <summary>
     /// Saves a solution model to a stream.
     /// </summary>
-    /// <param name="fullPath">[Optional] Full path to file where stream was saved (if applicable).</param>
     /// <param name="stream">The stream to save the file..</param>
     /// <param name="model">The model to save.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>Task to track the asynchronous call status.</returns>
-    Task SaveAsync(string? fullPath, Stream stream, SolutionModel model, CancellationToken cancellationToken);
+    Task SaveAsync(Stream stream, SolutionModel model, CancellationToken cancellationToken);
 }
