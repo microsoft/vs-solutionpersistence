@@ -50,7 +50,7 @@ internal sealed partial class ProjectTypeTable
             new ProjectType(new Guid("D954291E-2A0B-460D-934E-DC6B0785DB48"), NoBuildRules) { Name = "Shared", Extension = ".shproj" },
 
             // Website project
-            new ProjectType(new Guid("E24C65DC-7377-472B-9ABA-BC803B73C61A"), ClrBuildRules) { Name = "Website" },
+            new ProjectType(new Guid("E24C65DC-7377-472B-9ABA-BC803B73C61A"), ClrBuildRules) { Name = "Website", Extension = ".webproj" },
 
             // Visual C++ project
             new ProjectType(
@@ -73,6 +73,25 @@ internal sealed partial class ProjectTypeTable
 
             // This probably won't get used, but adding to make sure it doesn't see configurations.
             new ProjectType(SolutionFolder, NoBuildRules) { Name = "Folder" },
+
+            // JavaScript project types
+            new ProjectType(new Guid("54A90642-561A-4BB1-A94E-469ADEE60C69"), NoBuildRules) { Name = "Javascript", Extension = ".esproj" },
+            new ProjectType(new Guid("9092AA53-FB77-4645-B42D-1CCCA6BD08BD"), NoBuildRules) { Name = "Node.js", Extension = ".njsproj" },
+
+            // Setup project types
+            new ProjectType(new Guid("151D2E53-A2C4-4D7D-83FE-D05416EBD58E"), NoBuildRules) { Name = "Deploy", Extension = ".deployproj" },
+            new ProjectType(new Guid("54435603-DBB4-11D2-8724-00A0C9A8B90C"), NoBuildRules) { Name = "Installer", Extension = ".vsproj" },
+            new ProjectType(new Guid("930C7802-8A8C-48F9-8165-68863BCCD9DD"), NoBuildRules) { Name = "Wix", Extension = ".wixproj" },
+
+            // SQL project types
+            new ProjectType(new Guid("00D1A9C2-B5F0-4AF3-8072-F6C62B433612"), NoBuildRules) { Name = "SQL", Extension = ".sqlproj" },
+            new ProjectType(new Guid("0C603C2C-620A-423B-A800-4F3E2F6281F1"), NoBuildRules) { Name = "U-SQL-DB", Extension = ".usqldbproj" },
+            new ProjectType(new Guid("182E2583-ECAD-465B-BB50-91101D7C24CE"), NoBuildRules) { Name = "U-SQL", Extension = ".usqlproj" },
+
+            // Azure project types
+            new ProjectType(new Guid("A07B5EB6-E848-4116-A8D0-A826331D98C6"), NoBuildRules) { Name = "Fabric", Extension = ".sfproj" },
+            new ProjectType(new Guid("CC5FD16D-436D-48AD-A40C-5A424C6E3E79"), NoBuildRules) { Name = "Cloud Computing", Extension = ".ccproj" },
+            new ProjectType(new Guid("E53339B2-1760-4266-BCC7-CA923CBCF16C"), NoBuildRules) { Name = "Docker", Extension = ".dcproj" },
         ],
         logger: null);
 }

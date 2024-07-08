@@ -32,7 +32,12 @@ public sealed class SolutionPropertyBag : IReadOnlyDictionary<string, string>
     private List<string> propertyNamesInOrder;
     private PropertyBag properties;
 
-    internal SolutionPropertyBag(string id, PropertiesScope scope)
+    /// <summary>
+    /// Initializes a new instance of the <see cref="SolutionPropertyBag"/> class.
+    /// </summary>
+    /// <param name="id">The property bag id.</param>
+    /// <param name="scope">The scope to create a new property bag with.</param>
+    public SolutionPropertyBag(string id, PropertiesScope scope = PropertiesScope.PreLoad)
         : this(id, scope, capacity: 0)
     {
     }
