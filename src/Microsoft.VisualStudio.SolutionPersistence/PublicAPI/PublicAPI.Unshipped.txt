@@ -117,6 +117,7 @@ Microsoft.VisualStudio.SolutionPersistence.Model.SolutionPropertyBag.Keys.get ->
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionPropertyBag.PropertyNames.get -> System.Collections.Generic.IReadOnlyList<string!>!
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionPropertyBag.Remove(string! name) -> bool
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionPropertyBag.Scope.get -> Microsoft.VisualStudio.SolutionPersistence.Model.PropertiesScope
+Microsoft.VisualStudio.SolutionPersistence.Model.SolutionPropertyBag.SolutionPropertyBag(string! id, Microsoft.VisualStudio.SolutionPersistence.Model.PropertiesScope scope = Microsoft.VisualStudio.SolutionPersistence.Model.PropertiesScope.PreLoad) -> void
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionPropertyBag.this[string! key].get -> string!
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionPropertyBag.TryGetValue(string! key, out string! value) -> bool
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionPropertyBag.Values.get -> System.Collections.Generic.IEnumerable<string!>!
