@@ -164,7 +164,7 @@ internal sealed partial class SolutionConfigurationMap
 #endif
             this.mappings = new ProjectConfigMapping[configMap.matrixSize];
 
-            ConfigurationRuleFollower projectTypeRules = configMap.solutionModel.ProjectTypeTable.GetProjectConfigurationRules(projectModel);
+            ConfigurationRuleFollower projectTypeRules = configMap.solutionModel.ProjectTypeTable.GetProjectConfigurationRules(projectModel, excludeProjectSpecificRules: true);
             isConfigurable = projectTypeRules.GetIsBuildable() ?? true;
 
             for (int iPlatform = 0; iPlatform < configMap.PlatformsCount; iPlatform++)

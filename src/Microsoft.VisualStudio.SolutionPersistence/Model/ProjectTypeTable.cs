@@ -134,7 +134,7 @@ internal sealed partial class ProjectTypeTable
     }
 
     // Gets all of the configuration rules that apply to the project.
-    internal ConfigurationRuleFollower GetProjectConfigurationRules(SolutionProjectModel projectModel)
+    internal ConfigurationRuleFollower GetProjectConfigurationRules(SolutionProjectModel projectModel, bool excludeProjectSpecificRules = false)
     {
         // Rules are ordered most general to most specific.
         if (this.TryGetProjectType(projectModel, out ProjectType? type, out _))
@@ -152,6 +152,13 @@ internal sealed partial class ProjectTypeTable
 
             // Get the default rules in the solution. These intentionally are higher priority than type rules.
             rules.AddRange(this.defaultRules);
+
+            // Gets the rules defined on this project model.
+            if (projectModel.ProjectConfigurationRules is not null && !excludeProjectSpecificRules)
+            {
+                rules.AddRange(projectModel.ProjectConfigurationRules);
+            }
+
             return new ConfigurationRuleFollower(rules);
         }
         else

@@ -154,7 +154,7 @@ public sealed class SolutionProjectModel : SolutionItemModel
 
         return (
             projectTypeRules.GetProjectBuildType(solutionBuildType, solutionPlatform) ?? solutionBuildType,
-            projectTypeRules.GetProjectPlatform(solutionPlatform, solutionPlatform) ?? solutionPlatform,
+            projectTypeRules.GetProjectPlatform(solutionBuildType, solutionPlatform) ?? solutionPlatform,
             projectTypeRules.GetIsBuildable(solutionBuildType, solutionPlatform) ?? true,
             projectTypeRules.GetIsDeployable(solutionBuildType, solutionPlatform) ?? false);
     }
