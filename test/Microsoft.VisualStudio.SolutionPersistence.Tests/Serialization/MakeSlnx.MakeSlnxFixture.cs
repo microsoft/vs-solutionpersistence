@@ -3,20 +3,19 @@
 
 namespace Serialization;
 
-#pragma warning disable CS9113 // Parameter is unread.
-public partial class MakeSlnx
-#pragma warning restore CS9113 // Parameter is unread.
+public sealed partial class MakeSlnx
 {
+    public const string OutputDirectory = "OutputSln";
+
+    /// <summary>
+    /// Used by <see cref="MakeSlnx"/> tests to ensure temp directory structure is created and
+    /// empty before the tests are run.
+    /// </summary>
     public class MakeSlnxFixture
     {
         public MakeSlnxFixture()
         {
-            ClearDirectory();
-        }
-
-        public static void ClearDirectory()
-        {
-            string outputDirectory = Path.Combine(Path.GetTempPath(), "OutputSln");
+            string outputDirectory = Path.Combine(Path.GetTempPath(), OutputDirectory);
             if (Directory.Exists(outputDirectory))
             {
                 Directory.Delete(outputDirectory, true);
@@ -24,12 +23,18 @@ public partial class MakeSlnx
 
             _ = Directory.CreateDirectory(outputDirectory);
 
-            string convertedSlnx = Path.Join(outputDirectory, "slnx");
-            string sln = Path.Join(outputDirectory, "sln");
-            string slnThruSlnxStream = Path.Join(outputDirectory, "slnThruSlnxStream");
-            _ = Directory.CreateDirectory(convertedSlnx);
-            _ = Directory.CreateDirectory(sln);
-            _ = Directory.CreateDirectory(slnThruSlnxStream);
+            this.SlnToSlnxDirectory = Path.Join(outputDirectory, "slnToSlnx");
+            this.SlnViaSlnxDirectory = Path.Join(outputDirectory, "slnViaSlnx");
+            this.SlnxToSlnDirectory = Path.Join(outputDirectory, "slnxToSln");
+            _ = Directory.CreateDirectory(this.SlnToSlnxDirectory);
+            _ = Directory.CreateDirectory(this.SlnViaSlnxDirectory);
+            _ = Directory.CreateDirectory(this.SlnxToSlnDirectory);
         }
+
+        public string SlnToSlnxDirectory { get; private set; }
+
+        public string SlnViaSlnxDirectory { get; private set; }
+
+        public string SlnxToSlnDirectory { get; private set; }
     }
 }

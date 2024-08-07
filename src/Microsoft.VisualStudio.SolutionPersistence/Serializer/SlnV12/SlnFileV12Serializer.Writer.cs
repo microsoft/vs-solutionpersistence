@@ -17,6 +17,8 @@ internal partial class SlnFileV12Serializer
             SolutionModel model,
             Stream streamWriter)
         {
+            model.ThrowIfProjectValidationSuspended();
+
             SlnV12ModelExtension? modelExtension = model.SerializerExtension as SlnV12ModelExtension;
 
             Encoding? formatEncoding = modelExtension?.Settings.Encoding;

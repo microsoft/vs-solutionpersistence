@@ -33,6 +33,12 @@ internal static class SlnAssets
     // A single C++ project with "Mobile"->"ARM64" platform, doesn't and build ARM64 sln platform. UTF8 BOM encoding.
     public static ResourceStream ClassicSlnSingleNativeProject => LoadResource("SingleNativeProject.sln");
 
+    // A complex solution with multiple native and manager projects and configurations. UTF8 BOM encoding.
+    public static ResourceStream ClassicSlnGiant => LoadResource("Giant.sln");
+
+    // A larger solution with multiple .NET Framework project. UTF8 BOM encoding. ASCII encoding.
+    public static ResourceStream ClassicSlnTraditional => LoadResource("Traditional.sln");
+
     #endregion
 
     #region Sample Xml Slnx
@@ -62,6 +68,12 @@ internal static class SlnAssets
 
     // Metadata for known project types.
     public static ResourceStream XmlBuiltInProjectTypes => LoadResource(@"Configurations\BuiltInProjectTypes.slnx");
+
+    // A complex solution with multiple native and manager projects and configurations.
+    public static ResourceStream XmlSlnxGiant => LoadResource("Giant.slnx");
+
+    // A larger solution with multiple .NET Framework project.
+    public static ResourceStream XmlSlnxTraditional => LoadResource("Traditional.slnx");
 
     public static ResourceName[] XmlSlnxFiles => GetAllSampleFiles(".slnx").ToArray();
 

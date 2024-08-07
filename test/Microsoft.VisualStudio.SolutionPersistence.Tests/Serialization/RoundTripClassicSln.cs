@@ -10,15 +10,12 @@ using static Utilities.SlnTestHelper;
 namespace Serialization;
 
 /// <summary>
-/// These tests validate SLN files can be round-tripped through the serializers and models.
-/// Some tests also validate the SLNX models/serializers can be used to round-trip SLN files.
+/// These tests validate SLN files can be round-tripped through the serializer and model.
 /// </summary>
 public class RoundTripClassicSln
 {
     public static TheoryData<ResourceName> ClassicSlnFiles =>
         new TheoryData<ResourceName>(SlnAssets.ClassicSlnFiles);
-
-    #region Basic sln -> sln round trip
 
     [Fact]
     [Trait("TestCategory", "FailsInCloudTest")]
@@ -41,7 +38,12 @@ public class RoundTripClassicSln
     [Trait("TestCategory", "FailsInCloudTest")]
     public Task SingleNativeProjectAsync() => TestRoundTripSerializerAsync(SlnAssets.ClassicSlnSingleNativeProject);
 
-    #endregion
+    [Fact]
+    public Task GiantAsync() => TestRoundTripSerializerAsync(SlnAssets.ClassicSlnGiant);
+
+    [Fact]
+    [Trait("TestCategory", "FailsInCloudTest")]
+    public Task TraditionalAsync() => TestRoundTripSerializerAsync(SlnAssets.ClassicSlnTraditional);
 
     [Theory]
     [MemberData(nameof(ClassicSlnFiles))]
@@ -51,55 +53,21 @@ public class RoundTripClassicSln
         return TestRoundTripSerializerAsync(sampleFile.Load());
     }
 
-    #region sln -> slnx file -> sln round trip
-
-    [Fact]
-    [Trait("TestCategory", "FailsInCloudTest")]
-    public Task BlankThruSlnxStreamAsync() => TestRoundTripSerializerAsync(SlnAssets.ClassicSlnBlank, SlnAssets.XmlSlnxBlank);
-
-    [Fact]
-    public Task CpsThruSlnxStreamAsync() => TestRoundTripSerializerAsync(SlnAssets.ClassicSlnCps, SlnAssets.XmlSlnxCps);
-
-    [Fact]
-    public Task EverythingThruSlnxStreamAsync() => TestRoundTripSerializerAsync(SlnAssets.ClassicSlnEverything, SlnAssets.XmlSlnxEverything);
-
-    [Fact]
-    [Trait("TestCategory", "FailsInCloudTest")]
-    public Task OrchardCoreThruSlnxStreamAsync() => TestRoundTripSerializerAsync(SlnAssets.ClassicSlnOrchardCore, SlnAssets.XmlSlnxOrchardCore);
-
-    [Fact]
-    [Trait("TestCategory", "FailsInCloudTest")]
-    public Task SingleNativeProjectThruSlnxStreamAsync() => TestRoundTripSerializerAsync(SlnAssets.ClassicSlnSingleNativeProject, SlnAssets.XmlSlnxSingleNativeProject);
-
-    [Fact]
-    public Task ManyThruSlnxStreamAsync() => TestRoundTripSerializerAsync(SlnAssets.ClassicSlnMany, SlnAssets.XmlSlnxMany);
-
-    #endregion
-
     /// <summary>
     /// Round trip a .SLN file through the serializer and model.
     /// </summary>
     /// <param name="slnStream">The .SLN to test.</param>
-    /// <param name="viaSlnxStream">When set, saves the .SLN as a .SLNX and reload. This provides the expected .SLNX file.</param>
     /// <returns>Task to track the asynchronous call status.</returns>
-    private static async Task TestRoundTripSerializerAsync(
-        ResourceStream slnStream,
-        ResourceStream? viaSlnxStream = null)
+    private static async Task TestRoundTripSerializerAsync(ResourceStream slnStream)
     {
         FileContents originalSolution = slnStream.ToLines();
 
         // Open the Model from stream.
-        SolutionModel model = await SolutionSerializers.SlnFileV12.OpenAsync(slnStream.Name, slnStream.Stream, CancellationToken.None);
-
-        if (viaSlnxStream is not null)
-        {
-            (model, FileContents slnxContents) = await ThruSlnStreamAsync(model, slnStream.Name, originalSolution.FullString.Length * 10);
-
-            AssertSolutionsAreEqual(viaSlnxStream.Value.ToLines(), slnxContents);
-        }
+        SolutionModel model = await SolutionSerializers.SlnFileV12.OpenAsync(slnStream.Stream, CancellationToken.None);
+        AssertNotTarnished(model);
 
         // Save the Model back to stream.
-        FileContents reserializedSolution = await ModelToLinesAsync(SolutionSerializers.SlnFileV12, model, slnStream.Name);
+        FileContents reserializedSolution = await ModelToLinesAsync(SolutionSerializers.SlnFileV12, model);
 
         AssertSolutionsAreEqual(originalSolution, reserializedSolution);
     }

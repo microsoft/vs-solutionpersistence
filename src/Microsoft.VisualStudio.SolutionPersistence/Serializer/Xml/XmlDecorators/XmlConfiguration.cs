@@ -3,7 +3,6 @@
 
 using System.Xml;
 using Microsoft.VisualStudio.SolutionPersistence.Model;
-using Microsoft.VisualStudio.SolutionPersistence.Utilities;
 
 namespace Microsoft.VisualStudio.SolutionPersistence.Serializer.Xml.XmlDecorators;
 
@@ -49,15 +48,13 @@ internal abstract class XmlConfiguration(SlnxFile root, XmlElement element, Keyw
 
         if (string.IsNullOrEmpty(projectValue))
         {
-            this.Root.Logger.LogWarning("Project attribute is empty.", this.XmlElement);
-            return null;
+            throw SolutionException.Create(Errors.MissingProjectValue, this);
         }
 
         if (!ModelHelper.TrySplitFullConfiguration(this.Root.StringTable, this.Solution, out string? solutionBuildType, out string? solutionPlatform) &&
             !this.Solution.IsNullOrEmpty())
         {
-            this.Root.Logger.LogWarning("Solution configuration could not be parsed.", this.XmlElement);
-            return null;
+            throw SolutionException.Create(string.Format(Errors.InvalidConfiguration_Args1, this.Solution), this);
         }
 
         if (solutionBuildType is BuildTypeNames.All or null)

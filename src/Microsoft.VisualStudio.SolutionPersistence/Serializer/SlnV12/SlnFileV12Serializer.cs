@@ -16,12 +16,6 @@ internal sealed partial class SlnFileV12Serializer : SingleFileSerializerBase<Sl
     {
     }
 
-    internal enum ParseError
-    {
-        NotASln12File,
-        BadSln12File,
-    }
-
     public static SlnFileV12Serializer Instance => Singleton<SlnFileV12Serializer>.Instance;
 
     /// <inheritdoc/>
@@ -36,17 +30,31 @@ internal sealed partial class SlnFileV12Serializer : SingleFileSerializerBase<Sl
     /// <inheritdoc/>
     public override ISerializerModelExtension CreateModelExtension()
     {
-        return new SlnV12ModelExtension(this, new SlnV12SerializerSettings() { Encoding = Encoding.ASCII });
+        return new SlnV12ModelExtension(this, new SlnV12SerializerSettings() { Encoding = null });
     }
 
     /// <inheritdoc/>
     public override ISerializerModelExtension CreateModelExtension(SlnV12SerializerSettings settings)
     {
-        if (settings.Encoding is not null && settings.Encoding.CodePage != Encoding.ASCII.CodePage &&
-            settings.Encoding.CodePage != Encoding.UTF8.CodePage &&
-            settings.Encoding.CodePage != Encoding.Unicode.CodePage)
+        Encoding? encoding = settings.Encoding;
+
+        if (encoding is not null)
         {
-            throw new ArgumentException("Only ASCII, UTF-8, and Unicode encodings are supported.", nameof(settings));
+            if (encoding.CodePage != Encoding.ASCII.CodePage &&
+                encoding.CodePage != Encoding.UTF8.CodePage &&
+                encoding.CodePage != Encoding.Unicode.CodePage)
+            {
+                throw new ArgumentException("Only ASCII, UTF-8, and Unicode encodings are supported.", nameof(settings));
+            }
+
+            // Make sure ASCII encoding always has exception fallback.
+            if (encoding.CodePage == Encoding.ASCII.CodePage && encoding.EncoderFallback is not EncoderExceptionFallback)
+            {
+                settings = new SlnV12SerializerSettings()
+                {
+                    Encoding = null,
+                };
+            }
         }
 
         return new SlnV12ModelExtension(this, settings);

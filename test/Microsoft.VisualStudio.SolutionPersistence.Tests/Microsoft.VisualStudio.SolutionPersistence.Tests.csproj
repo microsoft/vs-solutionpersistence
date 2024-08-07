@@ -27,5 +27,4 @@
     <EmbeddedResource Include="SlnAssets\**" />
   </ItemGroup>
 
-
 </Project>

@@ -12,8 +12,8 @@ Microsoft.VisualStudio.SolutionPersistence.ISolutionSerializer<TSettings>
 Microsoft.VisualStudio.SolutionPersistence.ISolutionSerializer<TSettings>.CreateModelExtension(TSettings settings) -> Microsoft.VisualStudio.SolutionPersistence.Model.ISerializerModelExtension!
 Microsoft.VisualStudio.SolutionPersistence.ISolutionSingleFileSerializer<TSettings>
 Microsoft.VisualStudio.SolutionPersistence.ISolutionSingleFileSerializer<TSettings>.DefaultFileExtension.get -> string!
-Microsoft.VisualStudio.SolutionPersistence.ISolutionSingleFileSerializer<TSettings>.OpenAsync(string? fullPath, System.IO.Stream! stream, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel!>!
-Microsoft.VisualStudio.SolutionPersistence.ISolutionSingleFileSerializer<TSettings>.SaveAsync(string? fullPath, System.IO.Stream! stream, Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel! model, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task!
+Microsoft.VisualStudio.SolutionPersistence.ISolutionSingleFileSerializer<TSettings>.OpenAsync(System.IO.Stream! stream, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel!>!
+Microsoft.VisualStudio.SolutionPersistence.ISolutionSingleFileSerializer<TSettings>.SaveAsync(System.IO.Stream! stream, Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel! model, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task!
 Microsoft.VisualStudio.SolutionPersistence.Model.BuildDimension
 Microsoft.VisualStudio.SolutionPersistence.Model.BuildDimension.Build = 2 -> Microsoft.VisualStudio.SolutionPersistence.Model.BuildDimension
 Microsoft.VisualStudio.SolutionPersistence.Model.BuildDimension.BuildType = 0 -> Microsoft.VisualStudio.SolutionPersistence.Model.BuildDimension
@@ -24,6 +24,7 @@ Microsoft.VisualStudio.SolutionPersistence.Model.ConfigurationRule.Configuration
 Microsoft.VisualStudio.SolutionPersistence.Model.ConfigurationRule.ConfigurationRule(Microsoft.VisualStudio.SolutionPersistence.Model.BuildDimension dimension, string! solutionBuildType, string! solutionPlatform, string! projectValue) -> void
 Microsoft.VisualStudio.SolutionPersistence.Model.ISerializerModelExtension
 Microsoft.VisualStudio.SolutionPersistence.Model.ISerializerModelExtension.Serializer.get -> Microsoft.VisualStudio.SolutionPersistence.ISolutionSerializer!
+Microsoft.VisualStudio.SolutionPersistence.Model.ISerializerModelExtension.Tarnished.get -> bool
 Microsoft.VisualStudio.SolutionPersistence.Model.ISerializerModelExtension<TSettings>
 Microsoft.VisualStudio.SolutionPersistence.Model.ISerializerModelExtension<TSettings>.Settings.get -> TSettings
 Microsoft.VisualStudio.SolutionPersistence.Model.ProjectType
@@ -44,6 +45,16 @@ Microsoft.VisualStudio.SolutionPersistence.Model.PropertyContainerModel.AddPrope
 Microsoft.VisualStudio.SolutionPersistence.Model.PropertyContainerModel.FindProperties(string! id) -> Microsoft.VisualStudio.SolutionPersistence.Model.SolutionPropertyBag?
 Microsoft.VisualStudio.SolutionPersistence.Model.PropertyContainerModel.Properties.get -> System.Collections.Generic.IReadOnlyList<Microsoft.VisualStudio.SolutionPersistence.Model.SolutionPropertyBag!>!
 Microsoft.VisualStudio.SolutionPersistence.Model.PropertyContainerModel.RemoveProperties(string! id) -> bool
+Microsoft.VisualStudio.SolutionPersistence.Model.SolutionException
+Microsoft.VisualStudio.SolutionPersistence.Model.SolutionException.Column.get -> int?
+Microsoft.VisualStudio.SolutionPersistence.Model.SolutionException.Column.init -> void
+Microsoft.VisualStudio.SolutionPersistence.Model.SolutionException.File.get -> string?
+Microsoft.VisualStudio.SolutionPersistence.Model.SolutionException.File.init -> void
+Microsoft.VisualStudio.SolutionPersistence.Model.SolutionException.Line.get -> int?
+Microsoft.VisualStudio.SolutionPersistence.Model.SolutionException.Line.init -> void
+Microsoft.VisualStudio.SolutionPersistence.Model.SolutionException.SolutionException() -> void
+Microsoft.VisualStudio.SolutionPersistence.Model.SolutionException.SolutionException(string! message) -> void
+Microsoft.VisualStudio.SolutionPersistence.Model.SolutionException.SolutionException(string! message, System.Exception! inner) -> void
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionFolderModel
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionFolderModel.AddFile(string! file) -> void
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionFolderModel.Files.get -> System.Collections.Generic.IReadOnlyList<string!>?
@@ -54,15 +65,14 @@ Microsoft.VisualStudio.SolutionPersistence.Model.SolutionItemModel
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionItemModel.Id.get -> System.Guid
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionItemModel.Id.set -> void
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionItemModel.IsDefaultId.get -> bool
+Microsoft.VisualStudio.SolutionPersistence.Model.SolutionItemModel.MoveToFolder(Microsoft.VisualStudio.SolutionPersistence.Model.SolutionFolderModel? folder) -> void
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionItemModel.Parent.get -> Microsoft.VisualStudio.SolutionPersistence.Model.SolutionFolderModel?
-Microsoft.VisualStudio.SolutionPersistence.Model.SolutionItemModel.Parent.set -> void
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionItemModel.Solution.get -> Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel!
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel.AddBuildType(string! buildType) -> void
-Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel.AddFolder(string! name) -> Microsoft.VisualStudio.SolutionPersistence.Model.SolutionFolderModel!
+Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel.AddFolder(string! path) -> Microsoft.VisualStudio.SolutionPersistence.Model.SolutionFolderModel!
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel.AddPlatform(string! platform) -> void
-Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel.AddProject(string! filePath, string? projectTypeName) -> Microsoft.VisualStudio.SolutionPersistence.Model.SolutionProjectModel!
-Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel.AddProject(string! filePath, System.Guid projectTypeId) -> Microsoft.VisualStudio.SolutionPersistence.Model.SolutionProjectModel!
+Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel.AddProject(string! filePath, string? projectTypeName = null, Microsoft.VisualStudio.SolutionPersistence.Model.SolutionFolderModel? folder = null) -> Microsoft.VisualStudio.SolutionPersistence.Model.SolutionProjectModel!
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel.BuildTypes.get -> System.Collections.Generic.IReadOnlyList<string!>!
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel.Description.get -> string?
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel.Description.set -> void
@@ -125,10 +135,6 @@ Microsoft.VisualStudio.SolutionPersistence.Model.StringTable
 Microsoft.VisualStudio.SolutionPersistence.Model.StringTable.GetString(string? str) -> string?
 Microsoft.VisualStudio.SolutionPersistence.Model.StringTable.GetString(System.ReadOnlySpan<char> str) -> string!
 Microsoft.VisualStudio.SolutionPersistence.Model.StringTable.StringTable() -> void
-Microsoft.VisualStudio.SolutionPersistence.Serializer.InvalidSolutionFormatException
-Microsoft.VisualStudio.SolutionPersistence.Serializer.InvalidSolutionFormatException.InvalidSolutionFormatException() -> void
-Microsoft.VisualStudio.SolutionPersistence.Serializer.InvalidSolutionFormatException.InvalidSolutionFormatException(string! message) -> void
-Microsoft.VisualStudio.SolutionPersistence.Serializer.InvalidSolutionFormatException.InvalidSolutionFormatException(string! message, System.Exception! inner) -> void
 Microsoft.VisualStudio.SolutionPersistence.Serializer.SlnV12.SlnV12Extensions
 Microsoft.VisualStudio.SolutionPersistence.Serializer.SlnV12.SlnV12SerializerSettings
 Microsoft.VisualStudio.SolutionPersistence.Serializer.SlnV12.SlnV12SerializerSettings.Encoding.get -> System.Text.Encoding?
@@ -153,14 +159,17 @@ readonly Microsoft.VisualStudio.SolutionPersistence.Model.ConfigurationRule.Dime
 readonly Microsoft.VisualStudio.SolutionPersistence.Model.ConfigurationRule.ProjectValue -> string!
 readonly Microsoft.VisualStudio.SolutionPersistence.Model.ConfigurationRule.SolutionBuildType -> string!
 readonly Microsoft.VisualStudio.SolutionPersistence.Model.ConfigurationRule.SolutionPlatform -> string!
-static Microsoft.VisualStudio.SolutionPersistence.Serializer.SlnV12.SlnV12Extensions.AddSlnProperties(this Microsoft.VisualStudio.SolutionPersistence.Model.SolutionItemModel! solutionItem, Microsoft.VisualStudio.SolutionPersistence.Model.SolutionPropertyBag? properties) -> void
-static Microsoft.VisualStudio.SolutionPersistence.Serializer.SlnV12.SlnV12Extensions.AddSlnProperties(this Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel! solution, Microsoft.VisualStudio.SolutionPersistence.Model.SolutionPropertyBag? properties) -> void
+static Microsoft.VisualStudio.SolutionPersistence.Serializer.SlnV12.SlnV12Extensions.AddSlnProject(this Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel! solution, string! filePath, System.Guid projectTypeId, Microsoft.VisualStudio.SolutionPersistence.Model.SolutionFolderModel? folder) -> Microsoft.VisualStudio.SolutionPersistence.Model.SolutionProjectModel!
+static Microsoft.VisualStudio.SolutionPersistence.Serializer.SlnV12.SlnV12Extensions.AddSlnProperties(this Microsoft.VisualStudio.SolutionPersistence.Model.SolutionItemModel! solutionItem, Microsoft.VisualStudio.SolutionPersistence.Model.SolutionPropertyBag? properties) -> bool
+static Microsoft.VisualStudio.SolutionPersistence.Serializer.SlnV12.SlnV12Extensions.AddSlnProperties(this Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel! solution, Microsoft.VisualStudio.SolutionPersistence.Model.SolutionPropertyBag? properties) -> bool
+static Microsoft.VisualStudio.SolutionPersistence.Serializer.SlnV12.SlnV12Extensions.CreateSlnFolder(this Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel! solution, string! name) -> Microsoft.VisualStudio.SolutionPersistence.Model.SolutionFolderModel!
 static Microsoft.VisualStudio.SolutionPersistence.Serializer.SlnV12.SlnV12Extensions.GetHideSolutionNode(this Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel! solution) -> bool?
 static Microsoft.VisualStudio.SolutionPersistence.Serializer.SlnV12.SlnV12Extensions.GetOpenWithVisualStudio(this Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel! solution) -> string?
 static Microsoft.VisualStudio.SolutionPersistence.Serializer.SlnV12.SlnV12Extensions.GetSlnProperties(this Microsoft.VisualStudio.SolutionPersistence.Model.SolutionItemModel! solutionItem) -> System.Collections.Generic.IEnumerable<Microsoft.VisualStudio.SolutionPersistence.Model.SolutionPropertyBag!>!
 static Microsoft.VisualStudio.SolutionPersistence.Serializer.SlnV12.SlnV12Extensions.GetSlnProperties(this Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel! solution) -> System.Collections.Generic.IEnumerable<Microsoft.VisualStudio.SolutionPersistence.Model.SolutionPropertyBag!>!
 static Microsoft.VisualStudio.SolutionPersistence.Serializer.SlnV12.SlnV12Extensions.SetHideSolutionNode(this Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel! solution, bool hideSolutionNode) -> void
 static Microsoft.VisualStudio.SolutionPersistence.Serializer.SlnV12.SlnV12Extensions.SetOpenWithVisualStudio(this Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel! solution, string! openWith) -> void
+static Microsoft.VisualStudio.SolutionPersistence.Serializer.SlnV12.SlnV12Extensions.SuspendProjectValidation(this Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel! solution) -> System.IDisposable!
 static Microsoft.VisualStudio.SolutionPersistence.Serializer.SolutionSerializers.GetSerializerByMoniker(string! moniker) -> Microsoft.VisualStudio.SolutionPersistence.ISolutionSerializer?
 static Microsoft.VisualStudio.SolutionPersistence.Serializer.SolutionSerializers.Serializers.get -> System.Collections.Generic.IReadOnlyCollection<Microsoft.VisualStudio.SolutionPersistence.ISolutionSerializer!>!
 static Microsoft.VisualStudio.SolutionPersistence.Serializer.SolutionSerializers.SlnFileV12.get -> Microsoft.VisualStudio.SolutionPersistence.ISolutionSingleFileSerializer<Microsoft.VisualStudio.SolutionPersistence.Serializer.SlnV12.SlnV12SerializerSettings>!

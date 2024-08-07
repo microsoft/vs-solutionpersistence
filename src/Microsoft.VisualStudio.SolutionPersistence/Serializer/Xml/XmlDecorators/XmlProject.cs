@@ -71,23 +71,25 @@ internal sealed partial class XmlProject(SlnxFile root, XmlFolder? xmlParentFold
 
     internal SolutionProjectModel AddToModel(SolutionModel solution)
     {
-        SolutionProjectModel projectModel = solution.AddProject(
-            filePath: PathExtensions.ConvertFromPersistencePath(this.Path),
-            this.Type ?? string.Empty);
-
-        projectModel.DisplayName = this.DisplayName;
-
+        SolutionFolderModel? parentFolder = null;
         if (this.ParentFolder is not null)
         {
-            if (solution.FindItemByItemRef(this.ParentFolder.Name) is SolutionFolderModel parentFolder)
+            if (solution.FindItemByItemRef(this.ParentFolder.Name) is SolutionFolderModel foundParentFolder)
             {
-                projectModel.Parent = parentFolder;
+                parentFolder = foundParentFolder;
             }
             else
             {
-                this.Root.Logger.LogWarning($"Parent folder '{this.ParentFolder.Name}' not found.", this.XmlElement);
+                throw SolutionException.Create(string.Format(Errors.InvalidFolderReference_Args1, this.ParentFolder.Name), this);
             }
         }
+
+        SolutionProjectModel projectModel = solution.AddProject(
+            filePath: PathExtensions.ConvertFromPersistencePath(this.Path),
+            projectTypeName: this.Type ?? string.Empty,
+            folder: parentFolder);
+
+        projectModel.DisplayName = this.DisplayName;
 
         foreach (ConfigurationRule configurationRule in this.configurationRules.ToModel())
         {
@@ -113,7 +115,7 @@ internal sealed partial class XmlProject(SlnxFile root, XmlFolder? xmlParentFold
             }
             else
             {
-                this.Root.Logger.LogWarning($"Dependency project '{dependencyItemRef}' not found.", buildDependency.XmlElement);
+                throw SolutionException.Create(string.Format(Errors.InvalidProjectReference_Args1, dependencyItemRef), buildDependency);
             }
         }
     }

@@ -6,7 +6,10 @@ using Xunit;
 
 namespace Serialization;
 
-public class Configurations
+/// <summary>
+/// Tests related to configuration rules in the model.
+/// </summary>
+public sealed class Configurations
 {
     /// <summary>
     /// Tests the <see cref="SolutionProjectModel.GetProjectConfiguration(string, string)"/> API.
@@ -27,7 +30,7 @@ public class Configurations
         solutionModel.AddBuildType(buildType);
         solutionModel.AddBuildType("Release");
 
-        SolutionProjectModel project = solutionModel.AddProject(@"Foo\Foo.csproj", null);
+        SolutionProjectModel project = solutionModel.AddProject(Path.Join("Foo", "Foo.csproj"));
 
         // Add some project configurations for a specific solution configuration.
         project.AddProjectConfigurationRule(new ConfigurationRule(BuildDimension.Build, buildType, platform, bool.TrueString));

@@ -1,11 +1,9 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Linq;
 using System.Xml;
 using Microsoft.VisualStudio.SolutionPersistence.Model;
 using Microsoft.VisualStudio.SolutionPersistence.Serializer.Xml.XmlDecorators;
-using Microsoft.VisualStudio.SolutionPersistence.Utilities;
 
 namespace Microsoft.VisualStudio.SolutionPersistence.Serializer.Xml;
 
@@ -30,13 +28,6 @@ internal sealed partial class SlnXmlSerializer
         internal SolutionModel Parse()
         {
             SlnxFile slnxFile = new SlnxFile(this.xmlDocument, new SlnxSerializerSettings(), null, this.fullPath);
-            SerializerLogger logger = slnxFile.Logger;
-            (string message, MessageLevel level, XmlElement? location) = logger.Messages.FirstOrDefault(x => x.Level == MessageLevel.Error);
-            if (level == MessageLevel.Error)
-            {
-                throw new InvalidSolutionFormatException(message);
-            }
-
             return slnxFile.ToModel();
         }
     }

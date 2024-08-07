@@ -85,13 +85,13 @@ public class ManipulateXmlPropertyBag
     private static async Task ValidateModifiedPropertiesAsync(Func<SolutionModel, SolutionModel> createModifiedModel, ResourceStream originalSlnx, ResourceStream expectedSlnx)
     {
         // Open the Model from stream.
-        SolutionModel model = await SolutionSerializers.SlnXml.OpenAsync(originalSlnx.Name, originalSlnx.Stream, CancellationToken.None);
-        AssertEmptySerializationLog(model);
+        SolutionModel model = await SolutionSerializers.SlnXml.OpenAsync(originalSlnx.Stream, CancellationToken.None);
+        AssertNotTarnished(model);
 
         SolutionModel updateModel = createModifiedModel(model);
 
         // Save the Model back to stream.
-        FileContents reserializedSolution = await ModelToLinesAsync(SolutionSerializers.SlnXml, updateModel, originalSlnx.Name);
+        FileContents reserializedSolution = await ModelToLinesAsync(SolutionSerializers.SlnXml, updateModel);
 
         AssertSolutionsAreEqual(expectedSlnx.ToLines(), reserializedSolution);
     }

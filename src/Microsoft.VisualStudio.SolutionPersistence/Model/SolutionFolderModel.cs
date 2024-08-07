@@ -15,9 +15,10 @@ public sealed class SolutionFolderModel : SolutionItemModel
     private List<string>? files;
     private string name;
 
-    internal SolutionFolderModel(SolutionModel solutionModel, string name)
-        : base(solutionModel)
+    internal SolutionFolderModel(SolutionModel solutionModel, string name, SolutionFolderModel? parent)
+        : base(solutionModel, parent)
     {
+        Argument.ThrowIfNullOrEmpty(name, nameof(name));
         this.name = name;
     }
 
@@ -28,7 +29,7 @@ public sealed class SolutionFolderModel : SolutionItemModel
     /// <param name="solutionModel">The new solution model parent.</param>
     /// <param name="folderModel">The folder model to copy.</param>
     internal SolutionFolderModel(SolutionModel solutionModel, SolutionFolderModel folderModel)
-        : base(solutionModel, folderModel)
+        : base(solutionModel, folderModel.BeSolutionItemModel)
     {
         this.name = folderModel.name;
         if (folderModel.Files is not null)
@@ -119,6 +120,21 @@ public sealed class SolutionFolderModel : SolutionItemModel
         return this.files is not null && this.files.Remove(file);
     }
 
+    internal override void OnItemRefChanged()
+    {
+        base.OnItemRefChanged();
+        this.itemRef = null;
+
+        // Recursively update all children.
+        foreach (SolutionItemModel item in this.Solution.SolutionItems)
+        {
+            if (ReferenceEquals(item.Parent, this))
+            {
+                item.OnItemRefChanged();
+            }
+        }
+    }
+
     private protected override Guid GetDefaultId()
     {
         Guid parentId = this.Parent is null ? Guid.Empty : this.Parent.Id;
@@ -129,11 +145,5 @@ public sealed class SolutionFolderModel : SolutionItemModel
     {
         base.OnParentChanged();
         this.OnItemRefChanged();
-    }
-
-    private protected override void OnItemRefChanged()
-    {
-        base.OnItemRefChanged();
-        this.itemRef = null;
     }
 }

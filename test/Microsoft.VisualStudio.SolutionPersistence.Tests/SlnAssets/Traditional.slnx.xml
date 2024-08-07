@@ -1,0 +1,122 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="Mixed platforms" />
+    <Platform Name="Win32" />
+  </Configurations>
+  <Project Path="Data\Differential\ProjectData.Differential.csproj" Type="C#">
+    <BuildDependency Project="Data\ProjectData.csproj" />
+    <BuildDependency Project="Data\ProjectData.Interfaces.csproj" />
+  </Project>
+  <Project Path="Data\ProjectData.csproj" Type="C#">
+    <BuildDependency Project="Data\ProjectData.Interfaces.csproj" />
+  </Project>
+  <Project Path="Data\ProjectData.Depot.csproj" Type="C#" />
+  <Project Path="Data\ProjectData.Interfaces.csproj" Type="C#" />
+  <Project Path="Data\ProjectData.Layout.csproj" Type="C#" />
+  <Project Path="GoalUI\Wait.Management.GoalUI.csproj" Type="C#">
+    <Build Solution="*|Win32" Project="false" />
+  </Project>
+  <Project Path="Goal\Wait.Management.Goal.csproj" Type="C#">
+    <Build Solution="*|Win32" Project="false" />
+  </Project>
+  <Project Path="MigrationWizard\MigrationWizard.csproj" Type="C#">
+    <BuildDependency Project="Data\ProjectData.csproj" />
+    <BuildDependency Project="Data\ProjectData.Interfaces.csproj" />
+    <BuildDependency Project="Services\Services.csproj" />
+    <BuildDependency Project="Services\Services.Importer.csproj" />
+  </Project>
+  <Project Path="ProjectConsole\ProjectConsole.csproj" Type="C#" />
+  <Project Path="Robot\Tasks\Delay\DelayUI\DelayUI.csproj" Type="C#">
+    <BuildDependency Project="Data\ProjectData.csproj" />
+    <BuildDependency Project="Data\ProjectData.Interfaces.csproj" />
+    <BuildDependency Project="Robot\Tasks\Delay\Delay\Delay.csproj" />
+    <BuildDependency Project="Services\Services.Controls.csproj" />
+    <BuildDependency Project="Services\Services.csproj" />
+  </Project>
+  <Project Path="Robot\Tasks\Delay\Delay\Delay.csproj" Type="C#">
+    <BuildDependency Project="Data\ProjectData.Interfaces.csproj" />
+    <BuildDependency Project="Services\Services.csproj" />
+  </Project>
+  <Project Path="Services\Designer.csproj" Type="C#">
+    <BuildDependency Project="Data\Differential\ProjectData.Differential.csproj" />
+    <BuildDependency Project="Data\ProjectData.csproj" />
+    <BuildDependency Project="Data\ProjectData.Interfaces.csproj" />
+    <BuildDependency Project="Services\Services.Controls.csproj" />
+    <BuildDependency Project="Services\Services.csproj" />
+    <BuildDependency Project="Services\Services.Design.csproj" />
+    <BuildDependency Project="Services\Services.Install.csproj" />
+    <BuildDependency Project="Services\Services.Viewers.csproj" />
+  </Project>
+  <Project Path="Services\Project\Services.Project.csproj" Type="C#">
+    <BuildDependency Project="Data\Differential\ProjectData.Differential.csproj" />
+    <BuildDependency Project="Data\ProjectData.csproj" />
+    <BuildDependency Project="Data\ProjectData.Interfaces.csproj" />
+    <BuildDependency Project="Services\Services.Controls.csproj" />
+    <BuildDependency Project="Services\Services.csproj" />
+    <BuildDependency Project="Services\Services.Engine.csproj" />
+  </Project>
+  <Project Path="Services\Services.Aclmr.csproj" Type="C#" />
+  <Project Path="Services\Services.Browse.csproj" Type="C#" />
+  <Project Path="Services\Services.Controls.csproj" Type="C#">
+    <BuildDependency Project="Data\ProjectData.csproj" />
+    <BuildDependency Project="Data\ProjectData.Interfaces.csproj" />
+    <BuildDependency Project="Services\Services.csproj" />
+    <BuildDependency Project="Stone\Generator\Generator.csproj" />
+  </Project>
+  <Project Path="Services\Services.csproj" Type="C#">
+    <BuildDependency Project="Data\ProjectData.Interfaces.csproj" />
+  </Project>
+  <Project Path="Services\Services.Deployment.csproj" Type="C#">
+    <BuildDependency Project="Data\ProjectData.Interfaces.csproj" />
+    <BuildDependency Project="Services\Services.csproj" />
+    <BuildDependency Project="Services\Services.Engine.csproj" />
+  </Project>
+  <Project Path="Services\Services.Design.csproj" Type="C#">
+    <BuildDependency Project="Data\ProjectData.csproj" />
+    <BuildDependency Project="Data\ProjectData.Interfaces.csproj" />
+    <BuildDependency Project="Services\Services.Controls.csproj" />
+    <BuildDependency Project="Services\Services.csproj" />
+    <BuildDependency Project="Services\Services.Install.csproj" />
+    <BuildDependency Project="Services\Services.UI.csproj" />
+    <BuildDependency Project="Services\Services.Viewers.csproj" />
+    <BuildDependency Project="Stone\Generator\Generator.csproj" />
+  </Project>
+  <Project Path="Services\Services.Design.Origin.csproj" Type="C#">
+    <BuildDependency Project="Data\ProjectData.csproj" />
+    <BuildDependency Project="Data\ProjectData.Interfaces.csproj" />
+    <BuildDependency Project="Services\Services.Controls.csproj" />
+    <BuildDependency Project="Services\Services.csproj" />
+  </Project>
+  <Project Path="Services\Services.Engine.csproj" Type="C#">
+    <BuildDependency Project="Data\ProjectData.Interfaces.csproj" />
+    <BuildDependency Project="Services\Services.csproj" />
+  </Project>
+  <Project Path="Services\Services.Importer.csproj" Type="C#">
+    <BuildDependency Project="Data\ProjectData.Interfaces.csproj" />
+    <BuildDependency Project="Services\Services.csproj" />
+  </Project>
+  <Project Path="Services\Services.Install.csproj" Type="C#">
+    <BuildDependency Project="Data\ProjectData.csproj" />
+    <BuildDependency Project="Data\ProjectData.Interfaces.csproj" />
+    <BuildDependency Project="Services\Services.csproj" />
+    <BuildDependency Project="Services\Services.Normalizer.csproj" />
+  </Project>
+  <Project Path="Services\Services.Normalizer.csproj" Type="C#" />
+  <Project Path="Services\Services.Render.csproj" Type="C#" />
+  <Project Path="Services\Services.UI.csproj" Type="C#" />
+  <Project Path="Services\Services.Viewers.csproj" Type="C#">
+    <BuildDependency Project="Data\ProjectData.csproj" />
+    <BuildDependency Project="Data\ProjectData.Interfaces.csproj" />
+    <BuildDependency Project="Services\Services.Aclmr.csproj" />
+    <BuildDependency Project="Services\Services.Controls.csproj" />
+    <BuildDependency Project="Services\Services.Render.csproj" />
+  </Project>
+  <Project Path="Stone\Generator\Generator.csproj" Type="C#" />
+  <Project Path="Update\Update.csproj" Type="C#">
+    <Build Solution="*|Win32" Project="false" />
+  </Project>
+  <Properties Name="Visual Studio">
+    <Property Name="OpenWith" Value="Visual Studio Version 17" />
+  </Properties>
+</Solution>

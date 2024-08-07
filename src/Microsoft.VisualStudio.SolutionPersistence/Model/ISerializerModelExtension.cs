@@ -12,6 +12,12 @@ public interface ISerializerModelExtension
     /// Gets the serializer that is extending the model.
     /// </summary>
     ISolutionSerializer Serializer { get; }
+
+    /// <summary>
+    /// Gets a value indicating whether there were correctable errors in the file
+    /// that would be fixed by saving the model again.
+    /// </summary>
+    bool Tarnished { get; }
 }
 
 /// <summary>

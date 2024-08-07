@@ -13,6 +13,12 @@ namespace Microsoft.VisualStudio.SolutionPersistence.Model;
 /// </summary>
 public sealed class SolutionModel : PropertyContainerModel
 {
+#if NETFRAMEWORK
+    private const string InvalidNameChars = @"?:&\/*""<>|#%";
+#else
+    private static readonly SearchValues<char> InvalidNameChars = SearchValues.Create(@"?:&\*""<>|#%");
+#endif
+
     private readonly Dictionary<Guid, SolutionItemModel> solutionItemsById;
     private readonly List<SolutionItemModel> solutionItems;
     private readonly List<SolutionProjectModel> solutionProjects;
@@ -21,6 +27,7 @@ public sealed class SolutionModel : PropertyContainerModel
     private readonly List<string> solutionPlatforms;
     private readonly List<ProjectType> projectTypes;
     private ProjectTypeTable? projectTypeTable;
+    private bool suspendProjectValidation;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="SolutionModel"/> class.
@@ -73,9 +80,9 @@ public sealed class SolutionModel : PropertyContainerModel
         {
             if (item.Parent is not null)
             {
-                item.Parent =
+                item.MoveToFolder(
                     this.FindItemByItemRef(item.Parent.ItemRef) as SolutionFolderModel ??
-                    throw new InvalidOperationException();
+                    throw new InvalidOperationException());
             }
         }
 
@@ -171,89 +178,59 @@ public sealed class SolutionModel : PropertyContainerModel
         }
     }
 
-    internal ProjectTypeTable ProjectTypeTable => this.projectTypeTable ??= new ProjectTypeTable(this.projectTypes, logger: null);
+    internal ProjectTypeTable ProjectTypeTable => this.projectTypeTable ??= new ProjectTypeTable(this.projectTypes);
 
     /// <summary>
-    /// Adds a solution folder to the solution.
+    /// Gets or adds a solution folder to the solution.
     /// </summary>
-    /// <param name="name">
-    /// The full path of the solution folder.
-    /// If parent folders do not exist, they will be created.
+    /// <param name="path">
+    /// The full path of the solution folder. The path must start and end with a forward slash, with subfolders separated by forward slashes.
+    /// Folders will be created as needed.
     /// </param>
     /// <returns>The model for the new folder.</returns>
-    public SolutionFolderModel AddFolder(string name)
+    public SolutionFolderModel AddFolder(string path)
     {
-        Argument.ThrowIfNull(name, nameof(name));
+        Argument.ThrowIfNullOrEmpty(path, nameof(path));
 
-        // Check if the folder was already created by a child folder.
-        if (this.FindItemByItemRef(name) is SolutionFolderModel existingFolder)
+        if (!path.StartsWith('/') || !path.EndsWith('/'))
+        {
+            throw new ArgumentException(string.Format(Errors.InvalidFolderPath_Args1, path), nameof(path));
+        }
+
+        if (this.FindItemByItemRef(path) is SolutionFolderModel existingFolder)
         {
             return existingFolder;
         }
 
         // Process the folder name
-        SolutionFolderModel? parentFolder;
-        StringSpan folderPath = name.AsSpan().TrimEnd('/');
+        StringSpan folderPath = path.AsSpan(0, path.Length - 1);
+
         int lastSlash = folderPath.LastIndexOf('/');
-        if (lastSlash > 0)
-        {
-            string parentItemRef = folderPath.Slice(0, lastSlash + 1).ToString();
-            parentFolder =
-                this.FindItemByItemRef(parentItemRef) as SolutionFolderModel ??
-                this.AddFolder(parentItemRef.ToString());
-            name = this.StringTable.GetString(folderPath.Slice(lastSlash + 1));
-        }
-        else
-        {
-            parentFolder = null;
-            name = this.StringTable.GetString(folderPath.Trim('/'));
-        }
+        string? parentItemRef = lastSlash > 0 ? folderPath.Slice(0, lastSlash + 1).ToString() : null;
+        StringSpan newName = lastSlash > 0 ? folderPath.Slice(lastSlash + 1) : folderPath.Slice(1);
 
-        SolutionFolderModel folder = new SolutionFolderModel(this, name)
-        {
-            Parent = parentFolder,
-        };
-
-        this.solutionFolders.Add(folder);
-        this.solutionItems.Add(folder);
-
-        // Ensure the project type is in the project type table, if it is not already.
-        this.solutionItemsById[folder.Id] = folder;
-
-        return folder;
+        return this.AddFolder(newName, parentItemRef);
     }
 
     /// <summary>
     /// Adds a project to the solution.
     /// </summary>
     /// <param name="filePath">The relative path to the project.</param>
-    /// <param name="projectTypeName">
-    /// The project type name of the project.
+    /// <param name="projectTypeName">The project type name of the project.
     /// This can be null if the project type can be determined from the project's file extension.
     /// </param>
+    /// <param name="folder">The parent solution folder to add the project to.</param>
     /// <returns>The model for the new project.</returns>
-    public SolutionProjectModel AddProject(string filePath, string? projectTypeName)
+    public SolutionProjectModel AddProject(string filePath, string? projectTypeName = null, SolutionFolderModel? folder = null)
     {
-        ProjectType projectType =
-            this.ProjectTypeTable.GetProjectType(projectTypeName, Path.GetExtension(filePath.AsSpan())) ??
-            throw new ArgumentException(null, nameof(projectTypeName));
+        Argument.ThrowIfNullOrEmpty(filePath, nameof(filePath));
+        this.ValidateInModel(folder);
 
-        return this.AddProject(filePath, projectType.ProjectTypeId, projectTypeName ?? string.Empty);
-    }
+        Guid projectTypeId =
+            this.ProjectTypeTable.GetProjectTypeId(projectTypeName, Path.GetExtension(filePath.AsSpan())) ??
+            throw new ArgumentException(string.Format(Errors.InvalidProjectTypeReference_Args1, projectTypeName), nameof(projectTypeName));
 
-    /// <summary>
-    /// Add a project to the solution.
-    /// </summary>
-    /// <param name="filePath">The relative path to the project.</param>
-    /// <param name="projectTypeId">The project type id of the project.</param>
-    /// <returns>The model for the new project.</returns>
-    public SolutionProjectModel AddProject(string filePath, Guid projectTypeId)
-    {
-        string projectTypeName = this.ProjectTypeTable.TryGetProjectType(projectTypeId, out ProjectType? projectType) ?
-            projectType.Name ?? projectTypeId.ToString() :
-            projectTypeId.ToString();
-
-        return this.AddProject(filePath, projectTypeId, projectTypeName);
+        return this.AddProject(filePath, projectTypeName, projectTypeId, folder);
     }
 
     /// <summary>
@@ -264,14 +241,15 @@ public sealed class SolutionModel : PropertyContainerModel
     public bool RemoveFolder(SolutionFolderModel folder)
     {
         Argument.ThrowIfNull(folder, nameof(folder));
+        this.ValidateInModel(folder);
         _ = this.solutionFolders.Remove(folder);
 
         // Remove any children of this folder.
         foreach (SolutionItemModel existingItem in this.SolutionItems)
         {
-            if (existingItem.Parent == folder)
+            if (ReferenceEquals(existingItem.Parent, folder))
             {
-                existingItem.Parent = folder.Parent;
+                existingItem.MoveToFolder(folder.Parent);
             }
         }
 
@@ -286,6 +264,7 @@ public sealed class SolutionModel : PropertyContainerModel
     public bool RemoveProject(SolutionProjectModel project)
     {
         Argument.ThrowIfNull(project, nameof(project));
+        this.ValidateInModel(project);
         _ = this.solutionProjects.Remove(project);
 
         // Remove any dependencies to this project.
@@ -303,6 +282,7 @@ public sealed class SolutionModel : PropertyContainerModel
     /// <param name="buildType">The build type to add.</param>
     public void AddBuildType(string buildType)
     {
+        Argument.ThrowIfNullOrEmpty(buildType, nameof(buildType));
         buildType = this.StringTable.GetString(buildType);
 
         if (!this.solutionBuildTypes.Contains(buildType))
@@ -318,6 +298,7 @@ public sealed class SolutionModel : PropertyContainerModel
     /// <returns><see langword="true"/> if the build type was found and removed.</returns>
     public bool RemoveBuildType(string buildType)
     {
+        Argument.ThrowIfNullOrEmpty(buildType, nameof(buildType));
         return this.solutionBuildTypes.Remove(buildType);
     }
 
@@ -327,6 +308,7 @@ public sealed class SolutionModel : PropertyContainerModel
     /// <param name="platform">The platform to add.</param>
     public void AddPlatform(string platform)
     {
+        Argument.ThrowIfNullOrEmpty(platform, nameof(platform));
         platform = this.StringTable.GetString(platform);
 
         if (!this.solutionPlatforms.Contains(platform))
@@ -342,6 +324,7 @@ public sealed class SolutionModel : PropertyContainerModel
     /// <returns><see langword="true"/> if the platform was found and removed.</returns>
     public bool RemovePlatform(string platform)
     {
+        Argument.ThrowIfNullOrEmpty(platform, nameof(platform));
         return this.solutionPlatforms.Remove(platform);
     }
 
@@ -377,6 +360,74 @@ public sealed class SolutionModel : PropertyContainerModel
         // Load all of the current rules for the project and recalculate a new
         // set of configuration rules.
         cfgMap.DistillProjectConfigurations();
+    }
+
+    internal SolutionProjectModel AddProject(string filePath, string? projectTypeName, Guid projectTypeId, SolutionFolderModel? folder)
+    {
+        SolutionProjectModel project = new SolutionProjectModel(this, filePath, projectTypeId, projectTypeName ?? string.Empty, folder);
+
+        // Project is already in the solution.
+        if (this.FindItemByItemRef(project.ItemRef) is not null)
+        {
+            throw new ArgumentException(string.Format(Errors.DuplicateProjectPath_Arg1, project.ItemRef), nameof(filePath));
+        }
+
+        if (!this.suspendProjectValidation)
+        {
+            this.ValidateProjectName(project);
+        }
+
+        this.solutionProjects.Add(project);
+        this.solutionItems.Add(project);
+
+        // Ensure the project type is in the project type table, if it is not already.
+        this.solutionItemsById[project.Id] = project;
+
+        return project;
+    }
+
+    /// <summary>
+    /// Always adds a solution folder to the solution.
+    /// </summary>
+    /// <param name="name">The name of the new solution folder.</param>
+    /// <returns>The model for the new folder.</returns>
+    internal SolutionFolderModel CreateFolder(string name)
+    {
+        Argument.ThrowIfNullOrEmpty(name, nameof(name));
+
+        // Validate the name.
+        ValidateName(name.AsSpan());
+
+        return this.AddFolder(name.AsSpan(), parentItemRef: null);
+    }
+
+    /// <summary>
+    /// Suspends project validation while adding multiple projects without
+    /// solution folder information.
+    /// This must be called in a using block to properly resume validation.
+    /// </summary>
+    /// <returns>Use to scope suspension, call <see cref="IDisposable.Dispose"/> to reenable validation.</returns>
+    internal IDisposable SuspendProjectValidation()
+    {
+        this.suspendProjectValidation = true;
+        return new ValidationScope(this);
+    }
+
+    internal void ResumeProjectValidation()
+    {
+        this.suspendProjectValidation = false;
+        foreach (SolutionProjectModel project in this.solutionProjects)
+        {
+            this.ValidateProjectName(project);
+        }
+    }
+
+    internal void ThrowIfProjectValidationSuspended()
+    {
+        if (this.suspendProjectValidation)
+        {
+            throw new InvalidOperationException();
+        }
     }
 
     internal bool IsConfigurationImplicit()
@@ -415,22 +466,125 @@ public sealed class SolutionModel : PropertyContainerModel
         this.solutionItemsById[solutionItemModel.Id] = solutionItemModel;
     }
 
-    private SolutionProjectModel AddProject(string filePath, Guid projectTypeId, string projectType)
+    internal void ValidateProjectName(SolutionProjectModel project)
     {
-        SolutionProjectModel project = new SolutionProjectModel(this, filePath, projectTypeId, projectType);
+        string displayName = project.ActualDisplayName;
+        foreach (SolutionProjectModel existingProject in this.SolutionProjects)
+        {
+            if (!ReferenceEquals(existingProject.Parent, project.Parent) || ReferenceEquals(existingProject, project))
+            {
+                continue;
+            }
 
-        this.solutionProjects.Add(project);
-        this.solutionItems.Add(project);
+            if (existingProject.ActualDisplayName.Equals(displayName, StringComparison.OrdinalIgnoreCase))
+            {
+                throw new ArgumentException(string.Format(Errors.DuplicateProjectName_Arg1, displayName));
+            }
+        }
+    }
+
+    internal void ValidateInModel(SolutionItemModel? item)
+    {
+        if (item is not null && item.Solution != this)
+        {
+            throw new ArgumentException(Errors.InvalidModelItem, nameof(item));
+        }
+    }
+
+    // Throws if the solution folder or project name is not valid.
+    private static void ValidateName(StringSpan name)
+    {
+        if (name.IsEmpty || name.IsWhiteSpace())
+        {
+            throw new ArgumentNullException(nameof(name));
+        }
+
+        if (name.Length > 260)
+        {
+            throw new ArgumentOutOfRangeException(nameof(name));
+        }
+
+        foreach (char c in name)
+        {
+            if (char.IsControl(c) || InvalidNameChars.Contains(c))
+            {
+                throw new ArgumentException(Errors.InvalidName, nameof(name));
+            }
+        }
+
+        if (IsDosWord(name))
+        {
+            throw new ArgumentException(Errors.InvalidName, nameof(name));
+        }
+
+        static bool IsDosWord(scoped StringSpan name)
+        {
+            if (name is "." or "..")
+            {
+                return true;
+            }
+
+            // Only care about part before extension
+            name = Path.GetFileNameWithoutExtension(name);
+            switch (name.Length)
+            {
+                case 3:
+                    return
+                        name.EqualsOrdinalIgnoreCase("nul") ||
+                        name.EqualsOrdinalIgnoreCase("con") ||
+                        name.EqualsOrdinalIgnoreCase("aux") ||
+                        name.EqualsOrdinalIgnoreCase("prn");
+                case 4:
+                    // disallow com? and lpt? where ? can be any number from 1 to 9
+                    name = name.TrimEnd("123456789".AsSpan());
+                    return name.EqualsOrdinalIgnoreCase("com") || name.EqualsOrdinalIgnoreCase("lpt");
+                case 6:
+                    return name.EqualsOrdinalIgnoreCase("clock$");
+                default:
+                    return false;
+            }
+        }
+    }
+
+    // Creates a new solution folder. Assumes name has been validated and deduplicated.
+    private SolutionFolderModel AddFolder(StringSpan name, string? parentItemRef)
+    {
+        // Validate the name before creating any parent nodes.
+        ValidateName(name);
+
+        SolutionFolderModel? parentFolder;
+        if (parentItemRef is not null)
+        {
+            parentFolder =
+                this.FindItemByItemRef(parentItemRef) as SolutionFolderModel ??
+                this.AddFolder(parentItemRef);
+        }
+        else
+        {
+            parentFolder = null;
+        }
+
+        SolutionFolderModel folder = new SolutionFolderModel(this, this.StringTable.GetString(name), parentFolder);
+
+        this.solutionFolders.Add(folder);
+        this.solutionItems.Add(folder);
 
         // Ensure the project type is in the project type table, if it is not already.
-        this.solutionItemsById[project.Id] = project;
-
-        return project;
+        this.solutionItemsById[folder.Id] = folder;
+        return folder;
     }
 
     private bool RemoveItem(SolutionItemModel item)
     {
         _ = this.solutionItemsById.Remove(item.Id);
         return this.solutionItems.Remove(item);
+    }
+
+    private sealed class ValidationScope(SolutionModel model) : IDisposable
+    {
+        public void Dispose()
+        {
+            model.ResumeProjectValidation();
+        }
     }
 }
