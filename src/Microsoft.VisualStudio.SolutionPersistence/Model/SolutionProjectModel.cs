@@ -147,16 +147,21 @@ public sealed class SolutionProjectModel : SolutionItemModel
     /// </summary>
     /// <param name="solutionBuildType">The solution build type. (e.g. Debug).</param>
     /// <param name="solutionPlatform">The solution platform. (e.g. x64).</param>
-    /// <returns>The project configuration for the given solution configuration.</returns>
-    public (string BuildType, string Platform, bool Build, bool Deploy) GetProjectConfiguration(string solutionBuildType, string solutionPlatform)
+    /// <returns>
+    /// The project configuration for the given solution configuration.
+    /// BuildType and Platform will be null if the configuration information is missing.
+    /// </returns>
+    public (string? BuildType, string? Platform, bool Build, bool Deploy) GetProjectConfiguration(string solutionBuildType, string solutionPlatform)
     {
         ConfigurationRuleFollower projectTypeRules = this.Solution.ProjectTypeTable.GetProjectConfigurationRules(this);
 
         return (
-            projectTypeRules.GetProjectBuildType(solutionBuildType, solutionPlatform) ?? solutionBuildType,
-            projectTypeRules.GetProjectPlatform(solutionBuildType, solutionPlatform) ?? solutionPlatform,
+            MissingToNull(projectTypeRules.GetProjectBuildType(solutionBuildType, solutionPlatform) ?? solutionBuildType),
+            MissingToNull(projectTypeRules.GetProjectPlatform(solutionBuildType, solutionPlatform) ?? solutionPlatform),
             projectTypeRules.GetIsBuildable(solutionBuildType, solutionPlatform) ?? true,
             projectTypeRules.GetIsDeployable(solutionBuildType, solutionPlatform) ?? false);
+
+        static string? MissingToNull(string value) => value == BuildTypeNames.Missing ? null : value;
     }
 
     /// <summary>

@@ -1,13 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using Microsoft.VisualStudio.SolutionPersistence;
-using Microsoft.VisualStudio.SolutionPersistence.Model;
-using Microsoft.VisualStudio.SolutionPersistence.Serializer;
-using Utilities;
-using Xunit;
-using static Utilities.SlnTestHelper;
-
 namespace Serialization;
 
 /// <summary>
@@ -83,7 +76,7 @@ public class Samples
             string projectFilePath = project.FilePath;
 
             // Find the project configuration for the solution build configuration and platform.
-            (string buildType, string platform, bool build, bool deploy) = project.GetProjectConfiguration(buildConfiguration, buildPlatform);
+            (string? buildType, string? platform, bool build, bool deploy) = project.GetProjectConfiguration(buildConfiguration, buildPlatform);
             if (build)
             {
                 Console.WriteLine("Project {0} is set to build as {1}|{2}.", projectFilePath, buildType, platform);

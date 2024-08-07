@@ -1,13 +1,8 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using Microsoft.VisualStudio.SolutionPersistence.Model;
-using Microsoft.VisualStudio.SolutionPersistence.Serializer;
 using Microsoft.VisualStudio.SolutionPersistence.Serializer.Xml;
-using Utilities;
-using Xunit;
 using Xunit.Sdk;
-using static Utilities.SlnTestHelper;
 
 namespace Serialization;
 
@@ -45,6 +40,9 @@ public class RoundTripXmlSlnxThruModelCopy
     public Task GiantAsync() => TestRoundTripSerializerAsync(SlnAssets.XmlSlnxGiant);
 
     [Fact]
+    public Task MissingConfigurationsAsync() => TestRoundTripSerializerAsync(SlnAssets.XmlSlnxMissingConfigurations);
+
+    [Fact]
     [Trait("TestCategory", "FailsInCloudTest")]
     public Task TraditionalAsync() => TestRoundTripSerializerAsync(SlnAssets.XmlSlnxTraditional);
 
@@ -54,14 +52,19 @@ public class RoundTripXmlSlnxThruModelCopy
         SolutionModel model = await SolutionSerializers.SlnXml.OpenAsync(slnStream.Stream, CancellationToken.None);
         AssertNotTarnished(model);
 
+        SlnxSerializerSettings? originalSettings = (model.SerializerExtension as ISerializerModelExtension<SlnxSerializerSettings>)?.Settings;
+        Assert.True(originalSettings.HasValue);
+
         // Make a copy of the model.
         model = new SolutionModel(model)
         {
-            // Strip off any comments or whitespace from the original model.
+            // Strip off any comments or whitespace from the original model, but keep the indentation the same.
             SerializerExtension = SolutionSerializers.SlnXml.CreateModelExtension(
                 new SlnxSerializerSettings()
                 {
                     PreserveWhitespace = false,
+                    IndentChars = originalSettings.Value.IndentChars,
+                    NewLine = originalSettings.Value.NewLine,
                 }),
         };
 

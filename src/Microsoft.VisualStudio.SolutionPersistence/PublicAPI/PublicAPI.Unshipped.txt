@@ -110,7 +110,7 @@ Microsoft.VisualStudio.SolutionPersistence.Model.SolutionProjectModel.DisplayNam
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionProjectModel.Extension.get -> string!
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionProjectModel.FilePath.get -> string!
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionProjectModel.FilePath.set -> void
-Microsoft.VisualStudio.SolutionPersistence.Model.SolutionProjectModel.GetProjectConfiguration(string! solutionBuildType, string! solutionPlatform) -> (string! BuildType, string! Platform, bool Build, bool Deploy)
+Microsoft.VisualStudio.SolutionPersistence.Model.SolutionProjectModel.GetProjectConfiguration(string! solutionBuildType, string! solutionPlatform) -> (string? BuildType, string? Platform, bool Build, bool Deploy)
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionProjectModel.ProjectConfigurationRules.get -> System.Collections.Generic.IReadOnlyList<Microsoft.VisualStudio.SolutionPersistence.Model.ConfigurationRule>?
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionProjectModel.ProjectConfigurationRules.set -> void
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionProjectModel.RemoveDependency(Microsoft.VisualStudio.SolutionPersistence.Model.SolutionProjectModel! dependency) -> bool

@@ -312,6 +312,30 @@ public static class SlnV12Extensions
 
             if (properties.Count > 0)
             {
+                // Set the default configurations for a .sln file.
+                foreach (SolutionProjectModel project in solution.SolutionProjects)
+                {
+                    ConfigurationRuleFollower projectTypeRules = solution.ProjectTypeTable.GetProjectConfigurationRules(project, excludeProjectSpecificRules: true);
+                    if (!(projectTypeRules.GetIsBuildable() ?? true))
+                    {
+                        continue;
+                    }
+
+                    foreach (string buildType in solution.BuildTypes)
+                    {
+                        foreach (string platform in solution.Platforms)
+                        {
+                            // Add missing entries for each configuration, so we can detect if any were missing from the .sln file.
+                            project.AddProjectConfigurationRule(new ConfigurationRule(BuildDimension.BuildType, buildType, platform, BuildTypeNames.Missing));
+                            project.AddProjectConfigurationRule(new ConfigurationRule(BuildDimension.Platform, buildType, platform, PlatformNames.Missing));
+
+                            // In the old .sln file the default configuration is not to build unless there is a build line.
+                            // This rule will get overwritten by the build line if it exists.
+                            project.AddProjectConfigurationRule(new ConfigurationRule(BuildDimension.Build, buildType, platform, bool.FalseString));
+                        }
+                    }
+                }
+
                 // Converts the .sln style project configuration platforms into a mappings for each configuration.
                 foreach ((string projectKey, string projectValue) in properties)
                 {
@@ -385,10 +409,6 @@ public static class SlnV12Extensions
                 switch (lineType)
                 {
                     case ConfigLineType.ActiveCfg:
-                        // In the old .sln file the default configuration is not to build unless there is a build line.
-                        // This rule will get overwritten by the build line if it exists.
-                        projectModel.AddProjectConfigurationRule(new ConfigurationRule(BuildDimension.Build, solutionBuildType, solutionPlatform, bool.FalseString));
-
                         if (ModelHelper.TrySplitFullConfiguration(stringTable, value, out string? projectBuildType, out string? projectPlatform))
                         {
                             projectModel.AddProjectConfigurationRule(new ConfigurationRule(BuildDimension.BuildType, solutionBuildType, solutionPlatform, projectBuildType));
@@ -512,6 +532,8 @@ public static class SlnV12Extensions
                         continue;
                     }
 
+                    bool isMissing = mapping.BuildType == BuildTypeNames.Missing || mapping.Platform == PlatformNames.Missing;
+
                     // Default project mapping in SLN was to use "Any CPU"
                     string platform = mapping.Platform;
                     if (platform == PlatformNames.AnyCPU)
@@ -521,7 +543,11 @@ public static class SlnV12Extensions
 
                     string prjCfgPlatString = $"{mapping.BuildType}|{platform}";
 
-                    WriteProperty(propertyBag, projectId, entry.SlnKey, ActiveCfgSuffix, prjCfgPlatString);
+                    if (!isMissing)
+                    {
+                        WriteProperty(propertyBag, projectId, entry.SlnKey, ActiveCfgSuffix, prjCfgPlatString);
+                    }
+
                     if (mapping.Build)
                     {
                         WriteProperty(propertyBag, projectId, entry.SlnKey, BuildSuffix, prjCfgPlatString);

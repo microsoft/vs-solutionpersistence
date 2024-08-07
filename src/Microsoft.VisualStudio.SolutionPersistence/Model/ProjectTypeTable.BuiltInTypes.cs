@@ -16,7 +16,7 @@ internal sealed partial class ProjectTypeTable
     private static ProjectTypeTable? implicitProjectTypes;
 
     [SuppressMessage("StyleCop.CSharp.ReadabilityRules", "SA1118:Parameter should not span multiple lines", Justification = "Creating multi-item table.")]
-    private static ProjectTypeTable BuiltInTypes => implicitProjectTypes ??= new ProjectTypeTable(
+    internal static ProjectTypeTable BuiltInTypes => implicitProjectTypes ??= new ProjectTypeTable(
         isBuiltIn: true,
         projectTypes: [
 

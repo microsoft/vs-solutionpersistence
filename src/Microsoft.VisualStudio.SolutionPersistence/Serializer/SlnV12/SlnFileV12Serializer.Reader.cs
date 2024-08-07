@@ -456,10 +456,20 @@ internal sealed partial class SlnFileV12Serializer
 
         private bool ReadLine(out StringTokenizer lineScanner)
         {
-            string? line = reader.ReadLine();
-            this.lineNumber++;
-            lineScanner = new(line ?? string.Empty);
-            return line is not null;
+            // Skip empty lines.
+            do
+            {
+                string? line = reader.ReadLine();
+                this.lineNumber++;
+                lineScanner = new StringTokenizer(line ?? string.Empty);
+                if (line is null)
+                {
+                    return false;
+                }
+            }
+            while (lineScanner.IsEmpty);
+
+            return true;
         }
 
         // Creates PropertyMap object from [Project|Global]Section( /// <sectionName>) = scope
