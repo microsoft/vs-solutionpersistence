@@ -3,7 +3,6 @@
 
 using System.Linq;
 using System.Reflection;
-using Utilities;
 
 namespace Utilities;
 
@@ -16,8 +15,11 @@ internal static class SlnAssets
 
     #region Sample Classic Sln
 
-    // Empty Solution. ASCII encoding.
+    // Empty VS Solution template. ASCII encoding.
     public static ResourceStream ClassicSlnBlank => LoadResource("BlankSolution.sln");
+
+    // Minimum Solution. UTF8 BOM encoding.
+    public static ResourceStream ClassicSlnMin => LoadResource("Min.sln");
 
     // Medium SDK-style csproj solution. UTF8 BOM encoding.
     public static ResourceStream ClassicSlnCps => LoadResource("cps.sln");
@@ -36,8 +38,11 @@ internal static class SlnAssets
     // A complex solution with multiple native and manager projects and configurations. UTF8 BOM encoding.
     public static ResourceStream ClassicSlnGiant => LoadResource("Giant.sln");
 
-    // A larger solution with multiple .NET Framework project. UTF8 BOM encoding. ASCII encoding.
+    // A larger solution with multiple .NET Framework project. ASCII encoding.
     public static ResourceStream ClassicSlnTraditional => LoadResource("Traditional.sln");
+
+    // A solution with missing configurations. UTF8 BOM encoding.
+    public static ResourceStream ClassicSlnMissingConfigurations => LoadResource(@"Configurations\MissingConfigurations.sln");
 
     #endregion
 
@@ -52,7 +57,7 @@ internal static class SlnAssets
     // A single C++ project with "Mobile"->"ARM64" platform, doesn't and build ARM64 sln platform.
     public static ResourceStream XmlSlnxSingleNativeProject => LoadResource("SingleNativeProject.slnx");
 
-    // Empty Solution.
+    // Empty VS Solution.
     public static ResourceStream XmlSlnxBlank => LoadResource("BlankSolution.slnx");
 
     // Medium SDK-style csproj solution.
@@ -74,6 +79,9 @@ internal static class SlnAssets
 
     // A larger solution with multiple .NET Framework project.
     public static ResourceStream XmlSlnxTraditional => LoadResource("Traditional.slnx");
+
+    // A solution with missing configurations.
+    public static ResourceStream XmlSlnxMissingConfigurations => LoadResource(@"Configurations\MissingConfigurations.slnx");
 
     public static ResourceName[] XmlSlnxFiles => GetAllSampleFiles(".slnx").ToArray();
 

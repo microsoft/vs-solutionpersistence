@@ -6,6 +6,7 @@ namespace Microsoft.VisualStudio.SolutionPersistence.Model;
 internal static class PlatformNames
 {
     internal const string All = "*";
+    internal const string Missing = "?";
 
     internal const string AnyCPU = nameof(AnyCPU);
     internal const string AnySpaceCPU = "Any CPU";
@@ -33,6 +34,7 @@ internal static class PlatformNames
         value = platform switch
         {
             All => All,
+            Missing => Missing,
             AnySpaceCPU => AnySpaceCPU,
             Win32 => Win32,
             x64 => x64,

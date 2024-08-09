@@ -1,9 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using Microsoft.VisualStudio.SolutionPersistence.Model;
-using Xunit;
-
 namespace Serialization;
 
 /// <summary>
@@ -47,10 +44,81 @@ public sealed class Configurations
         Assert.Equal(2, project.ProjectConfigurationRules.Count);
 
         // Verify set configurations are still there.
-        (string BuildType, string Platform, bool Build, bool Deploy) projectConfig = project.GetProjectConfiguration(buildType, platform);
+        (string? BuildType, string? Platform, bool Build, bool Deploy) projectConfig = project.GetProjectConfiguration(buildType, platform);
         Assert.True(projectConfig.Build);
         Assert.True(projectConfig.Deploy);
         Assert.Equal(buildType, projectConfig.BuildType);
         Assert.Equal(projectPlatform, projectConfig.Platform);
+    }
+
+    /// <summary>
+    /// A malformed .sln file can be missing configurations. This test validates that the model can handle this.
+    /// </summary>
+    [Fact]
+    public async Task MissingSlnConfigurations()
+    {
+        // Solution with missing configurations.
+        ResourceStream missing = SlnAssets.ClassicSlnMissingConfigurations;
+
+        SolutionModel missingModel = await SolutionSerializers.SlnFileV12.OpenAsync(missing.Stream, CancellationToken.None);
+
+        SolutionProjectModel? goodProject = (SolutionProjectModel?)missingModel.FindItemByItemRef(Path.Join("Good", "Good.vcxproj"));
+        Assert.NotNull(goodProject);
+
+        SolutionProjectModel? missingProject = (SolutionProjectModel?)missingModel.FindItemByItemRef(Path.Join("Missing", "Missing.vcxproj"));
+        Assert.NotNull(missingProject);
+
+        SolutionProjectModel? partialProject = (SolutionProjectModel?)missingModel.FindItemByItemRef(Path.Join("Partial", "Partial.vcxproj"));
+        Assert.NotNull(partialProject);
+
+        // Debug|x86
+        {
+            string buildType = "Debug";
+            string platform = "x86";
+
+            // The good project has configurations for every solution configuration.
+            (string? BuildType, string? Platform, bool Build, bool Deploy) good1 = goodProject.GetProjectConfiguration(buildType, platform);
+            Assert.Equal("Debug", good1.BuildType);
+            Assert.Equal("Win32", good1.Platform);
+            Assert.True(good1.Build);
+            Assert.False(good1.Deploy);
+
+            // The missing project has no configurations.
+            (string? BuildType, string? Platform, bool Build, bool Deploy) missing1 = missingProject.GetProjectConfiguration(buildType, platform);
+            Assert.Null(missing1.BuildType);
+            Assert.Null(missing1.Platform);
+            Assert.False(missing1.Build);
+            Assert.False(missing1.Deploy);
+
+            // The good project has configurations for Release|x64, but just a build line for Debug|x86.
+            (string? BuildType, string? Platform, bool Build, bool Deploy) partial1 = partialProject.GetProjectConfiguration(buildType, platform);
+            Assert.Null(partial1.BuildType);
+            Assert.Null(partial1.Platform);
+            Assert.True(partial1.Build);
+            Assert.False(partial1.Deploy);
+        }
+
+        // Release|x64
+        {
+            string buildType = "Release";
+            string platform = "x64";
+            (string? BuildType, string? Platform, bool Build, bool Deploy) good1 = goodProject.GetProjectConfiguration(buildType, platform);
+            Assert.Equal("Release", good1.BuildType);
+            Assert.Equal("x64", good1.Platform);
+            Assert.True(good1.Build);
+            Assert.False(good1.Deploy);
+
+            (string? BuildType, string? Platform, bool Build, bool Deploy) missing1 = missingProject.GetProjectConfiguration(buildType, platform);
+            Assert.Null(missing1.BuildType);
+            Assert.Null(missing1.Platform);
+            Assert.False(missing1.Build);
+            Assert.False(missing1.Deploy);
+
+            (string? BuildType, string? Platform, bool Build, bool Deploy) partial1 = partialProject.GetProjectConfiguration(buildType, platform);
+            Assert.Equal("Release", partial1.BuildType);
+            Assert.Equal("x64", partial1.Platform);
+            Assert.True(partial1.Build);
+            Assert.False(partial1.Deploy);
+        }
     }
 }

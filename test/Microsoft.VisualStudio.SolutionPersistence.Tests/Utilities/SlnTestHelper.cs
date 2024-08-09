@@ -2,11 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Linq;
-using Microsoft.VisualStudio.SolutionPersistence;
-using Microsoft.VisualStudio.SolutionPersistence.Model;
-using Microsoft.VisualStudio.SolutionPersistence.Serializer;
 using Microsoft.VisualStudio.SolutionPersistence.Serializer.SlnV12;
-using Xunit;
 
 namespace Utilities;
 

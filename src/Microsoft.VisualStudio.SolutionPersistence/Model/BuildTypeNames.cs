@@ -6,6 +6,8 @@ namespace Microsoft.VisualStudio.SolutionPersistence.Model;
 internal static class BuildTypeNames
 {
     internal const string All = PlatformNames.All;
+    internal const string Missing = PlatformNames.Missing;
+
     internal const string Debug = nameof(Debug);
     internal const string Release = nameof(Release);
 
@@ -19,6 +21,7 @@ internal static class BuildTypeNames
         value = buildType switch
         {
             All => All,
+            Missing => Missing,
             Debug => Debug,
             Release => Release,
             _ => null,

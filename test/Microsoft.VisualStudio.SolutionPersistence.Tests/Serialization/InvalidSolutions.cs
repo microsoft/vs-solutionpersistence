@@ -2,16 +2,11 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Xml;
-using Microsoft.VisualStudio.SolutionPersistence;
-using Microsoft.VisualStudio.SolutionPersistence.Model;
-using Microsoft.VisualStudio.SolutionPersistence.Serializer;
-using Utilities;
-using Xunit;
 
 namespace Serialization;
 
 /// <summary>
-/// These tests validate that errors are reported when trying to open invalid solution files.
+/// These tests validate that errors are reported when trying to open invalid or malformed solution files.
 /// </summary>
 public sealed class InvalidSolutions
 {
@@ -80,5 +75,20 @@ public sealed class InvalidSolutions
         SolutionModel solution = await SolutionSerializers.SlnFileV12.OpenAsync(missingEnd.Stream, CancellationToken.None);
         Assert.NotNull(solution.SerializerExtension);
         Assert.True(solution.SerializerExtension.Tarnished);
+    }
+
+    // Check that extra lines are ignored.
+    [Fact]
+    public async Task ExtraLinesAsync()
+    {
+        ResourceStream extraLines = SlnAssets.LoadResource(@"Invalid\ExtraLines.sln");
+        SolutionModel solution = await SolutionSerializers.SlnFileV12.OpenAsync(extraLines.Stream, CancellationToken.None);
+        Assert.NotNull(solution.SerializerExtension);
+        Assert.False(solution.SerializerExtension.Tarnished);
+
+        // Save the Model back to stream.
+        FileContents reserializedSolution = await ModelToLinesAsync(SolutionSerializers.SlnFileV12, solution);
+
+        AssertSolutionsAreEqual(SlnAssets.ClassicSlnMin.ToLines(), reserializedSolution);
     }
 }

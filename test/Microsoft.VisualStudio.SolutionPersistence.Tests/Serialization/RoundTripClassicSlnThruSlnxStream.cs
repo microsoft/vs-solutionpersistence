@@ -1,12 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using Microsoft.VisualStudio.SolutionPersistence.Model;
-using Microsoft.VisualStudio.SolutionPersistence.Serializer;
-using Utilities;
-using Xunit;
-using static Utilities.SlnTestHelper;
-
 namespace Serialization;
 
 /// <summary>
@@ -41,6 +35,9 @@ public class RoundTripClassicSlnThruSlnxStream
     [Fact]
     [Trait("TestCategory", "FailsInCloudTest")]
     public Task TraditionalThruSlnxStreamAsync() => TestRoundTripSerializerAsync(SlnAssets.ClassicSlnTraditional, SlnAssets.XmlSlnxTraditional);
+
+    [Fact]
+    public Task MissingConfigurationsThruSlnxStreamAsync() => TestRoundTripSerializerAsync(SlnAssets.ClassicSlnMissingConfigurations, SlnAssets.XmlSlnxMissingConfigurations);
 
     /// <summary>
     /// Round trip a .SLN file through the slnx serializer.
