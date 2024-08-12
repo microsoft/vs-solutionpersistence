@@ -61,16 +61,23 @@ internal sealed class XmlFolder(SlnxFile root, XmlSolution xmlSolution, XmlEleme
 
     internal void AddToModel(SolutionModel solutionModel)
     {
-        SolutionFolderModel folderModel = solutionModel.AddFolder(this.Name);
-
-        foreach (XmlFile file in this.files.GetItems())
+        try
         {
-            folderModel.AddFile(PathExtensions.ConvertFromPersistencePath(file.Path));
+            SolutionFolderModel folderModel = solutionModel.AddFolder(this.Name);
+
+            foreach (XmlFile file in this.files.GetItems())
+            {
+                folderModel.AddFile(PathExtensions.ConvertFromPersistencePath(file.Path));
+            }
+
+            foreach (XmlProperties properties in this.propertyBags.GetItems())
+            {
+                properties.AddToModel(folderModel);
+            }
         }
-
-        foreach (XmlProperties properties in this.propertyBags.GetItems())
+        catch (Exception ex) when (SolutionException.ShouldWrap(ex))
         {
-            properties.AddToModel(folderModel);
+            throw SolutionException.Create(ex.Message, this, ex);
         }
     }
 
@@ -87,7 +94,7 @@ internal sealed class XmlFolder(SlnxFile root, XmlSolution xmlSolution, XmlEleme
             decoratorItems: ref this.files,
             decoratorElementName: Keyword.File,
             getItemRefs: static (files) => files?.ToList(),
-            getModelItem: static (files, itemRef) => ModelHelper.FindByItemRef(files, itemRef),
+            getModelItem: static (files, itemRef) => ModelHelper.FindByItemRef(files, itemRef, ignoreCase: true),
             applyModelToXml: null);
 
         // Projects
@@ -96,7 +103,7 @@ internal sealed class XmlFolder(SlnxFile root, XmlSolution xmlSolution, XmlEleme
             ref this.xmlSolution.Projects,
             Keyword.Project,
             getItemRefs: static (modelProjects, modelFolder) => modelProjects.WhereToList((x, _) => ReferenceEquals(x.Item.Parent, modelFolder), (x, _) => x.ItemRef, false),
-            getModelItem: static (modelProjects, itemRef, modelFolder) => ModelHelper.FindByItemRef(modelProjects, itemRef, x => x.ItemRef),
+            getModelItem: static (modelProjects, itemRef, modelFolder) => ModelHelper.FindByItemRef(modelProjects, itemRef, x => x.ItemRef, ignoreCase: true),
             applyModelToXml: static (newProject, newValue, modelFolder) => newProject.ApplyModelToXml(newValue.Item),
             modelFolder);
 

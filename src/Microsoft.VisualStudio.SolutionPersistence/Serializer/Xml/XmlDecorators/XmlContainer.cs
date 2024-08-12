@@ -59,7 +59,7 @@ internal abstract partial class XmlContainer(SlnxFile root, XmlElement element, 
 
         if (validateItemRef && !xmlDecorator.IsValid())
         {
-            throw new ArgumentException($"Invalid item reference {itemRef} for {xmlDecorator.ElementName}");
+            throw new ArgumentException(string.Format(Errors.InvalidItemRef_Args2, itemRef, xmlDecorator.ElementName));
         }
 
         xmlDecorator.UpdateFromXml();

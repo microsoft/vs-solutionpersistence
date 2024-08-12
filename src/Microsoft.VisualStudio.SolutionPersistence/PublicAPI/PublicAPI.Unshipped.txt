@@ -1,6 +1,5 @@
 #nullable enable
 abstract Microsoft.VisualStudio.SolutionPersistence.Model.SolutionItemModel.ActualDisplayName.get -> string!
-abstract Microsoft.VisualStudio.SolutionPersistence.Model.SolutionItemModel.ItemRef.get -> string!
 abstract Microsoft.VisualStudio.SolutionPersistence.Model.SolutionItemModel.TypeId.get -> System.Guid
 Microsoft.VisualStudio.SolutionPersistence.ISolutionSerializer
 Microsoft.VisualStudio.SolutionPersistence.ISolutionSerializer.CreateModelExtension() -> Microsoft.VisualStudio.SolutionPersistence.Model.ISerializerModelExtension!
@@ -60,6 +59,7 @@ Microsoft.VisualStudio.SolutionPersistence.Model.SolutionFolderModel.AddFile(str
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionFolderModel.Files.get -> System.Collections.Generic.IReadOnlyList<string!>?
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionFolderModel.Name.get -> string!
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionFolderModel.Name.set -> void
+Microsoft.VisualStudio.SolutionPersistence.Model.SolutionFolderModel.Path.get -> string!
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionFolderModel.RemoveFile(string! file) -> bool
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionItemModel
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionItemModel.Id.get -> System.Guid
@@ -77,8 +77,9 @@ Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel.BuildTypes.get ->
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel.Description.get -> string?
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel.Description.set -> void
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel.DistillProjectConfigurations() -> void
+Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel.FindFolder(string! path) -> Microsoft.VisualStudio.SolutionPersistence.Model.SolutionFolderModel?
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel.FindItemById(System.Guid id) -> Microsoft.VisualStudio.SolutionPersistence.Model.SolutionItemModel?
-Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel.FindItemByItemRef(string! itemRef) -> Microsoft.VisualStudio.SolutionPersistence.Model.SolutionItemModel?
+Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel.FindProject(string! path) -> Microsoft.VisualStudio.SolutionPersistence.Model.SolutionProjectModel?
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel.MinVsVersion.get -> string?
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel.MinVsVersion.set -> void
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel.Platforms.get -> System.Collections.Generic.IReadOnlyList<string!>!
@@ -150,10 +151,8 @@ Microsoft.VisualStudio.SolutionPersistence.Serializer.Xml.SlnxSerializerSettings
 Microsoft.VisualStudio.SolutionPersistence.Serializer.Xml.SlnxSerializerSettings.PreserveWhitespace.init -> void
 Microsoft.VisualStudio.SolutionPersistence.Serializer.Xml.SlnxSerializerSettings.SlnxSerializerSettings() -> void
 override Microsoft.VisualStudio.SolutionPersistence.Model.SolutionFolderModel.ActualDisplayName.get -> string!
-override Microsoft.VisualStudio.SolutionPersistence.Model.SolutionFolderModel.ItemRef.get -> string!
 override Microsoft.VisualStudio.SolutionPersistence.Model.SolutionFolderModel.TypeId.get -> System.Guid
 override Microsoft.VisualStudio.SolutionPersistence.Model.SolutionProjectModel.ActualDisplayName.get -> string!
-override Microsoft.VisualStudio.SolutionPersistence.Model.SolutionProjectModel.ItemRef.get -> string!
 override Microsoft.VisualStudio.SolutionPersistence.Model.SolutionProjectModel.TypeId.get -> System.Guid
 readonly Microsoft.VisualStudio.SolutionPersistence.Model.ConfigurationRule.Dimension -> Microsoft.VisualStudio.SolutionPersistence.Model.BuildDimension
 readonly Microsoft.VisualStudio.SolutionPersistence.Model.ConfigurationRule.ProjectValue -> string!

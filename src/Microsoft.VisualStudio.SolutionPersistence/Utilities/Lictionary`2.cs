@@ -43,7 +43,7 @@ internal readonly struct Lictionary<TKey, TValue> : IReadOnlyDictionary<TKey, TV
         {
             if (this.comparer.Equals(lastEntry, entry))
             {
-                throw new ArgumentException("Duplicate property name " + lastEntry.Key, nameof(values));
+                throw new ArgumentException(Errors.DuplicateKey, nameof(values));
             }
 
             lastEntry = entry;
@@ -106,7 +106,7 @@ internal readonly struct Lictionary<TKey, TValue> : IReadOnlyDictionary<TKey, TV
     {
         if (!this.TryAdd(key, value))
         {
-            throw new ArgumentException("Duplicate property name has " + key, nameof(key));
+            throw new ArgumentException(Errors.DuplicateKey, nameof(key));
         }
     }
 

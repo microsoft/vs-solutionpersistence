@@ -62,13 +62,13 @@ public sealed class Configurations
 
         SolutionModel missingModel = await SolutionSerializers.SlnFileV12.OpenAsync(missing.Stream, CancellationToken.None);
 
-        SolutionProjectModel? goodProject = (SolutionProjectModel?)missingModel.FindItemByItemRef(Path.Join("Good", "Good.vcxproj"));
+        SolutionProjectModel? goodProject = missingModel.FindProject(Path.Join("Good", "Good.vcxproj"));
         Assert.NotNull(goodProject);
 
-        SolutionProjectModel? missingProject = (SolutionProjectModel?)missingModel.FindItemByItemRef(Path.Join("Missing", "Missing.vcxproj"));
+        SolutionProjectModel? missingProject = missingModel.FindProject(Path.Join("Missing", "Missing.vcxproj"));
         Assert.NotNull(missingProject);
 
-        SolutionProjectModel? partialProject = (SolutionProjectModel?)missingModel.FindItemByItemRef(Path.Join("Partial", "Partial.vcxproj"));
+        SolutionProjectModel? partialProject = missingModel.FindProject(Path.Join("Partial", "Partial.vcxproj"));
         Assert.NotNull(partialProject);
 
         // Debug|x86

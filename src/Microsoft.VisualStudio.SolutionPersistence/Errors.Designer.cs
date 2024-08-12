@@ -97,6 +97,15 @@ namespace Microsoft.VisualStudio.SolutionPersistence {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to An element with the same key already exists..
+        /// </summary>
+        internal static string DuplicateKey {
+            get {
+                return ResourceManager.GetString("DuplicateKey", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Duplicate name &apos;{0}&apos; for project type &apos;{1}&apos;..
         /// </summary>
         internal static string DuplicateName_Args2 {
@@ -142,6 +151,15 @@ namespace Microsoft.VisualStudio.SolutionPersistence {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Only ASCII, UTF-8, and Unicode encodings are supported for serializing &apos;.sln&apos; files..
+        /// </summary>
+        internal static string InvalidEncoding {
+            get {
+                return ResourceManager.GetString("InvalidEncoding", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Solution folder path &apos;{0}&apos; must start and end with &apos;/&apos;..
         /// </summary>
         internal static string InvalidFolderPath_Args1 {
@@ -160,7 +178,7 @@ namespace Microsoft.VisualStudio.SolutionPersistence {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Missing or invalid &apos;{0}&apos; attribute in type &apos;{1}&apos;..
+        ///   Looks up a localized string similar to Missing or invalid &apos;{0}&apos; item in type &apos;{1}&apos;..
         /// </summary>
         internal static string InvalidItemRef_Args2 {
             get {

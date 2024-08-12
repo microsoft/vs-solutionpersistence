@@ -20,7 +20,7 @@ internal struct ItemConfigurationRulesList
     {
     }
 
-    internal void Add(XmlConfiguration configuration)
+    internal readonly void Add(XmlConfiguration configuration)
     {
         switch (configuration)
         {
@@ -64,7 +64,7 @@ internal struct ItemConfigurationRulesList
                 decoratorItems: ref configurations,
                 decoratorElementName: dimensionElementName,
                 getItemRefs: static (config) => config.ToList(x => x.ItemRef),
-                getModelItem: static (configs, itemRef) => ModelHelper.FindByItemRef(configs, itemRef, x => x.ItemRef).Item,
+                getModelItem: static (configs, itemRef) => ModelHelper.FindByItemRef(configs, itemRef, x => x.ItemRef, ignoreCase: true).Item,
                 applyModelToXml: static (newConfiguration, modelConfiguration) => newConfiguration.ApplyModelToXml(modelConfiguration));
         }
     }

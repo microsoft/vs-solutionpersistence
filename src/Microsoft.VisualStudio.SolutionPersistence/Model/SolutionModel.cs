@@ -80,9 +80,7 @@ public sealed class SolutionModel : PropertyContainerModel
         {
             if (item.Parent is not null)
             {
-                item.MoveToFolder(
-                    this.FindItemByItemRef(item.Parent.ItemRef) as SolutionFolderModel ??
-                    throw new InvalidOperationException());
+                item.MoveToFolder(this.FindFolder(item.Parent.ItemRef) ?? throw new InvalidOperationException());
             }
         }
 
@@ -191,13 +189,13 @@ public sealed class SolutionModel : PropertyContainerModel
     public SolutionFolderModel AddFolder(string path)
     {
         Argument.ThrowIfNullOrEmpty(path, nameof(path));
-
         if (!path.StartsWith('/') || !path.EndsWith('/'))
         {
             throw new ArgumentException(string.Format(Errors.InvalidFolderPath_Args1, path), nameof(path));
         }
 
-        if (this.FindItemByItemRef(path) is SolutionFolderModel existingFolder)
+        SolutionFolderModel? existingFolder = this.FindFolder(path);
+        if (existingFolder is not null)
         {
             return existingFolder;
         }
@@ -283,10 +281,10 @@ public sealed class SolutionModel : PropertyContainerModel
     public void AddBuildType(string buildType)
     {
         Argument.ThrowIfNullOrEmpty(buildType, nameof(buildType));
-        buildType = this.StringTable.GetString(buildType);
 
-        if (!this.solutionBuildTypes.Contains(buildType))
+        if (!this.solutionBuildTypes.Contains(buildType, StringComparer.OrdinalIgnoreCase))
         {
+            buildType = this.StringTable.GetString(buildType);
             this.solutionBuildTypes.Add(buildType);
         }
     }
@@ -309,10 +307,10 @@ public sealed class SolutionModel : PropertyContainerModel
     public void AddPlatform(string platform)
     {
         Argument.ThrowIfNullOrEmpty(platform, nameof(platform));
-        platform = this.StringTable.GetString(platform);
 
-        if (!this.solutionPlatforms.Contains(platform))
+        if (!this.solutionPlatforms.Contains(platform, StringComparer.OrdinalIgnoreCase))
         {
+            platform = this.StringTable.GetString(platform);
             this.solutionPlatforms.Add(platform);
         }
     }
@@ -339,13 +337,31 @@ public sealed class SolutionModel : PropertyContainerModel
     }
 
     /// <summary>
-    /// Find a solution folder or project by item ref.
+    /// Find a solution folder by unique path.
     /// </summary>
-    /// <param name="itemRef">The item ref of the item to look for.</param>
-    /// <returns>The item if found.</returns>
-    public SolutionItemModel? FindItemByItemRef(string itemRef)
+    /// <param name="path">The folder path to look for.</param>
+    /// <returns>The folder if found.</returns>
+    public SolutionFolderModel? FindFolder(string path)
     {
-        return ModelHelper.FindByItemRef(this.solutionItems, itemRef);
+        Argument.ThrowIfNullOrEmpty(path, nameof(path));
+        if (!path.StartsWith('/') || !path.EndsWith('/'))
+        {
+            throw new ArgumentException(string.Format(Errors.InvalidFolderPath_Args1, path), nameof(path));
+        }
+
+        return ModelHelper.FindByItemRef(this.solutionFolders, path);
+    }
+
+    /// <summary>
+    /// Find a solution project by path.
+    /// </summary>
+    /// <param name="path">The project path to look for.</param>
+    /// <returns>The project if found.</returns>
+    public SolutionProjectModel? FindProject(string path)
+    {
+        Argument.ThrowIfNullOrEmpty(path, nameof(path));
+
+        return ModelHelper.FindByItemRef(this.solutionProjects, path);
     }
 
     /// <summary>
@@ -362,20 +378,72 @@ public sealed class SolutionModel : PropertyContainerModel
         cfgMap.DistillProjectConfigurations();
     }
 
+    // Throws if the solution folder or project name is not valid.
+    internal static void ValidateName(StringSpan name)
+    {
+        if (name.IsEmpty || name.IsWhiteSpace())
+        {
+            throw new ArgumentNullException(nameof(name));
+        }
+
+        if (name.Length > 260)
+        {
+            throw new ArgumentOutOfRangeException(nameof(name));
+        }
+
+        foreach (char c in name)
+        {
+            if (char.IsControl(c) || InvalidNameChars.Contains(c))
+            {
+                throw new ArgumentException(Errors.InvalidName, nameof(name));
+            }
+        }
+
+        if (IsDosWord(name))
+        {
+            throw new ArgumentException(Errors.InvalidName, nameof(name));
+        }
+
+        static bool IsDosWord(scoped StringSpan name)
+        {
+            if (name is "." or "..")
+            {
+                return true;
+            }
+
+            // Only care about part before extension
+            name = Path.GetFileNameWithoutExtension(name);
+            switch (name.Length)
+            {
+                case 3:
+                    return
+                        name.EqualsOrdinalIgnoreCase("nul") ||
+                        name.EqualsOrdinalIgnoreCase("con") ||
+                        name.EqualsOrdinalIgnoreCase("aux") ||
+                        name.EqualsOrdinalIgnoreCase("prn");
+                case 4:
+                    // disallow com? and lpt? where ? can be any number from 1 to 9
+                    name = name.TrimEnd("123456789".AsSpan());
+                    return name.EqualsOrdinalIgnoreCase("com") || name.EqualsOrdinalIgnoreCase("lpt");
+                case 6:
+                    return name.EqualsOrdinalIgnoreCase("clock$");
+                default:
+                    return false;
+            }
+        }
+    }
+
     internal SolutionProjectModel AddProject(string filePath, string? projectTypeName, Guid projectTypeId, SolutionFolderModel? folder)
     {
         SolutionProjectModel project = new SolutionProjectModel(this, filePath, projectTypeId, projectTypeName ?? string.Empty, folder);
 
         // Project is already in the solution.
-        if (this.FindItemByItemRef(project.ItemRef) is not null)
+        if (this.FindProject(project.FilePath) is not null)
         {
             throw new ArgumentException(string.Format(Errors.DuplicateProjectPath_Arg1, project.ItemRef), nameof(filePath));
         }
 
-        if (!this.suspendProjectValidation)
-        {
-            this.ValidateProjectName(project);
-        }
+        this.ValidateProjectName(project);
 
         this.solutionProjects.Add(project);
         this.solutionItems.Add(project);
@@ -468,6 +536,11 @@ public sealed class SolutionModel : PropertyContainerModel
 
     internal void ValidateProjectName(SolutionProjectModel project)
     {
+        if (this.suspendProjectValidation)
+        {
+            return;
+        }
+
         string displayName = project.ActualDisplayName;
         foreach (SolutionProjectModel existingProject in this.SolutionProjects)
         {
@@ -491,78 +564,14 @@ public sealed class SolutionModel : PropertyContainerModel
         }
     }
 
-    // Throws if the solution folder or project name is not valid.
-    private static void ValidateName(StringSpan name)
-    {
-        if (name.IsEmpty || name.IsWhiteSpace())
-        {
-            throw new ArgumentNullException(nameof(name));
-        }
-
-        if (name.Length > 260)
-        {
-            throw new ArgumentOutOfRangeException(nameof(name));
-        }
-
-        foreach (char c in name)
-        {
-            if (char.IsControl(c) || InvalidNameChars.Contains(c))
-            {
-                throw new ArgumentException(Errors.InvalidName, nameof(name));
-            }
-        }
-
-        if (IsDosWord(name))
-        {
-            throw new ArgumentException(Errors.InvalidName, nameof(name));
-        }
-
-        static bool IsDosWord(scoped StringSpan name)
-        {
-            if (name is "." or "..")
-            {
-                return true;
-            }
-
-            // Only care about part before extension
-            name = Path.GetFileNameWithoutExtension(name);
-            switch (name.Length)
-            {
-                case 3:
-                    return
-                        name.EqualsOrdinalIgnoreCase("nul") ||
-                        name.EqualsOrdinalIgnoreCase("con") ||
-                        name.EqualsOrdinalIgnoreCase("aux") ||
-                        name.EqualsOrdinalIgnoreCase("prn");
-                case 4:
-                    // disallow com? and lpt? where ? can be any number from 1 to 9
-                    name = name.TrimEnd("123456789".AsSpan());
-                    return name.EqualsOrdinalIgnoreCase("com") || name.EqualsOrdinalIgnoreCase("lpt");
-                case 6:
-                    return name.EqualsOrdinalIgnoreCase("clock$");
-                default:
-                    return false;
-            }
-        }
-    }
-
     // Creates a new solution folder. Assumes name has been validated and deduplicated.
     private SolutionFolderModel AddFolder(StringSpan name, string? parentItemRef)
     {
         // Validate the name before creating any parent nodes.
         ValidateName(name);
 
-        SolutionFolderModel? parentFolder;
-        if (parentItemRef is not null)
-        {
-            parentFolder =
-                this.FindItemByItemRef(parentItemRef) as SolutionFolderModel ??
-                this.AddFolder(parentItemRef);
-        }
-        else
-        {
-            parentFolder = null;
-        }
+        SolutionFolderModel? parentFolder =
+            parentItemRef is null ? null : this.FindFolder(parentItemRef) ?? this.AddFolder(parentItemRef);
 
         SolutionFolderModel folder = new SolutionFolderModel(this, this.StringTable.GetString(name), parentFolder);
 

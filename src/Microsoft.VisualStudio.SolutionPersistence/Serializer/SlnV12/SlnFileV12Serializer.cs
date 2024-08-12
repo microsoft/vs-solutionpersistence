@@ -44,7 +44,7 @@ internal sealed partial class SlnFileV12Serializer : SingleFileSerializerBase<Sl
                 encoding.CodePage != Encoding.UTF8.CodePage &&
                 encoding.CodePage != Encoding.Unicode.CodePage)
             {
-                throw new ArgumentException("Only ASCII, UTF-8, and Unicode encodings are supported.", nameof(settings));
+                throw new ArgumentException(Errors.InvalidEncoding, nameof(settings));
             }
 
             // Make sure ASCII encoding always has exception fallback.

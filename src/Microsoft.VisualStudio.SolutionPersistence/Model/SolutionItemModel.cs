@@ -59,7 +59,7 @@ public abstract class SolutionItemModel : PropertyContainerModel
             {
                 if (this.Solution.FindItemById(value) is not null)
                 {
-                    throw new ArgumentException(@"An item with the same Id already exists in the solution.", nameof(value));
+                    throw new ArgumentException(string.Format(Errors.DuplicateItemRef_Args2, value, this.GetType().Name), nameof(value));
                 }
 
                 Guid? oldId = this.id ?? this.defaultId;
@@ -80,17 +80,17 @@ public abstract class SolutionItemModel : PropertyContainerModel
     public abstract string ActualDisplayName { get; }
 
     /// <summary>
-    /// Gets a unique reference to the item in the solution.
-    /// This is designed as a replacement to Id and provides a human readable reference to the item.
-    /// </summary>
-    public abstract string ItemRef { get; }
-
-    /// <summary>
     /// Gets the project type id of the item.
     /// </summary>
     public abstract Guid TypeId { get; }
 
     internal SolutionItemModel BeSolutionItemModel => this;
+
+    /// <summary>
+    /// Gets a unique reference to the item in the solution.
+    /// This is designed as a replacement to Id and provides a human readable reference to the item.
+    /// </summary>
+    internal abstract string ItemRef { get; }
 
     private Guid DefaultId => this.defaultId ??= this.GetDefaultId();
 
