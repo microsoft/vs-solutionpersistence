@@ -49,68 +49,25 @@ internal abstract partial class XmlContainer
 
     /// <summary>
     /// Attempt to encapsulate the logic of updating the Xml DOM to match the model.
-    /// Applies a model collection to the XML by updating existing elements, adding new elements, and removing elements that are no longer in the model.
+    /// Applies model items to the XML by updating existing elements, adding new elements, and removing elements that are no longer in the model.
     /// </summary>
-    /// <typeparam name="TModelCollection">The collection represented in the model.</typeparam>
     /// <typeparam name="TModelItem">The model item in the collection.</typeparam>
     /// <typeparam name="TDecorator">The decorator representing the model item.</typeparam>
-    /// <param name="modelCollection">The model collection.</param>
-    /// <param name="decoratorItems">The list of existing decorator items in the XML.</param>
-    /// <param name="decoratorElementName">The element name to create if new decorators are needed.</param>
-    /// <param name="getItemRefs">Gets the list of item refs from the model collection.</param>
-    /// <param name="getModelItem">Looks up a model item from the model collection by item ref.</param>
-    /// <param name="applyModelToXml">Applies the model item changes to the decorator.</param>
-    /// <returns>true if the XML was changed.</returns>
-    /// <exception cref="InvalidOperationException">Thrown if <paramref name="getModelItem"/> cannot find an item that was returned from <paramref name="getItemRefs"/>.</exception>
-    internal bool ApplyModelToXmlGeneric<TModelCollection, TModelItem, TDecorator>(
-        TModelCollection modelCollection,
-        ref ItemRefList<TDecorator> decoratorItems,
-        Keyword decoratorElementName,
-        Func<TModelCollection, List<string>?> getItemRefs,
-        Func<TModelCollection, string, TModelItem?> getModelItem,
-        Func<TDecorator, TModelItem, bool>? applyModelToXml)
-        where TDecorator : XmlDecorator, IItemRefDecorator
-    {
-        return this.ApplyModelToXmlGeneric(
-            modelCollection: modelCollection,
-            decoratorItems: ref decoratorItems,
-            decoratorElementName: decoratorElementName,
-            getItemRefs: static (modelCollection, state) => state.getItemRefs(modelCollection),
-            getModelItem: static (modelCollection, itemRef, state) => state.getModelItem(modelCollection, itemRef),
-            applyModelToXml: applyModelToXml is null ? null : (static (decorator, modelItem, state) => state.applyModelToXml!(decorator, modelItem)),
-            state: (getItemRefs, getModelItem, applyModelToXml));
-    }
-
-    /// <summary>
-    /// Attempt to encapsulate the logic of updating the Xml DOM to match the model.
-    /// Applies a model collection to the XML by updating existing elements, adding new elements, and removing elements that are no longer in the model.
-    /// </summary>
-    /// <typeparam name="TModelCollection">The collection represented in the model.</typeparam>
-    /// <typeparam name="TModelItem">The model item in the collection.</typeparam>
-    /// <typeparam name="TDecorator">The decorator representing the model item.</typeparam>
-    /// <typeparam name="TState">The type of the state to pass to the functions.</typeparam>
-    /// <param name="modelCollection">The model collection.</param>
+    /// <param name="modelItems">The model items to apply, paired with their ItemRef.</param>
     /// <param name="decoratorItems">The list of existing decorator items in the XML.</param>
     /// <param name="decoratorElementName">The element name for the decorator, can be dynamic by using getDecoratorElementName.</param>
-    /// <param name="getItemRefs">Gets the list of item refs from the model collection.</param>
-    /// <param name="getModelItem">Looks up a model item from the model collection by item ref.</param>
     /// <param name="applyModelToXml">Applies the model item changes to the decorator.</param>
-    /// <param name="state">The state to pass to the functions.</param>
     /// <returns>true if the XML was changed.</returns>
-    /// <exception cref="InvalidOperationException">Thrown if <paramref name="getModelItem"/> cannot find an item that was returned from <paramref name="getItemRefs"/>.</exception>
-    internal bool ApplyModelToXmlGeneric<TModelCollection, TModelItem, TDecorator, TState>(
-        TModelCollection modelCollection,
+    internal bool ApplyModelItemsToXml<TModelItem, TDecorator>(
+        List<(string ItemRef, TModelItem Item)>? modelItems,
         ref ItemRefList<TDecorator> decoratorItems,
         Keyword decoratorElementName,
-        Func<TModelCollection, TState, List<string>?> getItemRefs,
-        Func<TModelCollection, string, TState, TModelItem?> getModelItem,
-        Func<TDecorator, TModelItem, TState, bool>? applyModelToXml,
-        TState state)
+        Func<TDecorator, TModelItem, bool>? applyModelToXml)
         where TDecorator : XmlDecorator, IItemRefDecorator
     {
         bool modified = false;
 
-        List<string> expectedItemRefs = getItemRefs(modelCollection, state) ?? [];
+        modelItems ??= [];
         ListBuilderStruct<TDecorator> toRemove = new ListBuilderStruct<TDecorator>();
 
 #if DEBUG
@@ -137,14 +94,13 @@ internal abstract partial class XmlContainer
         foreach (TDecorator decorator in decoratorItems.GetItems())
         {
             string itemRef = decorator.ItemRef;
-            TModelItem? modelItem = getModelItem(modelCollection, itemRef, state);
-            if (modelItem is not null)
+            int index = IndexOfItemRef(modelItems, itemRef, decoratorItems.IgnoreCase);
+            if (index >= 0)
             {
-                // If this is not in expected items, it is probably from filtered decorator items collection
-                // for example decoratorItems contains all projects, but this is filtered to a single folder.
-                if (expectedItemRefs.Remove(itemRef) &&
-                    applyModelToXml is not null &&
-                    applyModelToXml(decorator, modelItem, state))
+                TModelItem modelItem = modelItems[index].Item;
+                modelItems.RemoveAt(index);
+                if (applyModelToXml is not null &&
+                    applyModelToXml(decorator, modelItem))
                 {
                     modified = true;
                 }
@@ -165,30 +121,48 @@ internal abstract partial class XmlContainer
         }
 
         // Add new elements that aren't already in the XML.
-        expectedItemRefs.Sort(decoratorItems.IgnoreCase ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal);
-        foreach (string itemRef in expectedItemRefs)
+        modelItems.Sort(decoratorItems.IgnoreCase ? ComparisonOrdinalIgnoreCase : ComparisonOrdinal);
+        foreach ((string itemRef, TModelItem modelItem) in modelItems)
         {
-            // These values were just in the collection.
-            TModelItem? modelItem = getModelItem(modelCollection, itemRef, state) ?? throw new InvalidOperationException();
-
-            TDecorator? nextExistingITem = decoratorItems.FindNext(itemRef);
-
             // CONSIDER: Find position to insert before based on general areas and alphabetical order.
             TDecorator newDecorator = (TDecorator)this.CreateAndAddChild(decoratorElementName, itemRef, insertBefore: null);
-            _ = applyModelToXml?.Invoke(newDecorator, modelItem, state);
+            _ = applyModelToXml?.Invoke(newDecorator, modelItem);
             modified = true;
         }
-
-        // Remove invalid elements.
-        foreach (TDecorator invalidElements in decoratorItems.GetInvalidItems())
-        {
-            this.RemoveXmlChild(invalidElements);
-            modified = true;
-        }
-
-        decoratorItems.ClearInvalidItems();
 
         return modified;
+
+        // Finds an item in the list of model items.
+        static int IndexOfItemRef(List<(string ItemRef, TModelItem Item)> modelItems, string itemRef, bool ignoreCase)
+        {
+            int i = 0;
+            foreach ((string modelItemRef, TModelItem _) in modelItems)
+            {
+                if (itemRef.Equals(modelItemRef, ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal))
+                {
+                    return i;
+                }
+
+                i++;
+            }
+
+            return -1;
+        }
+
+        // Used to sort the model items so they are inserted in sorted order.
+        static int ComparisonOrdinal((string ItemRef, TModelItem Item) a, (string ItemRef, TModelItem Item) b) => StringComparer.Ordinal.Compare(a.ItemRef, b.ItemRef);
+        static int ComparisonOrdinalIgnoreCase((string ItemRef, TModelItem Item) a, (string ItemRef, TModelItem Item) b) => StringComparer.OrdinalIgnoreCase.Compare(a.ItemRef, b.ItemRef);
+    }
+
+    // Helper for updates that only update their itemRefs and don't need to make other changes.
+    internal bool ApplyModelItemsToXml<TDecorator>(
+        IReadOnlyList<string>? itemRefs,
+        ref ItemRefList<TDecorator> decoratorItems,
+        Keyword decoratorElementName)
+        where TDecorator : XmlDecorator, IItemRefDecorator
+    {
+        List<(string ItemRef, string Item)>? modelItems = itemRefs?.ToList(itemRefs => (ItemRef: itemRefs, Item: itemRefs));
+        return this.ApplyModelItemsToXml(modelItems, ref decoratorItems, decoratorElementName, applyModelToXml: null);
     }
 
     #region Manipulate XML

@@ -110,4 +110,22 @@ public sealed class InvalidSolutions
             async () => _ = await SolutionSerializers.SlnXml.OpenAsync(wrongSlash.Stream, CancellationToken.None));
         Assert.StartsWith(string.Format(Errors.InvalidName, @"/Wrong\Slash/"), exWrongSlash.Message);
     }
+
+    [Fact]
+    public async Task DuplicateProjectsAsync()
+    {
+        ResourceStream duplicateProjects = SlnAssets.LoadResource(@"Invalid\DuplicateProjects.slnx");
+        SolutionException ex = await Assert.ThrowsAsync<SolutionException>(
+            async () => _ = await SolutionSerializers.SlnXml.OpenAsync(duplicateProjects.Stream, CancellationToken.None));
+        Assert.StartsWith(string.Format(Errors.DuplicateItemRef_Args2, "foo.vbproj", "Project"), ex.Message);
+    }
+
+    [Fact]
+    public async Task DuplicateFoldersAsync()
+    {
+        ResourceStream duplicateFolders = SlnAssets.LoadResource(@"Invalid\DuplicateFolders.slnx");
+        SolutionException ex = await Assert.ThrowsAsync<SolutionException>(
+            async () => _ = await SolutionSerializers.SlnXml.OpenAsync(duplicateFolders.Stream, CancellationToken.None));
+        Assert.StartsWith(string.Format(Errors.DuplicateItemRef_Args2, "/Solution Items/", "Folder"), ex.Message);
+    }
 }

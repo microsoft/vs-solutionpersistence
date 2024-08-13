@@ -64,12 +64,26 @@ internal sealed class XmlConfigurations(SlnxFile root, XmlElement element) :
     {
         foreach (XmlPlatform platform in this.platforms.GetItems())
         {
-            solution.AddPlatform(PlatformNames.ToStringKnown(platform.Name));
+            try
+            {
+                solution.AddPlatform(PlatformNames.ToStringKnown(platform.Name));
+            }
+            catch (Exception ex) when (SolutionException.ShouldWrap(ex))
+            {
+                throw SolutionException.Create(ex, platform);
+            }
         }
 
         foreach (XmlBuildType buildType in this.buildType.GetItems())
         {
-            solution.AddBuildType(BuildTypeNames.ToStringKnown(buildType.Name));
+            try
+            {
+                solution.AddBuildType(BuildTypeNames.ToStringKnown(buildType.Name));
+            }
+            catch (Exception ex) when (SolutionException.ShouldWrap(ex))
+            {
+                throw SolutionException.Create(ex, buildType);
+            }
         }
     }
 
@@ -92,7 +106,7 @@ internal sealed class XmlConfigurations(SlnxFile root, XmlElement element) :
         }
         catch (SolutionException ex)
         {
-            throw SolutionException.Create(ex.Message, this, ex);
+            throw SolutionException.Create(ex, this);
         }
     }
 
@@ -104,30 +118,22 @@ internal sealed class XmlConfigurations(SlnxFile root, XmlElement element) :
         bool modified = false;
 
         // BuildTypes
-        modified |= this.ApplyModelToXmlGeneric(
-            modelCollection: modelSolution,
+        modified |= this.ApplyModelItemsToXml(
+            itemRefs: modelSolution.IsBuildTypeImplicit() ? null : modelSolution.BuildTypes,
             decoratorItems: ref this.buildType,
-            decoratorElementName: Keyword.BuildType,
-            getItemRefs: static (modelSolution) => modelSolution.IsBuildTypeImplicit() ? null : new List<string>(modelSolution.BuildTypes),
-            getModelItem: static (modelSolution, itemRef) => ModelHelper.FindByItemRef(modelSolution.BuildTypes, itemRef, ignoreCase: true),
-            applyModelToXml: null);
+            decoratorElementName: Keyword.BuildType);
 
         // Platforms
-        modified |= this.ApplyModelToXmlGeneric(
-            modelCollection: modelSolution,
+        modified |= this.ApplyModelItemsToXml(
+            itemRefs: modelSolution.IsPlatformImplicit() ? null : modelSolution.Platforms,
             decoratorItems: ref this.platforms,
-            decoratorElementName: Keyword.Platform,
-            getItemRefs: static (modelSolution) => modelSolution.IsPlatformImplicit() ? null : new List<string>(modelSolution.Platforms),
-            getModelItem: static (modelSolution, itemRef) => ModelHelper.FindByItemRef(modelSolution.Platforms, itemRef, ignoreCase: true),
-            applyModelToXml: null);
+            decoratorElementName: Keyword.Platform);
 
         // Project Types
-        modified |= this.ApplyModelToXmlGeneric(
-            modelCollection: modelSolution.ProjectTypes.ToList(x => (ItemRef: XmlProjectType.GetItemRef(x.Name, x.Extension, x.ProjectTypeId), Item: x)),
+        modified |= this.ApplyModelItemsToXml(
+            modelItems: modelSolution.ProjectTypes.ToList(type => (ItemRef: XmlProjectType.GetItemRef(type.Name, type.Extension, type.ProjectTypeId), Item: type)),
             ref this.projectTypes,
             Keyword.ProjectType,
-            getItemRefs: static (types) => types.ToList(static x => x.ItemRef),
-            getModelItem: static (items, itemRef) => ModelHelper.FindByItemRef(items, itemRef, x => x.ItemRef, ignoreCase: false).Item,
             applyModelToXml: static (newProjectTypes, newValue) => newProjectTypes.ApplyModelToXml(newValue));
 
         return modified;

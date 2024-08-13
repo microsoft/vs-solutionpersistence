@@ -48,7 +48,7 @@ public sealed class Project
         }
     }
 
-    [Fact(Skip = "Broken")]
+    [Fact]
     public async Task RemoveProjectAsync()
     {
         SolutionModel solution = await SolutionSerializers.SlnXml.OpenAsync(SlnAssets.XmlSlnxEverything.Stream, CancellationToken.None);
@@ -63,5 +63,27 @@ public sealed class Project
         (SolutionModel reserializedSolution, FileContents _) = await SaveAndReopenModelAsync(SolutionSerializers.SlnXml, solution);
 
         Assert.Null(reserializedSolution.FindProject(toRemove));
+    }
+
+    [Fact]
+    public async Task MoveProjectAsync()
+    {
+        SolutionModel solution = await SolutionSerializers.SlnXml.OpenAsync(SlnAssets.XmlSlnxEverything.Stream, CancellationToken.None);
+
+        string toMove = @"BlazorApp1\BlazorApp1.csproj";
+
+        SolutionFolderModel? solutionFolder = solution.FindFolder("/SolutionFolder/");
+
+        SolutionProjectModel? projectToMove = solution.FindProject(toMove);
+        Assert.NotNull(projectToMove);
+
+        projectToMove.MoveToFolder(solutionFolder);
+
+        (SolutionModel reserializedSolution, FileContents _) = await SaveAndReopenModelAsync(SolutionSerializers.SlnXml, solution);
+
+        SolutionProjectModel? foundProject = reserializedSolution.FindProject(toMove);
+        Assert.NotNull(foundProject);
+        Assert.NotNull(foundProject.Parent);
+        Assert.Equal("/SolutionFolder/", foundProject.Parent.Path);
     }
 }

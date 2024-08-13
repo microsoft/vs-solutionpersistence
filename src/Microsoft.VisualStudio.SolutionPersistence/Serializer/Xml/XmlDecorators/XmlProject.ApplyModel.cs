@@ -32,13 +32,10 @@ internal sealed partial class XmlProject
         }
 
         // BuildDependencies
-        modified |= this.ApplyModelToXmlGeneric(
-            modelCollection: modelProject.Dependencies?.ToList(x => PathExtensions.ConvertToPersistencePath(x.FilePath)) ?? [],
+        modified |= this.ApplyModelItemsToXml(
+            itemRefs: modelProject.Dependencies?.ToList(dependencyProject => PathExtensions.ConvertToPersistencePath(dependencyProject.FilePath)),
             decoratorItems: ref this.buildDependencies,
-            decoratorElementName: Keyword.BuildDependency,
-            getItemRefs: static (dependencies) => [.. dependencies],
-            getModelItem: static (dependencies, itemRef) => ModelHelper.FindByItemRef(dependencies, itemRef, ignoreCase: true),
-            applyModelToXml: null);
+            decoratorElementName: Keyword.BuildDependency);
 
         // Configurations
         modified |= this.configurationRules.ApplyModelToXml(this, modelProject.ProjectConfigurationRules);

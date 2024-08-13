@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Linq;
 using Microsoft.VisualStudio.SolutionPersistence.Model;
 using Microsoft.VisualStudio.SolutionPersistence.Utilities;
 
@@ -28,32 +27,29 @@ internal sealed partial class XmlSolution
 
         // Configurations
         // Use the item ref logic to allow only a single "Configurations" element, and use string.Empty as the item ref.
-        modified |= this.ApplyModelToXmlGeneric<List<SolutionModel>, SolutionModel, XmlConfigurations>(
-            modelCollection: modelSolution.IsConfigurationImplicit() ? [] : [modelSolution],
+        modified |= this.ApplyModelItemsToXml<SolutionModel, XmlConfigurations>(
+            modelItems: modelSolution.IsConfigurationImplicit() ? null : [(ItemRef: string.Empty, Item: modelSolution)],
             ref this.configurationsSingle,
             Keyword.Configurations,
-            getItemRefs: static (items) => items.ToList(static x => string.Empty),
-            getModelItem: static (items, _) => items.FirstOrDefault(),
             applyModelToXml: static (newConfigs, newValue) => newConfigs.ApplyModelToXml(newValue));
 
         // Folders
-        modified |= this.ApplyModelToXmlGeneric(
-            modelCollection: modelSolution.SolutionFolders,
+        modified |= this.ApplyModelItemsToXml(
+            modelItems: modelSolution.SolutionFolders.ToList(folder => (folder.ItemRef, Item: folder)),
             ref this.folders,
             Keyword.Folder,
-            getItemRefs: static (modelProjects, modelSolution) => modelProjects.ToList(x => x.ItemRef),
-            getModelItem: static (modelProjects, itemRef, modelSolution) => ModelHelper.FindByItemRef(modelProjects, itemRef),
-            applyModelToXml: static (newFolder, newValue, modelSolution) => newFolder.ApplyModelToXml(modelSolution, newValue),
-            modelSolution);
+            applyModelToXml: static (newFolder, newValue) => newFolder.ApplyModelToXml(newValue));
 
         // Projects
-        modified |= this.ApplyModelToXmlGeneric(
-            modelCollection: modelSolution.SolutionProjects.ToList(x => (ItemRef: PathExtensions.ConvertToPersistencePath(x.ItemRef), Item: x)),
-            ref this.Projects,
+        List<(string ItemRef, SolutionProjectModel Item)> solutionProjects = modelSolution.SolutionProjects.WhereToList(
+            (project, _) => project.Parent is null,
+            (project, _) => (ItemRef: PathExtensions.ConvertToPersistencePath(project.ItemRef), Item: project),
+            (object?)null);
+        modified |= this.ApplyModelItemsToXml(
+            modelItems: solutionProjects,
+            ref this.rootProjects,
             Keyword.Project,
-            getItemRefs: static (modelProjects) => modelProjects.WhereToList((x, _) => x.Item.Parent is null, (x, _) => x.ItemRef, false),
-            getModelItem: static (modelProjects, itemRef) => ModelHelper.FindByItemRef(modelProjects, itemRef, x => x.ItemRef, ignoreCase: true),
-            applyModelToXml: static (newProject, newValue) => newProject.ApplyModelToXml(newValue.Item));
+            applyModelToXml: static (newProject, newValue) => newProject.ApplyModelToXml(newValue));
 
         // Properties
         modified |= this.ApplyModelToXml(modelSolution.Properties);
