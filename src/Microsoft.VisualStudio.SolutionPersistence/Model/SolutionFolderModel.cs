@@ -52,15 +52,38 @@ public sealed class SolutionFolderModel : SolutionItemModel
         set
         {
             Argument.ThrowIfNullOrEmpty(value, nameof(value));
-            if (value.Contains('/') || value.Contains('\\'))
+            SolutionModel.ValidateName(value.AsSpan());
+
+            if (this.name == value)
             {
-                throw new ArgumentException(@"Solution Folder Name cannot contain '/' or '\'", nameof(value));
+                return;
             }
 
-            this.name = value;
-            this.OnItemRefChanged();
+            string testName = $"{this.Parent?.ItemRef ?? "/"}{value}/";
+            if (this.Solution.FindFolder(testName) is not null)
+            {
+                throw new ArgumentException(string.Format(Errors.DuplicateItemRef_Args2, testName, "Folder"), nameof(value));
+            }
+
+            string oldName = this.name;
+            try
+            {
+                this.name = value;
+                this.OnItemRefChanged();
+            }
+            catch (Exception)
+            {
+                // On error revert the name.
+                this.name = oldName;
+                throw;
+            }
         }
     }
+
+    /// <summary>
+    /// Gets a unique reference to this folder in the solution.
+    /// </summary>
+    public string Path => this.ItemRef;
 
     /// <inheritdoc/>
     public override string ActualDisplayName => this.Name;
@@ -69,7 +92,7 @@ public sealed class SolutionFolderModel : SolutionItemModel
     public override Guid TypeId => ProjectTypeTable.SolutionFolder;
 
     /// <inheritdoc/>
-    public override string ItemRef
+    internal override string ItemRef
     {
         get
         {

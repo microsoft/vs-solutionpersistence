@@ -9,7 +9,7 @@ namespace Microsoft.VisualStudio.SolutionPersistence.Model;
 internal static class ModelHelper
 {
     // Generically finds the item in the list by itemRef and returns it, otherwise null.
-    internal static T? FindByItemRef<T>(IReadOnlyList<T>? items, string itemRef, Func<T, string> getItemRef)
+    internal static T? FindByItemRef<T>(IReadOnlyList<T>? items, string itemRef, Func<T, string> getItemRef, bool ignoreCase)
         where T : notnull
     {
         if (items is null)
@@ -17,9 +17,10 @@ internal static class ModelHelper
             return default;
         }
 
+        StringComparer comparer = ignoreCase ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal;
         foreach (T item in items.GetStructEnumerable())
         {
-            if (StringComparer.Ordinal.Equals(getItemRef(item), itemRef))
+            if (comparer.Equals(getItemRef(item), itemRef))
             {
                 return item;
             }
@@ -29,22 +30,22 @@ internal static class ModelHelper
     }
 
     // Returns the itemRef string in the list if it exists, otherwise null.
-    internal static string? FindByItemRef(IReadOnlyList<string>? items, string itemRef)
+    internal static string? FindByItemRef(IReadOnlyList<string>? items, string itemRef, bool ignoreCase)
     {
-        return FindByItemRef(items, itemRef, x => x);
+        return FindByItemRef(items, itemRef, x => x, ignoreCase);
     }
 
     // Finds the item in the SolutionItemModel list by itemRef and returns it, otherwise null.
     internal static T? FindByItemRef<T>(this IReadOnlyList<T>? items, string itemRef)
         where T : SolutionItemModel
     {
-        return FindByItemRef(items, itemRef, x => x.ItemRef);
+        return FindByItemRef(items, itemRef, x => x.ItemRef, ignoreCase: true);
     }
 
     // Finds the item in the list of property sets by itemRef and returns it, otherwise null.
     internal static SolutionPropertyBag? FindByItemRef(this IReadOnlyList<SolutionPropertyBag>? items, string itemRef)
     {
-        return FindByItemRef(items, itemRef, x => x.Id);
+        return FindByItemRef(items, itemRef, x => x.Id, ignoreCase: false);
     }
 
     internal static string GetDisplayName(this ProjectType projectType)

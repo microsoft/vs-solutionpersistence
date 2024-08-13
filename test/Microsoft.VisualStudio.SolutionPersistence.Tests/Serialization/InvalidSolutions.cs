@@ -91,4 +91,23 @@ public sealed class InvalidSolutions
 
         AssertSolutionsAreEqual(SlnAssets.ClassicSlnMin.ToLines(), reserializedSolution);
     }
+
+    [Fact]
+    public async Task SolutionFolderAsync()
+    {
+        ResourceStream noEndSlash = SlnAssets.LoadResource(@"Invalid\SolutionFolder-NoEndSlash.slnx");
+        SolutionException exNoEndSlash = await Assert.ThrowsAsync<SolutionException>(
+            async () => _ = await SolutionSerializers.SlnXml.OpenAsync(noEndSlash.Stream, CancellationToken.None));
+        Assert.StartsWith(string.Format(Errors.InvalidFolderPath_Args1, @"/No/End/Slash"), exNoEndSlash.Message);
+
+        ResourceStream noStartSlash = SlnAssets.LoadResource(@"Invalid\SolutionFolder-NoStartSlash.slnx");
+        SolutionException exNoStartSlash = await Assert.ThrowsAsync<SolutionException>(
+            async () => _ = await SolutionSerializers.SlnXml.OpenAsync(noStartSlash.Stream, CancellationToken.None));
+        Assert.StartsWith(string.Format(Errors.InvalidFolderPath_Args1, @"No/Start/Slash/"), exNoStartSlash.Message);
+
+        ResourceStream wrongSlash = SlnAssets.LoadResource(@"Invalid\SolutionFolder-WrongSlash.slnx");
+        SolutionException exWrongSlash = await Assert.ThrowsAsync<SolutionException>(
+            async () => _ = await SolutionSerializers.SlnXml.OpenAsync(wrongSlash.Stream, CancellationToken.None));
+        Assert.StartsWith(string.Format(Errors.InvalidName, @"/Wrong\Slash/"), exWrongSlash.Message);
+    }
 }

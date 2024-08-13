@@ -52,7 +52,7 @@ internal sealed partial class XmlSolution
             ref this.Projects,
             Keyword.Project,
             getItemRefs: static (modelProjects) => modelProjects.WhereToList((x, _) => x.Item.Parent is null, (x, _) => x.ItemRef, false),
-            getModelItem: static (modelProjects, itemRef) => ModelHelper.FindByItemRef(modelProjects, itemRef, x => x.ItemRef),
+            getModelItem: static (modelProjects, itemRef) => ModelHelper.FindByItemRef(modelProjects, itemRef, x => x.ItemRef, ignoreCase: true),
             applyModelToXml: static (newProject, newValue) => newProject.ApplyModelToXml(newValue.Item));
 
         // Properties

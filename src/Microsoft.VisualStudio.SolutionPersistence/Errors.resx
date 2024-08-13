@@ -160,7 +160,7 @@
     <value>Circular dependency found for '{0}'.</value>
   </data>
   <data name="InvalidItemRef_Args2" xml:space="preserve">
-    <value>Missing or invalid '{0}' attribute in type '{1}'.</value>
+    <value>Missing or invalid '{0}' item in type '{1}'.</value>
   </data>
   <data name="DuplicateItemRef_Args2" xml:space="preserve">
     <value>Duplicate item '{0}' of type '{1}'.</value>
@@ -198,5 +198,11 @@
   </data>
   <data name="InvalidModelItem" xml:space="preserve">
     <value>Model does not belong to this solution.</value>
+  </data>
+  <data name="InvalidEncoding" xml:space="preserve">
+    <value>Only ASCII, UTF-8, and Unicode encodings are supported for serializing '.sln' files.</value>
+  </data>
+  <data name="DuplicateKey" xml:space="preserve">
+    <value>An element with the same key already exists.</value>
   </data>
 </root>

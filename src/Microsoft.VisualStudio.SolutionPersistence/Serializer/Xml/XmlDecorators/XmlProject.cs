@@ -71,37 +71,45 @@ internal sealed partial class XmlProject(SlnxFile root, XmlFolder? xmlParentFold
 
     internal SolutionProjectModel AddToModel(SolutionModel solution)
     {
-        SolutionFolderModel? parentFolder = null;
-        if (this.ParentFolder is not null)
+        try
         {
-            if (solution.FindItemByItemRef(this.ParentFolder.Name) is SolutionFolderModel foundParentFolder)
+            SolutionFolderModel? parentFolder = null;
+            if (this.ParentFolder is not null)
             {
-                parentFolder = foundParentFolder;
+                SolutionFolderModel? foundParentFolder = solution.FindFolder(this.ParentFolder.ItemRef);
+                if (foundParentFolder is not null)
+                {
+                    parentFolder = foundParentFolder;
+                }
+                else
+                {
+                    throw SolutionException.Create(string.Format(Errors.InvalidFolderReference_Args1, this.ParentFolder.Name), this);
+                }
             }
-            else
+
+            SolutionProjectModel projectModel = solution.AddProject(
+                filePath: PathExtensions.ConvertFromPersistencePath(this.Path),
+                projectTypeName: this.Type ?? string.Empty,
+                folder: parentFolder);
+
+            projectModel.DisplayName = this.DisplayName;
+
+            foreach (ConfigurationRule configurationRule in this.configurationRules.ToModel())
             {
-                throw SolutionException.Create(string.Format(Errors.InvalidFolderReference_Args1, this.ParentFolder.Name), this);
+                projectModel.AddProjectConfigurationRule(configurationRule);
             }
+
+            foreach (XmlProperties properties in this.propertyBags.GetItems())
+            {
+                properties.AddToModel(projectModel);
+            }
+
+            return projectModel;
         }
-
-        SolutionProjectModel projectModel = solution.AddProject(
-            filePath: PathExtensions.ConvertFromPersistencePath(this.Path),
-            projectTypeName: this.Type ?? string.Empty,
-            folder: parentFolder);
-
-        projectModel.DisplayName = this.DisplayName;
-
-        foreach (ConfigurationRule configurationRule in this.configurationRules.ToModel())
+        catch (Exception ex) when (SolutionException.ShouldWrap(ex))
         {
-            projectModel.AddProjectConfigurationRule(configurationRule);
+            throw SolutionException.Create(ex.Message, this, ex);
         }
-
-        foreach (XmlProperties properties in this.propertyBags.GetItems())
-        {
-            properties.AddToModel(projectModel);
-        }
-
-        return projectModel;
     }
 
     internal void AddDependenciesToModel(SolutionModel solution, SolutionProjectModel projectModel)
@@ -109,7 +117,8 @@ internal sealed partial class XmlProject(SlnxFile root, XmlFolder? xmlParentFold
         foreach (XmlBuildDependency buildDependency in this.buildDependencies.GetItems())
         {
             string dependencyItemRef = PathExtensions.ConvertFromPersistencePath(buildDependency.Project);
-            if (solution.FindItemByItemRef(dependencyItemRef) is SolutionProjectModel dependencyProject)
+            SolutionProjectModel? dependencyProject = solution.FindProject(dependencyItemRef);
+            if (dependencyProject is not null)
             {
                 projectModel.AddDependency(dependencyProject);
             }

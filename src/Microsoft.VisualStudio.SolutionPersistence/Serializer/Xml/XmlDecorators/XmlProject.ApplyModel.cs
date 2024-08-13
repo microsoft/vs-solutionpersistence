@@ -37,7 +37,7 @@ internal sealed partial class XmlProject
             decoratorItems: ref this.buildDependencies,
             decoratorElementName: Keyword.BuildDependency,
             getItemRefs: static (dependencies) => [.. dependencies],
-            getModelItem: static (dependencies, itemRef) => ModelHelper.FindByItemRef(dependencies, itemRef),
+            getModelItem: static (dependencies, itemRef) => ModelHelper.FindByItemRef(dependencies, itemRef, ignoreCase: true),
             applyModelToXml: null);
 
         // Configurations

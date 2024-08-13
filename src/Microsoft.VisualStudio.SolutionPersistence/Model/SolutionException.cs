@@ -97,4 +97,10 @@ public class SolutionException : FormatException
             new SolutionException(message, innerException) { Line = lineInfo.LineNumber, Column = lineInfo.LinePosition, File = location.Root.FullPath } :
             new SolutionException(message, innerException) { File = location?.Root.FullPath };
     }
+
+    // Checks if an exception caught during serialization should be wrapped by a SolutionException to add position information.
+    internal static bool ShouldWrap(Exception ex)
+    {
+        return ex is not SolutionException and not OperationCanceledException;
+    }
 }

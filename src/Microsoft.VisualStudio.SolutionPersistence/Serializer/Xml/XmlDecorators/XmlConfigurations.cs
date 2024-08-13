@@ -109,7 +109,7 @@ internal sealed class XmlConfigurations(SlnxFile root, XmlElement element) :
             decoratorItems: ref this.buildType,
             decoratorElementName: Keyword.BuildType,
             getItemRefs: static (modelSolution) => modelSolution.IsBuildTypeImplicit() ? null : new List<string>(modelSolution.BuildTypes),
-            getModelItem: static (modelSolution, itemRef) => ModelHelper.FindByItemRef(modelSolution.BuildTypes, itemRef),
+            getModelItem: static (modelSolution, itemRef) => ModelHelper.FindByItemRef(modelSolution.BuildTypes, itemRef, ignoreCase: true),
             applyModelToXml: null);
 
         // Platforms
@@ -118,7 +118,7 @@ internal sealed class XmlConfigurations(SlnxFile root, XmlElement element) :
             decoratorItems: ref this.platforms,
             decoratorElementName: Keyword.Platform,
             getItemRefs: static (modelSolution) => modelSolution.IsPlatformImplicit() ? null : new List<string>(modelSolution.Platforms),
-            getModelItem: static (modelSolution, itemRef) => ModelHelper.FindByItemRef(modelSolution.Platforms, itemRef),
+            getModelItem: static (modelSolution, itemRef) => ModelHelper.FindByItemRef(modelSolution.Platforms, itemRef, ignoreCase: true),
             applyModelToXml: null);
 
         // Project Types
@@ -127,7 +127,7 @@ internal sealed class XmlConfigurations(SlnxFile root, XmlElement element) :
             ref this.projectTypes,
             Keyword.ProjectType,
             getItemRefs: static (types) => types.ToList(static x => x.ItemRef),
-            getModelItem: static (items, itemRef) => ModelHelper.FindByItemRef(items, itemRef, x => x.ItemRef).Item,
+            getModelItem: static (items, itemRef) => ModelHelper.FindByItemRef(items, itemRef, x => x.ItemRef, ignoreCase: false).Item,
             applyModelToXml: static (newProjectTypes, newValue) => newProjectTypes.ApplyModelToXml(newValue));
 
         return modified;

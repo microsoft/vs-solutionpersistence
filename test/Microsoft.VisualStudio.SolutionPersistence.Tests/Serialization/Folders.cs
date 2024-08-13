@@ -165,4 +165,46 @@ public sealed class Folders
         ArgumentException ex = Assert.Throws<ArgumentException>(() => folderThis.MoveToFolder(folderNested));
         Assert.StartsWith(Errors.CannotMoveFolderToChildFolder, ex.Message);
     }
+
+    /// <summary>
+    /// Validate changing a folder name.
+    /// Make sure it detects duplicates.
+    /// </summary>
+    [Fact]
+    public void ChangeFolderName()
+    {
+        SolutionModel solution = new SolutionModel();
+
+        SolutionFolderModel folderA = solution.AddFolder("/A/");
+        SolutionFolderModel folderB = solution.AddFolder("/B/");
+        SolutionFolderModel folderNestedA = solution.AddFolder("/A/Nested/Deep/");
+        SolutionFolderModel folderNestedB = solution.AddFolder("/B/Nested/Deep/");
+
+        // Try case exact
+        {
+            ArgumentException ex = Assert.Throws<ArgumentException>(() => folderB.Name = "A");
+            Assert.StartsWith(string.Format(Errors.DuplicateItemRef_Args2, "/A/", "Folder"), ex.Message);
+
+            Assert.Equal("/B/Nested/Deep/", folderNestedB.Path);
+        }
+
+        // Try case insensitive
+        {
+            ArgumentException ex = Assert.Throws<ArgumentException>(() => folderB.Name = "a");
+            Assert.StartsWith(string.Format(Errors.DuplicateItemRef_Args2, "/a/", "Folder"), ex.Message);
+
+            Assert.Equal("/B/Nested/Deep/", folderNestedB.Path);
+        }
+
+        Assert.Equal("/A/Nested/Deep/", folderNestedA.Path);
+        Assert.Equal("/B/Nested/Deep/", folderNestedB.Path);
+
+        // Try a successful rename.
+        folderB.Name = "C";
+
+        Assert.Equal("C", folderB.Name);
+        Assert.Equal("/C/", folderB.Path);
+        Assert.Equal("/A/Nested/Deep/", folderNestedA.Path);
+        Assert.Equal("/C/Nested/Deep/", folderNestedB.Path);
+    }
 }

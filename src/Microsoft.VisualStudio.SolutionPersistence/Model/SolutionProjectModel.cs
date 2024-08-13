@@ -23,7 +23,6 @@ public sealed class SolutionProjectModel : SolutionItemModel
         this.typeId = typeId;
         this.type = type;
         this.FilePath = filePath;
-        this.Extension = PathExtensions.GetExtension(this.FilePath).ToString();
     }
 
     /// <summary>
@@ -82,15 +81,30 @@ public sealed class SolutionProjectModel : SolutionItemModel
         {
             if (!StringComparer.OrdinalIgnoreCase.Equals(this.filePath, value) || this.Extension is null)
             {
-                this.filePath = value;
-                this.Extension = this.Solution.StringTable.GetString(PathExtensions.GetExtension(value));
-                this.OnItemRefChanged();
+                if (this.Solution.FindProject(value) is not null)
+                {
+                    throw new ArgumentException(string.Format(Errors.DuplicateItemRef_Args2, value, "Project"), nameof(value));
+                }
+
+                string oldPath = this.filePath!;
+                string oldExtension = this.Extension!;
+                try
+                {
+                    this.filePath = value;
+                    this.Extension = this.Solution.StringTable.GetString(PathExtensions.GetExtension(value));
+                    this.OnItemRefChanged();
+
+                    this.Solution.ValidateProjectName(this);
+                }
+                catch (Exception)
+                {
+                    this.filePath = oldPath;
+                    this.Extension = oldExtension;
+                    throw;
+                }
             }
         }
     }
-
-    /// <inheritdoc/>
-    public override string ItemRef => this.FilePath;
 
     /// <summary>
     /// Gets the file extension of the project file.
@@ -141,6 +155,9 @@ public sealed class SolutionProjectModel : SolutionItemModel
         get => this.projectConfigurationRules;
         set => this.projectConfigurationRules = value is null ? null : [.. value];
     }
+
+    /// <inheritdoc/>
+    internal override string ItemRef => this.FilePath;
 
     /// <summary>
     /// Gets the project configuration for the given solution configuration.

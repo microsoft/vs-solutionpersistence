@@ -122,7 +122,7 @@ internal sealed partial class SolutionConfigurationMap
     {
         if (index.MatrixIndex < 0 || index.MatrixIndex >= this.matrixSize)
         {
-            throw new ArgumentOutOfRangeException(nameof(index), "Bug, invalid configuration index");
+            throw new ArgumentOutOfRangeException(nameof(index));
         }
 
         int config = index.MatrixIndex / this.PlatformsCount;
@@ -134,7 +134,7 @@ internal sealed partial class SolutionConfigurationMap
     {
         if (index.MatrixIndex < 0 || index.MatrixIndex >= this.matrixSize)
         {
-            throw new ArgumentOutOfRangeException(nameof(index), "Bug, invalid configuration index");
+            throw new ArgumentOutOfRangeException(nameof(index));
         }
 
         int plat = index.MatrixIndex % this.PlatformsCount;
