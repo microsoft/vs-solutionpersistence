@@ -6,6 +6,7 @@ namespace Serialization;
 /// <summary>
 /// These tests validate SLN files can be round-tripped through the serializer and model.
 /// </summary>
+[SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1600:Elements should be documented", Justification = "All tests in this class have the same purpose.")]
 public class RoundTripClassicSln
 {
     public static TheoryData<ResourceName> ClassicSlnFiles =>

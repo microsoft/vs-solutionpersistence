@@ -3,8 +3,14 @@
 
 namespace Serialization;
 
+/// <summary>
+/// Fixture for <see cref="MakeSlnx"/> tests.
+/// </summary>
 public sealed partial class MakeSlnx
 {
+    /// <summary>
+    /// The temp subdirectory name for the output directory.
+    /// </summary>
     public const string OutputDirectory = "OutputSln";
 
     /// <summary>
@@ -13,6 +19,9 @@ public sealed partial class MakeSlnx
     /// </summary>
     public class MakeSlnxFixture
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MakeSlnxFixture"/> class.
+        /// </summary>
         public MakeSlnxFixture()
         {
             string outputDirectory = Path.Combine(Path.GetTempPath(), OutputDirectory);
@@ -31,10 +40,19 @@ public sealed partial class MakeSlnx
             _ = Directory.CreateDirectory(this.SlnxToSlnDirectory);
         }
 
+        /// <summary>
+        /// Gets the full path to the directory where the SLN files are converted to SLNX.
+        /// </summary>
         public string SlnToSlnxDirectory { get; private set; }
 
+        /// <summary>
+        /// Gets the full path to the directory where the SLN files are converted to SLNX and back to SLN.
+        /// </summary>
         public string SlnViaSlnxDirectory { get; private set; }
 
+        /// <summary>
+        /// Gets the full path to the directory where the SLNX files are converted to SLN.
+        /// </summary>
         public string SlnxToSlnDirectory { get; private set; }
     }
 }

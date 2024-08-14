@@ -64,8 +64,24 @@ public sealed class SolutionProjectModel : SolutionItemModel
 
         set
         {
-            this.type = value;
-            this.typeId = this.Solution.ProjectTypeTable.GetProjectTypeId(value, this.Extension.AsSpan()) ?? Guid.Empty;
+            // Attempt to resolve the type name,
+            if (Guid.TryParse(value, out Guid typeId))
+            {
+                if (typeId == Guid.Empty)
+                {
+                    throw new ArgumentNullException(nameof(value));
+                }
+
+                // Type looks like a project type id and try to lookup the type name.
+                this.typeId = typeId;
+                this.type = this.Solution.ProjectTypeTable.GetConciseType(this.typeId, string.Empty, this.Extension);
+            }
+            else
+            {
+                // Type looks like a name, lookup the project type id and simplify name if possible.
+                this.typeId = this.Solution.ProjectTypeTable.GetProjectTypeId(value, this.Extension.AsSpan()) ?? Guid.Empty;
+                this.type = this.Solution.ProjectTypeTable.GetConciseType(this.typeId, value, this.Extension);
+            }
         }
     }
 
@@ -116,8 +132,10 @@ public sealed class SolutionProjectModel : SolutionItemModel
 
     /// <summary>
     /// Gets or sets the display name of the project.
-    /// This will be ignored if the project has a file name.
     /// </summary>
+    /// <remarks>
+    /// This will be ignored if the project path is a file name.
+    /// </remarks>
     public string? DisplayName { get; set; }
 
     /// <inheritdoc/>

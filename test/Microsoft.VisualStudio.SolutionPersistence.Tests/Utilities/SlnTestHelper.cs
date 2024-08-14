@@ -65,10 +65,15 @@ internal static class SlnTestHelper
         IReadOnlyList<Guid> originalOrder = model.SolutionItems.ToArray(x => x.Id);
 
         // Keep info that isn't serialized.
-        string? vsVersion = model.VsVersion;
-        string? minVersion = model.MinVsVersion;
-        Guid? solutionGuid = model.SolutionId;
+        Version? vsVersion = model.VisualStudioProperties.Version;
+        Version? minVersion = model.VisualStudioProperties.MinimumVersion;
+        string? openWith = model.VisualStudioProperties.OpenWith;
+        Guid? solutionGuid = model.VisualStudioProperties.SolutionId;
         Dictionary<string, Guid> itemGuids = model.SolutionItems.ToDictionary(x => x.ItemRef, x => x.Id);
+        HashSet<string> cpsProjects = new HashSet<string>(model.SolutionProjects.Where(IsCpsProject).Select(x => x.FilePath));
+        SolutionPropertyBag? sharedProject = model.FindProperties(SectionName.SharedMSBuildProjectFiles);
+
+        model.TrimVisualStudioProperties();
 
         (model, FileContents slnxContents) = await SaveAndReopenModelAsync(SolutionSerializers.SlnXml, model, bufferSize);
 
@@ -77,10 +82,24 @@ internal static class SlnTestHelper
             FindItem(model, projectGuid.Key).Id = projectGuid.Value;
         }
 
+        foreach (SolutionProjectModel project in model.SolutionProjects)
+        {
+            if (cpsProjects.Contains(project.FilePath))
+            {
+                SetCpsProject(project);
+            }
+        }
+
+        if (sharedProject is not null)
+        {
+            Assert.True(model.AddSlnProperties(sharedProject));
+        }
+
         // Restore info that isn't serialized to make diff match.
-        model.VsVersion = vsVersion;
-        model.MinVsVersion = minVersion;
-        model.SolutionId = solutionGuid;
+        model.VisualStudioProperties.Version = vsVersion;
+        model.VisualStudioProperties.MinimumVersion = minVersion;
+        model.VisualStudioProperties.SolutionId = solutionGuid;
+        model.VisualStudioProperties.OpenWith = openWith;
 
         // This is hacky, but need to preserve original order to make test diff work.
         List<SolutionItemModel> itemsHack = (List<SolutionItemModel>)model.SolutionItems;
@@ -99,6 +118,30 @@ internal static class SlnTestHelper
         {
             return solution.SolutionItems.FindByItemRef(itemRef) ??
                 throw new InvalidOperationException($"Project {itemRef} not found!");
+        }
+
+        static bool IsCpsProject(SolutionProjectModel project)
+        {
+            return
+                project.TypeId == new Guid("9A19103F-16F7-4668-BE54-9A1E7A4F7556") ||
+                project.TypeId == new Guid("778DAE3C-4631-46EA-AA77-85C1314464D9") ||
+                project.TypeId == new Guid("6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705");
+        }
+
+        static void SetCpsProject(SolutionProjectModel project)
+        {
+            if (project.TypeId == new Guid("FAE04EC0-301F-11D3-BF4B-00C04F79EFBC"))
+            {
+                project.Type = "Common C#";
+            }
+            else if (project.TypeId == new Guid("F184B08F-C81C-45F6-A57F-5ABD9991F28F"))
+            {
+                project.Type = "Common VB";
+            }
+            else if (project.TypeId == new Guid("F2A71F9B-5D33-465A-A702-920D77279786"))
+            {
+                project.Type = "Common F#";
+            }
         }
     }
 
@@ -221,6 +264,19 @@ internal static class SlnTestHelper
         }
 
         return filePath;
+    }
+
+    internal static bool TryGetSettings<T>(this SolutionModel model, out T? settings)
+    {
+        if (model.SerializerExtension is ISerializerModelExtension<T> serializerModelExtension &&
+            serializerModelExtension.Settings is not null)
+        {
+            settings = serializerModelExtension.Settings;
+            return true;
+        }
+
+        settings = default;
+        return false;
     }
 
     private static FileContents ToLines(this Stream stream)

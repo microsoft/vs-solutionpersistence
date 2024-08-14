@@ -205,8 +205,8 @@ namespace Microsoft.VisualStudio.SolutionPersistence {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Solution folder or project names cannot:
-        ///- contain any of the following characters: / ? : \ * &quot;&quot; &lt; &gt; |
+        ///   Looks up a localized string similar to Names cannot:
+        ///- contain any of the following characters: / ? : \ * &quot; &lt; &gt; | # &amp; %
         ///- contain control characters
         ///- be system reserved names, including &apos;CON&apos;, &apos;AUX&apos;, &apos;PRN&apos;, &apos;COM1&apos; or &apos;LPT2&apos;
         ///- be &apos;.&apos; or &apos;..&apos;.
@@ -250,6 +250,15 @@ namespace Microsoft.VisualStudio.SolutionPersistence {
         internal static string InvalidScope {
             get {
                 return ResourceManager.GetString("InvalidScope", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid version &apos;{0}&apos;..
+        /// </summary>
+        internal static string InvalidVersion_Args1 {
+            get {
+                return ResourceManager.GetString("InvalidVersion_Args1", resourceCulture);
             }
         }
         
@@ -313,6 +322,15 @@ namespace Microsoft.VisualStudio.SolutionPersistence {
         internal static string SyntaxError {
             get {
                 return ResourceManager.GetString("SyntaxError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The file version &apos;{0}&apos; is unsupported..
+        /// </summary>
+        internal static string UnsupportedVersion_Args1 {
+            get {
+                return ResourceManager.GetString("UnsupportedVersion_Args1", resourceCulture);
             }
         }
     }

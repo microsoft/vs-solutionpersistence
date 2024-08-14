@@ -6,6 +6,7 @@ namespace Serialization;
 /// <summary>
 /// These tests validate SLNX files can be round-tripped through the serializer and model.
 /// </summary>
+[SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1600:Elements should be documented", Justification = "All tests in this class have the same purpose.")]
 public class RoundTripXmlSlnx
 {
     public static TheoryData<ResourceName> XmlSlnxFiles =>
@@ -13,6 +14,9 @@ public class RoundTripXmlSlnx
 
     [Fact]
     public Task CommentsAsync() => TestRoundTripSerializerAsync(SlnAssets.XmlSlnxComments);
+
+    [Fact]
+    public Task LegacyValuesAsync() => TestRoundTripSerializerAsync(SlnAssets.XmlSlnxLegacyValuesNoObsolete);
 
     [Fact]
     public Task BlankAsync() => TestRoundTripSerializerAsync(SlnAssets.XmlSlnxBlank);
@@ -41,6 +45,12 @@ public class RoundTripXmlSlnx
 
     [Fact]
     public Task MissingConfigurationsAsync() => TestRoundTripSerializerAsync(SlnAssets.XmlSlnxMissingConfigurations);
+
+    [Fact]
+    public Task VersionAsync() => TestRoundTripSerializerAsync(SlnAssets.XmlSlnxVersion);
+
+    [Fact]
+    public Task VersionMinAsync() => TestRoundTripSerializerAsync(SlnAssets.XmlSlnxVersionMin);
 
     [Theory]
     [MemberData(nameof(XmlSlnxFiles))]

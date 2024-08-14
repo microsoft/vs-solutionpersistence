@@ -8,6 +8,9 @@ namespace Serialization;
 /// </summary>
 public class Validation
 {
+    /// <summary>
+    /// Validates that the model throws when adding projects with the same project path.
+    /// </summary>
     [Fact]
     public void DuplicateProjects()
     {
@@ -18,6 +21,9 @@ public class Validation
         _ = Assert.ThrowsAny<ArgumentException>(() => solution.AddProject("Project.csproj"));
     }
 
+    /// <summary>
+    /// Validates that the model throws when adding projects with the same display name in the root of the solution.
+    /// </summary>
     [Fact]
     public void DuplicateProjectNamesInRoot()
     {
@@ -28,6 +34,9 @@ public class Validation
         _ = Assert.ThrowsAny<ArgumentException>(() => solution.AddProject(Path.Join("Folder2", "Project.csproj")));
     }
 
+    /// <summary>
+    /// Validates that the model throws when adding projects with the same display name in the same solution folder.
+    /// </summary>
     [Fact]
     public void DuplicateProjectNamesInSameFolder()
     {
@@ -39,6 +48,9 @@ public class Validation
         _ = Assert.ThrowsAny<ArgumentException>(() => solution.AddProject(Path.Join("Folder2", "Project.csproj"), folder: folder));
     }
 
+    /// <summary>
+    /// Validates that the model *allows* adding projects with the same display name in different solution folders.
+    /// </summary>
     [Fact]
     public void DuplicateProjectNamesInDifferentFolder()
     {
@@ -52,6 +64,103 @@ public class Validation
         Assert.NotNull(solution.AddProject(Path.Join("Folder2", "Project.csproj"), folder: folder2));
     }
 
+    /// <summary>
+    /// Validates the naming check is consistent with existing naming rules.
+    /// </summary>
+    /// <remarks>
+    /// This code is shared between projects, folders and configurations. Although this just validates configurations.
+    /// </remarks>
+    [Fact]
+    public void ConfigurationName()
+    {
+        SolutionModel solution = new SolutionModel();
+
+        string[] invalidNames = [
+            null!,
+            string.Empty,
+            "\0",
+            " ",
+            "\t",
+            "/",
+            "\\",
+            "\"",
+            "<",
+            ">",
+            "?",
+            "*",
+            "%",
+            ":",
+            "|",
+            "&",
+            "%",
+            "con",
+            "com1",
+            "lpt9",
+            ".",
+            "..",
+        ];
+
+        string[] validNames = [
+            new string('+', 260),
+            "com0",
+            "com200",
+            "...",
+            "$",
+            "€",
+            "=_+-[]{}'`.^",
+            "𓃠",
+            "🐈",
+            "cat",
+            "gato",
+            "pisică",
+            "kočka",
+            "котка",
+            "кошка",
+            "قط",
+            "แมว",
+            "बिल्ली",
+            "חתול",
+            "猫",
+            "貓",
+        ];
+
+        foreach (string invalidName in invalidNames)
+        {
+            // Platforms
+            {
+                ArgumentException ex = Assert.ThrowsAny<ArgumentException>(() => solution.AddPlatform(invalidName));
+                if (!string.IsNullOrWhiteSpace(invalidName))
+                {
+                    Assert.StartsWith(Errors.InvalidName, ex.Message);
+                }
+            }
+
+            // Build Types
+            {
+                ArgumentException ex = Assert.ThrowsAny<ArgumentException>(() => solution.AddBuildType(invalidName));
+                if (!string.IsNullOrWhiteSpace(invalidName))
+                {
+                    Assert.StartsWith(Errors.InvalidName, ex.Message);
+                }
+            }
+        }
+
+        foreach (string validName in validNames)
+        {
+            solution.AddPlatform(validName);
+            Assert.Contains(validName, solution.Platforms);
+
+            solution.AddBuildType(validName);
+            Assert.Contains(validName, solution.BuildTypes);
+        }
+
+        Assert.Equal(validNames.Length, solution.Platforms.Count);
+        Assert.Equal(validNames.Length, solution.BuildTypes.Count);
+    }
+
+    /// <summary>
+    /// Validates the model correctly validates when adding invalid solution folders.
+    /// </summary>
     [Fact]
     public void SolutionFolders()
     {

@@ -8,6 +8,10 @@ namespace Serialization;
 /// </summary>
 public sealed class Project
 {
+    /// <summary>
+    /// Ensure the model can be used to add projects.
+    /// This also validates the API fails correctly when adding invalid projects.
+    /// </summary>
     [Fact]
     public void AddProject()
     {
@@ -48,6 +52,9 @@ public sealed class Project
         }
     }
 
+    /// <summary>
+    /// Ensures the model can be used to remove projects.
+    /// </summary>
     [Fact]
     public async Task RemoveProjectAsync()
     {
@@ -65,6 +72,9 @@ public sealed class Project
         Assert.Null(reserializedSolution.FindProject(toRemove));
     }
 
+    /// <summary>
+    /// Ensures the model can be used to move projects to a soluiton folder.
+    /// </summary>
     [Fact]
     public async Task MoveProjectAsync()
     {

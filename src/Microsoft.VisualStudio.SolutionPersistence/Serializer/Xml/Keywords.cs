@@ -14,10 +14,8 @@ internal enum Keyword
     Solution,
 
     // Solution properties
-    SolutionId,
-    VisualStudioVersion,
-    MinimumVisualStudioVersion,
     Description,
+    Version,
 
     // Solution sections
     Configurations,
@@ -25,6 +23,7 @@ internal enum Keyword
     // item (folders and project) properties
     Folder,
     Project,
+    Id,
     Name,
     Path,
     Type,
@@ -60,6 +59,9 @@ internal enum Keyword
 
 internal static class Keywords
 {
+    internal const string XmlTrue = "true";
+    internal const string XmlFalse = "false";
+
     private static readonly string[] KeywordToString;
     private static readonly Lictionary<string, Keyword> StringToKeyword;
 
@@ -68,13 +70,12 @@ internal static class Keywords
         StringToKeyword = new Lictionary<string, Keyword>(
             [
                 new(nameof(Keyword.Solution), Keyword.Solution),
-                new(nameof(Keyword.SolutionId), Keyword.SolutionId),
-                new(nameof(Keyword.VisualStudioVersion), Keyword.VisualStudioVersion),
-                new(nameof(Keyword.MinimumVisualStudioVersion), Keyword.MinimumVisualStudioVersion),
                 new(nameof(Keyword.Description), Keyword.Description),
+                new(nameof(Keyword.Version), Keyword.Version),
                 new(nameof(Keyword.Configurations), Keyword.Configurations),
                 new(nameof(Keyword.Folder), Keyword.Folder),
                 new(nameof(Keyword.Project), Keyword.Project),
+                new(nameof(Keyword.Id), Keyword.Id),
                 new(nameof(Keyword.Name), Keyword.Name),
                 new(nameof(Keyword.Path), Keyword.Path),
                 new(nameof(Keyword.Type), Keyword.Type),
@@ -106,21 +107,11 @@ internal static class Keywords
         {
             KeywordToString[(int)keyword] = keywordStr;
         }
-
-#if DEBUG
-        // Validate that if any new keywords are added to the enum, they are in the mapping tables.
-        foreach (Keyword keyword in Enum.GetValues(typeof(Keyword)))
-        {
-            if (keyword is not Keyword.Unknown and not < 0 and not >= Keyword.MaxProp &&
-                KeywordToString[(int)keyword] is null)
-            {
-                throw new InvalidOperationException();
-            }
-        }
-#endif
     }
 
     internal static string ToXmlString(this Keyword keyword) => KeywordToString[(int)keyword];  // let it throw
+
+    internal static string ToXmlBool(this bool value) => value ? XmlTrue : XmlFalse;
 
     internal static Keyword ToKeyword(string name) =>
         !string.IsNullOrEmpty(name) && StringToKeyword.TryGetValue(name, out Keyword ret) ? ret : Keyword.Unknown;
@@ -129,8 +120,8 @@ internal static class Keywords
     internal static StringTable WithSolutionConstants(this StringTable stringTable)
     {
         // Try to use the interned strings for common solution values.
-        stringTable.AddString(bool.TrueString);
-        stringTable.AddString(bool.FalseString);
+        stringTable.AddString(XmlTrue);
+        stringTable.AddString(XmlFalse);
         stringTable.AddString(BuildTypeNames.Debug);
         stringTable.AddString(BuildTypeNames.Release);
         stringTable.AddString(PlatformNames.All);

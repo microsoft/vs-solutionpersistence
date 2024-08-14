@@ -10,7 +10,9 @@ namespace Serialization;
 /// </summary>
 public sealed class ProjectTypes
 {
-    // Keeps the checked in built-in project types test in sync with the code version.
+    /// <summary>
+    /// Keeps the checked in built-in project types test in sync with the code version.
+    /// </summary>
     [Fact]
     public async Task BuiltInProjectTypes()
     {
@@ -29,5 +31,13 @@ public sealed class ProjectTypes
         FileContents builtInFromCodeLines = await ModelToLinesAsync(SolutionSerializers.SlnXml, builtInTypesModel);
 
         AssertSolutionsAreEqual(builtInFromCodeLines, SlnAssets.XmlBuiltInProjectTypes.ToLines());
+    }
+
+    /// <summary>
+    /// Attempt to set project types to invalid values.
+    /// </summary>
+    [Fact]
+    public void InvalidTypes()
+    {
     }
 }

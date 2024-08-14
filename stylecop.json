@@ -10,6 +10,7 @@
       },
       "fileNamingConvention": "metadata",
       "documentInternalElements": false,
+      "documentExposedElements": true,
       "xmlHeader": false
     },
     "orderingRules": {

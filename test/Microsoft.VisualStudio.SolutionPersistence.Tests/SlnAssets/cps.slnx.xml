@@ -79,7 +79,4 @@
   <Folder Name="/test/SDK/">
     <Project Path="test\SDK\Microsoft.VisualStudio.ProjectSystem.Analyzers.Test\Microsoft.VisualStudio.ProjectSystem.Analyzers.Test.csproj" />
   </Folder>
-  <Properties Name="Visual Studio">
-    <Property Name="OpenWith" Value="Visual Studio Version 17" />
-  </Properties>
 </Solution>

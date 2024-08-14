@@ -22,6 +22,12 @@ internal sealed class XmlFolder(SlnxFile root, XmlSolution xmlSolution, XmlEleme
 
     internal string Name => this.ItemRef;
 
+    internal Guid Id
+    {
+        get => this.GetXmlAttributeGuid(Keyword.Id);
+        set => this.UpdateXmlAttributeGuid(Keyword.Id, value);
+    }
+
 #if DEBUG
 
     internal override string DebugDisplay => $"{base.DebugDisplay} FolderProjects={this.folderProjects} Files={this.files}";
@@ -63,6 +69,7 @@ internal sealed class XmlFolder(SlnxFile root, XmlSolution xmlSolution, XmlEleme
         try
         {
             SolutionFolderModel folderModel = solutionModel.AddFolder(this.Name);
+            folderModel.Id = this.Id;
 
             foreach (XmlFile file in this.files.GetItems())
             {
@@ -92,6 +99,14 @@ internal sealed class XmlFolder(SlnxFile root, XmlSolution xmlSolution, XmlEleme
     {
         SolutionModel modelSolution = modelFolder.Solution;
         bool modified = false;
+
+        // Attributes
+        Guid id = modelFolder.IsDefaultId ? Guid.Empty : modelFolder.Id;
+        if (this.Id != id)
+        {
+            this.Id = id;
+            modified = true;
+        }
 
         // Files
         modified |= this.ApplyModelItemsToXml(

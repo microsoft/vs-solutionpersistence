@@ -8,6 +8,9 @@ namespace Serialization;
 /// </summary>
 public class Samples
 {
+    /// <summary>
+    /// Tests the wiki sample code to convert an SLN file to an SLNX file.
+    /// </summary>
     [Fact]
     [Trait("TestCategory", "FailsInCloudTest")]
     public async Task ConvertToSlnx()
@@ -26,6 +29,9 @@ public class Samples
         }
     }
 
+    /// <summary>
+    /// Tests the wiki sample code to read configurations from each project.
+    /// </summary>
     [Fact]
     public async Task ReadEachProjectAsync()
     {
@@ -33,6 +39,9 @@ public class Samples
         ReadEachProject(solution);
     }
 
+    /// <summary>
+    /// Tests the wiki sample code to add a project.
+    /// </summary>
     [Fact]
     public async Task AddProjectAsync()
     {

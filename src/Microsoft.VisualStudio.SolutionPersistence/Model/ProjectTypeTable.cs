@@ -112,19 +112,25 @@ internal sealed partial class ProjectTypeTable
     }
 
     // Figures out what the most concise friendly type name of the project type is, if it fails use the project type id.
-    internal string? GetConciseType(SolutionProjectModel projectModel)
+    internal string GetConciseType(SolutionProjectModel projectModel)
+    {
+        return this.GetConciseType(projectModel.TypeId, projectModel.Type, projectModel.Extension);
+    }
+
+    // Figures out what the most concise friendly type name of the project type is, if it fails use the project type id.
+    internal string GetConciseType(Guid typeId, string type, string extension)
     {
         // Get TypeId to add to the Project element.
         return
-            !this.TryGetProjectType(projectModel, out ProjectType? projectType, out bool impliedFromExtension) ? GetTypeFromModel(projectModel) :
+            !this.TryGetProjectType(typeId, type, extension, out ProjectType? projectType, out bool impliedFromExtension) ? GetTypeFromModel(typeId, type) :
             !impliedFromExtension ? GetTypeFromProjectType(projectType) :
-            null;
+            string.Empty;
 
-        string? GetTypeFromProjectType(ProjectType projectType) =>
+        string GetTypeFromProjectType(ProjectType projectType) =>
             projectType.Name.NullIfEmpty() ?? this.GetProjectTypeId(projectType)?.ToString() ?? Guid.Empty.ToString();
 
-        static string? GetTypeFromModel(SolutionProjectModel modelProject) =>
-            modelProject.TypeId == Guid.Empty ? modelProject.Type : modelProject.TypeId.ToString();
+        static string GetTypeFromModel(Guid typeId, string type) =>
+            typeId == Guid.Empty ? type : typeId.ToString();
     }
 
     // Gets all of the configuration rules that apply to the project.
@@ -170,11 +176,6 @@ internal sealed partial class ProjectTypeTable
             GetProjectTypeConfigurationRules(this.GetBasedOnType(type), rules);
             rules.AddRange(type.ConfigurationRules);
         }
-    }
-
-    internal bool TryGetProjectType(Guid projectTypeId, [NotNullWhen(true)] out ProjectType? projectType)
-    {
-        return this.fromProjectTypeId.TryGetValue(projectTypeId, out projectType);
     }
 
     private Guid? GetProjectTypeId(ProjectType? type)

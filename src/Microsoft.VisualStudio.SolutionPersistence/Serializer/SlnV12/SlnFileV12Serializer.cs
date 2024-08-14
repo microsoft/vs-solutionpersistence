@@ -11,6 +11,8 @@ namespace Microsoft.VisualStudio.SolutionPersistence.Serializer.SlnV12;
 /// </summary>
 internal sealed partial class SlnFileV12Serializer : SingleFileSerializerBase<SlnV12SerializerSettings>
 {
+    internal const int CurrentFileVersion = 12;
+
     [Obsolete("Use Instance")]
     public SlnFileV12Serializer()
     {

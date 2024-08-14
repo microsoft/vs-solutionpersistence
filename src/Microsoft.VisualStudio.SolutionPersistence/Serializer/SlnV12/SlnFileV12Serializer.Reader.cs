@@ -45,8 +45,8 @@ internal sealed partial class SlnFileV12Serializer
 
         internal ValueTask<SolutionModel> ParseAsync(ISolutionSerializer serializer, string? fullPath, CancellationToken cancellationToken)
         {
-            string? vsVersion = null;
-            string? minVsVersion = null;
+            Version? vsVersion = null;
+            Version? minVsVersion = null;
             string? openWithVsVersion = null; // VS version that saved last.
 
             SolutionItemModel? currentProject = null;
@@ -138,12 +138,11 @@ internal sealed partial class SlnFileV12Serializer
                                 break;
 
                             case LineType.VisualStudioVersion:
-                                // we differ here a little bit. The original parser was very strict here, while it is very inconsequential optional values.
-                                vsVersion = tokenizer.NextToken(SlnConstants.VersionSeparators).ToString();
+                                vsVersion = SlnV12Extensions.TryParseVSVersion(tokenizer.NextToken(SlnConstants.VersionSeparators));
                                 break;
 
                             case LineType.MinimumVisualStudioVersion:
-                                minVsVersion = tokenizer.NextToken(SlnConstants.VersionSeparators).ToString();
+                                minVsVersion = SlnV12Extensions.TryParseVSVersion(tokenizer.NextToken(SlnConstants.VersionSeparators));
                                 break;
 
                             case LineType.CommentLine:
@@ -201,14 +200,10 @@ internal sealed partial class SlnFileV12Serializer
                         this.TarnishIf(!item.AddSlnProperties(properties));
                     }
 
-                    string? openWithVS = CommentToOpenWithVS(openWithVsVersion.AsSpan());
-                    if (!openWithVS.IsNullOrEmpty())
-                    {
-                        solutionModel.SetOpenWithVisualStudio(openWithVS);
-                    }
-
-                    solutionModel.MinVsVersion = minVsVersion;
-                    solutionModel.VsVersion = vsVersion;
+                    VisualStudioProperties vsProperties = solutionModel.VisualStudioProperties;
+                    vsProperties.OpenWith = CommentToOpenWithVS(openWithVsVersion.AsSpan());
+                    vsProperties.MinimumVersion = minVsVersion;
+                    vsProperties.Version = vsVersion;
                     solutionModel.SerializerExtension = new SlnV12ModelExtension(
                         serializer,
                         new SlnV12SerializerSettings() { Encoding = GetSlnFileEncoding(reader) },
@@ -272,7 +267,7 @@ internal sealed partial class SlnFileV12Serializer
             firstComment = firstComment.Trim();
             return
                 firstComment.IsEmpty ? null :
-                firstComment.StartsWith(SlnConstants.OpenWithPrefix) ? firstComment.Slice(SlnConstants.OpenWithPrefix.Length).ToString() :
+                firstComment.StartsWith(SlnConstants.OpenWithPrefix) ? firstComment.Slice(SlnConstants.OpenWithPrefix.Length).ToString().NullIfEmpty() :
                 null;
         }
 
@@ -462,7 +457,12 @@ internal sealed partial class SlnFileV12Serializer
                 fileVersionMaj = versionPath.Slice(0, dotIndex).ToString();
             }
 
-            return !string.IsNullOrEmpty(fileVersionMaj) && int.TryParse(fileVersionMaj, out int fileVer) && fileVer <= 14;
+            if (string.IsNullOrEmpty(fileVersionMaj) || !int.TryParse(fileVersionMaj, out int fileVer) || fileVer > CurrentFileVersion)
+            {
+                throw new SolutionException(string.Format(Errors.UnsupportedVersion_Args1, fileVersionMaj)) { File = fullPath, Line = this.lineNumber };
+            }
+
+            return true;
         }
 
         private bool ReadLine(out StringTokenizer lineScanner)

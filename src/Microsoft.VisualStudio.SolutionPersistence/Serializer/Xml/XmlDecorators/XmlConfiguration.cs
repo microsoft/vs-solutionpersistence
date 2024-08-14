@@ -83,7 +83,7 @@ internal abstract class XmlConfiguration(SlnxFile root, XmlElement element, Keyw
         string value = configurationRule.Dimension switch
         {
             // For build or deploy the default value is 'true'. Use lowercase 'false' to match the XML boolean.
-            BuildDimension.Build or BuildDimension.Deploy => bool.Parse(configurationRule.ProjectValue) ? string.Empty : "false",
+            BuildDimension.Build or BuildDimension.Deploy => bool.Parse(configurationRule.ProjectValue) ? string.Empty : Keywords.XmlFalse,
             _ => configurationRule.ProjectValue,
         };
 

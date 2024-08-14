@@ -178,8 +178,8 @@
     <value>"Project '{0}' not found."</value>
   </data>
   <data name="InvalidName" xml:space="preserve">
-    <value>Solution folder or project names cannot:
-- contain any of the following characters: / ? : \ * "" &lt; &gt; |
+    <value>Names cannot:
+- contain any of the following characters: / ? : \ * " &lt; &gt; | # &amp; %
 - contain control characters
 - be system reserved names, including 'CON', 'AUX', 'PRN', 'COM1' or 'LPT2'
 - be '.' or '..'</value>
@@ -204,5 +204,11 @@
   </data>
   <data name="DuplicateKey" xml:space="preserve">
     <value>An element with the same key already exists.</value>
+  </data>
+  <data name="InvalidVersion_Args1" xml:space="preserve">
+    <value>Invalid version '{0}'.</value>
+  </data>
+  <data name="UnsupportedVersion_Args1" xml:space="preserve">
+    <value>The file version '{0}' is unsupported.</value>
   </data>
 </root>

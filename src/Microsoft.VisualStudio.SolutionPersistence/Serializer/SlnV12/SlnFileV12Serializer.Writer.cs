@@ -55,25 +55,28 @@ internal partial class SlnFileV12Serializer
             writer.Write(SlnConstants.SLNFileHeaderNoVersion);            //  Microsoft Visual Studio Solution File, Format Version
             writer.WriteLine(SlnConstants.SLNFileHeaderVersion);          //  Microsoft Visual Studio Solution File, Format Version 12.00
 
-            string? openWithVS = model.GetOpenWithVisualStudio();
+            VisualStudioProperties vsProperties = model.VisualStudioProperties;
+            string? openWithVS = vsProperties.OpenWith;
             if (openWithVS is not null)
             {
                 writer.Write(SlnConstants.OpenWithPrefix);
                 writer.WriteLine(openWithVS);
             }
 
-            if (!string.IsNullOrEmpty(model.VsVersion))
+            string? vsVersion = vsProperties.Version?.ToString();
+            if (!string.IsNullOrEmpty(vsVersion))
             {
                 writer.Write(SlnConstants.TagVisualStudioVersion);  // VisualStudioVersion
                 writer.Write(SlnConstants.TagAssignValue);          // VisualStudioVersion =
-                writer.WriteLine(model.VsVersion);                  // VisualStudioVersion = [ver]
+                writer.WriteLine(vsVersion);                        // VisualStudioVersion = [ver]
             }
 
-            if (!string.IsNullOrEmpty(model.MinVsVersion))
+            string? minVsVersion = vsProperties.MinimumVersion?.ToString();
+            if (!string.IsNullOrEmpty(minVsVersion))
             {
                 writer.Write(SlnConstants.TagMinimumVisualStudioVersion);   // MinimumVisualStudioVersion
                 writer.Write(SlnConstants.TagAssignValue);                  // MinimumVisualStudioVersion =
-                writer.WriteLine(model.MinVsVersion);                       // MinimumVisualStudioVersion = [ver]
+                writer.WriteLine(minVsVersion);                             // MinimumVisualStudioVersion = [ver]
             }
 
             foreach (SolutionItemModel item in model.SolutionItems)

@@ -49,6 +49,9 @@ public abstract class SolutionItemModel : PropertyContainerModel
     /// <summary>
     /// Gets or sets the unique Id of the item within the solution.
     /// </summary>
+    /// <remarks>
+    /// Set to <see cref="Guid.Empty"/> to use default guid.
+    /// </remarks>
     public Guid Id
     {
         get => this.id ?? this.DefaultId;

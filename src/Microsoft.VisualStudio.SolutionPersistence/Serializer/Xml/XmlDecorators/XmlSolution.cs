@@ -22,22 +22,10 @@ internal sealed partial class XmlSolution(SlnxFile file, XmlElement element) :
         set => this.UpdateXmlAttribute(Keyword.Description, value);
     }
 
-    internal Guid SolutionId
+    internal string? Version
     {
-        get => this.GetXmlAttributeGuid(Keyword.SolutionId, Guid.Empty);
-        set => this.UpdateXmlAttribute(Keyword.SolutionId, isDefault: value == Guid.Empty, value, static guid => guid.ToString());
-    }
-
-    internal string? VisualStudioVersion
-    {
-        get => this.GetXmlAttribute(Keyword.VisualStudioVersion);
-        set => this.UpdateXmlAttribute(Keyword.VisualStudioVersion, value);
-    }
-
-    internal string? MinimumVisualStudioVersion
-    {
-        get => this.GetXmlAttribute(Keyword.MinimumVisualStudioVersion);
-        set => this.UpdateXmlAttribute(Keyword.MinimumVisualStudioVersion, value);
+        get => this.GetXmlAttribute(Keyword.Version);
+        set => this.UpdateXmlAttribute(Keyword.Version, value);
     }
 
 #if DEBUG
@@ -86,13 +74,29 @@ internal sealed partial class XmlSolution(SlnxFile file, XmlElement element) :
 
     internal SolutionModel ToModel()
     {
+        // Ensure the file version is supported.
+        string? fileVersion = this.Version;
+        if (!fileVersion.IsNullOrEmpty())
+        {
+            try
+            {
+                this.Root.FileVersion = new Version(fileVersion);
+            }
+            catch (Exception ex) when (SolutionException.ShouldWrap(ex))
+            {
+                throw SolutionException.Create(ex, this, string.Format(Errors.InvalidVersion_Args1, fileVersion));
+            }
+
+            if (this.Root.FileVersion.Major > SlnxFile.CurrentVersion)
+            {
+                throw SolutionException.Create(string.Format(Errors.UnsupportedVersion_Args1, fileVersion), this);
+            }
+        }
+
         SolutionModel solutionModel = new SolutionModel
         {
             StringTable = this.Root.StringTable,
             Description = this.Description,
-            MinVsVersion = this.MinimumVisualStudioVersion,
-            VsVersion = this.VisualStudioVersion,
-            SolutionId = this.SolutionId.NullIfEmpty(),
 
             // Project types are loaded earlier when parsing the XML since they are needed to resolve projects.
             ProjectTypes = this.Root.ProjectTypes.ProjectTypes,

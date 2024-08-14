@@ -15,7 +15,6 @@ internal static class SlnConstants
     internal const string SLNFileHeaderVersion = " 12.00";
 
     // Special property Visual Studio property names
-    internal const string OpenWith = nameof(OpenWith);
     internal const string HideSolutionNode = nameof(HideSolutionNode);
     internal const string SolutionGuid = nameof(SolutionGuid);
 

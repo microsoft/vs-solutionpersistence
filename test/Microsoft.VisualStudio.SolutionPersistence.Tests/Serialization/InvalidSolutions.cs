@@ -10,7 +10,9 @@ namespace Serialization;
 /// </summary>
 public sealed class InvalidSolutions
 {
-    // Checks for a file that isn't XML.
+    /// <summary>
+    /// Checks for a file that isn't XML.
+    /// </summary>
     [Fact]
     public Task InvalidXmlSlnxAsync()
     {
@@ -21,12 +23,14 @@ public sealed class InvalidSolutions
         });
     }
 
-    // Checks for an XML file that isn't an SLNX file.
+    /// <summary>
+    /// Checks for an XML file that isn't an SLNX file.
+    /// </summary>
     [Fact]
     [Trait("TestCategory", "FailsInCloudTest")]
     public async Task InvalidSlnxAsync()
     {
-        ResourceStream wrongRoot = SlnAssets.LoadResource(@"Invalid\WrongRoot.slnx");
+        ResourceStream wrongRoot = SlnAssets.LoadResource("Invalid/WrongRoot.slnx");
         string wrongRootFile = wrongRoot.SaveResourceToTempFile();
 
         SolutionException ex = await Assert.ThrowsAsync<SolutionException>(
@@ -40,12 +44,14 @@ public sealed class InvalidSolutions
         Assert.Null(ex.Column);
     }
 
-    // Check for file that isn't an .sln file.
+    /// <summary>
+    /// Check for file that isn't an .sln file.
+    /// </summary>
     [Fact]
     [Trait("TestCategory", "FailsInCloudTest")]
     public async Task InvalidSlnAsync()
     {
-        ResourceStream invalidSln = SlnAssets.LoadResource(@"Invalid\Invalid.sln");
+        ResourceStream invalidSln = SlnAssets.LoadResource("Invalid/Invalid.sln");
         string invalidSlnFile = invalidSln.SaveResourceToTempFile();
 
         SolutionException ex = await Assert.ThrowsAsync<SolutionException>(
@@ -57,31 +63,37 @@ public sealed class InvalidSolutions
         Assert.Null(ex.Column);
     }
 
-    // Check for loop in the configuration.
+    /// <summary>
+    /// Check for loop in the configuration.
+    /// </summary>
     [Fact]
     public Task InvalidConfigurationLoopAsync()
     {
-        ResourceStream basedOnLoop = SlnAssets.LoadResource(@"Invalid\BasedOnLoop.slnx");
+        ResourceStream basedOnLoop = SlnAssets.LoadResource("Invalid/BasedOnLoop.slnx");
 
         return Assert.ThrowsAsync<SolutionException>(
             async () => _ = await SolutionSerializers.SlnXml.OpenAsync(basedOnLoop.Stream, CancellationToken.None));
     }
 
-    // Check for a .sln missing the end tags.
+    /// <summary>
+    /// Check for a .sln missing the end tags.
+    /// </summary>
     [Fact]
     public async Task MissingEndAsync()
     {
-        ResourceStream missingEnd = SlnAssets.LoadResource(@"Invalid\MissingEnd.sln");
+        ResourceStream missingEnd = SlnAssets.LoadResource("Invalid/MissingEnd.sln");
         SolutionModel solution = await SolutionSerializers.SlnFileV12.OpenAsync(missingEnd.Stream, CancellationToken.None);
         Assert.NotNull(solution.SerializerExtension);
         Assert.True(solution.SerializerExtension.Tarnished);
     }
 
-    // Check that extra lines are ignored.
+    /// <summary>
+    /// Check that extra lines are ignored.
+    /// </summary>
     [Fact]
     public async Task ExtraLinesAsync()
     {
-        ResourceStream extraLines = SlnAssets.LoadResource(@"Invalid\ExtraLines.sln");
+        ResourceStream extraLines = SlnAssets.LoadResource("Invalid/ExtraLines.sln");
         SolutionModel solution = await SolutionSerializers.SlnFileV12.OpenAsync(extraLines.Stream, CancellationToken.None);
         Assert.NotNull(solution.SerializerExtension);
         Assert.False(solution.SerializerExtension.Tarnished);
@@ -92,40 +104,85 @@ public sealed class InvalidSolutions
         AssertSolutionsAreEqual(SlnAssets.ClassicSlnMin.ToLines(), reserializedSolution);
     }
 
+    /// <summary>
+    /// Tests for invalid solution folder name paths.
+    /// </summary>
     [Fact]
     public async Task SolutionFolderAsync()
     {
-        ResourceStream noEndSlash = SlnAssets.LoadResource(@"Invalid\SolutionFolder-NoEndSlash.slnx");
+        ResourceStream noEndSlash = SlnAssets.LoadResource("Invalid/SolutionFolder-NoEndSlash.slnx");
         SolutionException exNoEndSlash = await Assert.ThrowsAsync<SolutionException>(
             async () => _ = await SolutionSerializers.SlnXml.OpenAsync(noEndSlash.Stream, CancellationToken.None));
-        Assert.StartsWith(string.Format(Errors.InvalidFolderPath_Args1, @"/No/End/Slash"), exNoEndSlash.Message);
+        Assert.StartsWith(string.Format(Errors.InvalidFolderPath_Args1, "/No/End/Slash"), exNoEndSlash.Message);
 
-        ResourceStream noStartSlash = SlnAssets.LoadResource(@"Invalid\SolutionFolder-NoStartSlash.slnx");
+        ResourceStream noStartSlash = SlnAssets.LoadResource("Invalid/SolutionFolder-NoStartSlash.slnx");
         SolutionException exNoStartSlash = await Assert.ThrowsAsync<SolutionException>(
             async () => _ = await SolutionSerializers.SlnXml.OpenAsync(noStartSlash.Stream, CancellationToken.None));
-        Assert.StartsWith(string.Format(Errors.InvalidFolderPath_Args1, @"No/Start/Slash/"), exNoStartSlash.Message);
+        Assert.StartsWith(string.Format(Errors.InvalidFolderPath_Args1, "No/Start/Slash/"), exNoStartSlash.Message);
 
-        ResourceStream wrongSlash = SlnAssets.LoadResource(@"Invalid\SolutionFolder-WrongSlash.slnx");
+        ResourceStream wrongSlash = SlnAssets.LoadResource("Invalid/SolutionFolder-WrongSlash.slnx");
         SolutionException exWrongSlash = await Assert.ThrowsAsync<SolutionException>(
             async () => _ = await SolutionSerializers.SlnXml.OpenAsync(wrongSlash.Stream, CancellationToken.None));
         Assert.StartsWith(string.Format(Errors.InvalidName, @"/Wrong\Slash/"), exWrongSlash.Message);
     }
 
+    /// <summary>
+    /// Ensures solution fails to load if duplicate projects paths are found.
+    /// </summary>
     [Fact]
     public async Task DuplicateProjectsAsync()
     {
-        ResourceStream duplicateProjects = SlnAssets.LoadResource(@"Invalid\DuplicateProjects.slnx");
+        ResourceStream duplicateProjects = SlnAssets.LoadResource("Invalid/DuplicateProjects.slnx");
         SolutionException ex = await Assert.ThrowsAsync<SolutionException>(
             async () => _ = await SolutionSerializers.SlnXml.OpenAsync(duplicateProjects.Stream, CancellationToken.None));
         Assert.StartsWith(string.Format(Errors.DuplicateItemRef_Args2, "foo.vbproj", "Project"), ex.Message);
     }
 
+    /// <summary>
+    /// Ensure solution fails to load if duplicate folders are found.
+    /// </summary>
     [Fact]
     public async Task DuplicateFoldersAsync()
     {
-        ResourceStream duplicateFolders = SlnAssets.LoadResource(@"Invalid\DuplicateFolders.slnx");
+        ResourceStream duplicateFolders = SlnAssets.LoadResource("Invalid/DuplicateFolders.slnx");
         SolutionException ex = await Assert.ThrowsAsync<SolutionException>(
             async () => _ = await SolutionSerializers.SlnXml.OpenAsync(duplicateFolders.Stream, CancellationToken.None));
         Assert.StartsWith(string.Format(Errors.DuplicateItemRef_Args2, "/Solution Items/", "Folder"), ex.Message);
+    }
+
+    /// <summary>
+    /// Ensure slnx solution fails to load if an unsupported future version is found.
+    /// </summary>
+    [Fact]
+    public async Task FutureSlnxVersionAsync()
+    {
+        ResourceStream version = SlnAssets.LoadResource("Invalid/VersionFuture.slnx");
+        SolutionException ex = await Assert.ThrowsAsync<SolutionException>(
+            async () => _ = await SolutionSerializers.SlnXml.OpenAsync(version.Stream, CancellationToken.None));
+        Assert.StartsWith(string.Format(Errors.UnsupportedVersion_Args1, "2.0"), ex.Message);
+    }
+
+    /// <summary>
+    /// Ensure sln solution fails to load if an unsupported future version is found.
+    /// </summary>
+    [Fact]
+    public async Task FutureSlnVersionAsync()
+    {
+        ResourceStream version = SlnAssets.LoadResource("Invalid/VersionFuture.sln");
+        SolutionException ex = await Assert.ThrowsAsync<SolutionException>(
+            async () => _ = await SolutionSerializers.SlnFileV12.OpenAsync(version.Stream, CancellationToken.None));
+        Assert.StartsWith(string.Format(Errors.UnsupportedVersion_Args1, "13"), ex.Message);
+    }
+
+    /// <summary>
+    /// Ensure slnx solution fails to load if an invalid version is found.
+    /// </summary>
+    [Fact]
+    public async Task InvalidSlnxVersionAsync()
+    {
+        ResourceStream version = SlnAssets.LoadResource("Invalid/VersionInvalid.slnx");
+        SolutionException ex = await Assert.ThrowsAsync<SolutionException>(
+            async () => _ = await SolutionSerializers.SlnXml.OpenAsync(version.Stream, CancellationToken.None));
+        Assert.StartsWith(string.Format(Errors.InvalidVersion_Args1, "v1.0"), ex.Message);
     }
 }

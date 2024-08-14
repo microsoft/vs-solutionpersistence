@@ -25,7 +25,7 @@
       <Build Solution="*|x64" Project="false" />
       <Build Solution="*|x86" Project="false" />
     </Project>
-    <Project Path="art\GenerateKnownTypes\GenerateKnownTypes.csproj" Type="C#">
+    <Project Path="art\GenerateKnownTypes\GenerateKnownTypes.csproj">
       <BuildType Solution="Special.Debug|*" Project="Debug" />
       <BuildType Solution="Special.Release|*" Project="Release" />
       <BuildType Solution="Standard.Debug|*" Project="Debug" />
@@ -127,7 +127,7 @@
     </Project>
   </Folder>
   <Folder Name="/art/hooks/">
-    <Project Path="art\hooks\CorLibReference\CorLibReference.csproj" Type="C#">
+    <Project Path="art\hooks\CorLibReference\CorLibReference.csproj">
       <BuildType Solution="Special.Debug|*" Project="Debug" />
       <BuildType Solution="Special.Release|*" Project="Release" />
       <BuildType Solution="Standard.Debug|*" Project="Debug" />
@@ -138,7 +138,7 @@
       <Build Solution="*|x64" Project="false" />
       <Build Solution="*|x86" Project="false" />
     </Project>
-    <Project Path="art\hooks\ILHooks\Ilrun.Hooks.csproj" Type="C#">
+    <Project Path="art\hooks\ILHooks\Ilrun.Hooks.csproj">
       <BuildDependency Project="prebuild\prebuild.csproj" />
       <BuildType Solution="Special.Debug|*" Project="Debug" />
       <BuildType Solution="Special.Release|*" Project="Release" />
@@ -152,7 +152,7 @@
     </Project>
   </Folder>
   <Folder Name="/art/IntrinsicsAssembly/">
-    <Project Path="art\IntrinsicsAssembly\CellTopic.IntrinsicMethods.csproj" Type="C#">
+    <Project Path="art\IntrinsicsAssembly\CellTopic.IntrinsicMethods.csproj">
       <BuildDependency Project="prebuild\prebuild.csproj" />
       <BuildType Solution="Special.Debug|*" Project="Debug" />
       <BuildType Solution="Special.Release|*" Project="Release" />
@@ -166,7 +166,7 @@
       <Build Solution="Standard.Debug|Any CPU" Project="false" />
       <Build Solution="Standard.Release|Any CPU" Project="false" />
     </Project>
-    <Project Path="art\IntrinsicsAssembly\Clr.IntrinsicMethods.csproj" Type="C#">
+    <Project Path="art\IntrinsicsAssembly\Clr.IntrinsicMethods.csproj">
       <BuildType Solution="Special.Debug|*" Project="Debug" />
       <BuildType Solution="Special.Release|*" Project="Release" />
       <BuildType Solution="Standard.Debug|*" Project="Debug" />
@@ -2064,7 +2064,7 @@
       <Build Solution="Standard.Debug|Any CPU" Project="false" />
       <Build Solution="Standard.Release|Any CPU" Project="false" />
     </Project>
-    <Project Path="ClrCustomVisualizerVSHost\ClrCustomVisualizerVSHost.csproj" Type="C#">
+    <Project Path="ClrCustomVisualizerVSHost\ClrCustomVisualizerVSHost.csproj">
       <BuildDependency Project="prebuild\prebuild.csproj" />
       <BuildType Solution="Special.Debug|*" Project="Debug" />
       <BuildType Solution="Special.Release|*" Project="Release" />
@@ -2087,7 +2087,7 @@
       <BuildType Solution="Standard.Release|*" Project="Release" />
       <Build Project="false" />
     </Project>
-    <Project Path="IISResolver\IISResolver.csproj" Type="C#">
+    <Project Path="IISResolver\IISResolver.csproj">
       <BuildDependency Project="prebuild\prebuild.csproj" />
       <BuildType Solution="Special.Debug|*" Project="Debug" />
       <BuildType Solution="Special.Release|*" Project="Release" />
@@ -2358,7 +2358,7 @@
       <Build Solution="Standard.Debug|Any CPU" Project="false" />
       <Build Solution="Standard.Release|Any CPU" Project="false" />
     </Project>
-    <Project Path="RuntimeDll\Runtime.Desktop\Runtime.Desktop.csproj" Type="C#">
+    <Project Path="RuntimeDll\Runtime.Desktop\Runtime.Desktop.csproj">
       <BuildDependency Project="prebuild\prebuild.csproj" />
       <BuildType Solution="Special.Debug|Any CPU" Project="Release" />
       <BuildType Solution="Special.Debug|ARM" Project="Debug" />
@@ -2426,7 +2426,7 @@
       <Build Solution="Special.Debug|Any CPU" Project="false" />
       <Build Solution="Special.Release|Any CPU" Project="false" />
     </Project>
-    <Project Path="StandaloneSetup\ListFilePreprocessor.csproj" Type="C#">
+    <Project Path="StandaloneSetup\ListFilePreprocessor.csproj">
       <BuildDependency Project="prebuild\prebuild.csproj" />
       <BuildType Solution="Special.Debug|*" Project="Debug" />
       <BuildType Solution="Special.Release|*" Project="Release" />
@@ -2451,7 +2451,7 @@
     <File Path="StandaloneSetup\UnifiedCRT.nuspec" />
   </Folder>
   <Folder Name="/Terminal/">
-    <Project Path="Terminal\TerminalLauncher\TerminalLauncher.csproj" Type="C#">
+    <Project Path="Terminal\TerminalLauncher\TerminalLauncher.csproj">
       <BuildDependency Project="prebuild\prebuild.csproj" />
       <BuildType Solution="Special.Debug|*" Project="Debug" />
       <BuildType Solution="Special.Release|*" Project="Release" />
@@ -2562,25 +2562,25 @@
       <Build Solution="Standard.Debug|Any CPU" Project="false" />
       <Build Solution="Standard.Release|Any CPU" Project="false" />
     </Project>
-    <Project Path="TransparentTests\TransparentTests.RealWorldApps.Perf\TransparentTests.RealWorldApps.Perf.csproj" Type="C#">
+    <Project Path="TransparentTests\TransparentTests.RealWorldApps.Perf\TransparentTests.RealWorldApps.Perf.csproj">
       <BuildType Solution="Special.Debug|*" Project="Debug" />
       <BuildType Solution="Special.Release|*" Project="Release" />
       <BuildType Solution="Standard.Debug|*" Project="Debug" />
       <BuildType Solution="Standard.Release|*" Project="Release" />
       <Build Project="false" />
     </Project>
-    <Project Path="TransparentTests\TransparentTests.RealWorldApps\TransparentTests.RealWorldApps.csproj" Type="C#">
+    <Project Path="TransparentTests\TransparentTests.RealWorldApps\TransparentTests.RealWorldApps.csproj">
       <BuildType Solution="Special.Debug|*" Project="Debug" />
       <BuildType Solution="Special.Release|*" Project="Release" />
       <BuildType Solution="Standard.Debug|*" Project="Debug" />
       <BuildType Solution="Standard.Release|*" Project="Release" />
       <Build Project="false" />
     </Project>
-    <Project Path="TransparentTests\TransparentTests\TransparentTests.csproj" Type="C#">
+    <Project Path="TransparentTests\TransparentTests\TransparentTests.csproj">
       <BuildType Project="Debug" />
       <Build Project="false" />
     </Project>
-    <Project Path="TransparentTests\WorkList2TestExtension\WorkList2TestExtension.csproj" Type="C#">
+    <Project Path="TransparentTests\WorkList2TestExtension\WorkList2TestExtension.csproj">
       <BuildType Solution="Special.Debug|*" Project="Debug" />
       <BuildType Solution="Special.Release|*" Project="Release" />
       <BuildType Solution="Standard.Debug|*" Project="Debug" />
@@ -3088,7 +3088,7 @@
       <Build Solution="Special.Debug|Any CPU" Project="false" />
       <Build Solution="Special.Release|Any CPU" Project="false" />
     </Project>
-    <Project Path="vstea\mcg\vstea.mcg.arm.csproj" Type="C#">
+    <Project Path="vstea\mcg\vstea.mcg.arm.csproj">
       <BuildDependency Project="art\core\art.csproj" />
       <BuildDependency Project="art\host\arthost.csproj" />
       <BuildDependency Project="art\lmr\lmr.csproj" />
@@ -3117,7 +3117,7 @@
       <Build Solution="Special.Debug|Any CPU" Project="false" />
       <Build Solution="Special.Release|Any CPU" Project="false" />
     </Project>
-    <Project Path="vstea\mcg\vstea.mcg.arm64.csproj" Type="C#">
+    <Project Path="vstea\mcg\vstea.mcg.arm64.csproj">
       <BuildDependency Project="art\core\art.csproj" />
       <BuildDependency Project="art\host\arthost.csproj" />
       <BuildDependency Project="art\lmr\lmr.csproj" />
@@ -3140,7 +3140,7 @@
       <Build Solution="Special.Debug|Any CPU" Project="false" />
       <Build Solution="Special.Release|Any CPU" Project="false" />
     </Project>
-    <Project Path="vstea\mcg\vstea.mcg.x64.csproj" Type="C#">
+    <Project Path="vstea\mcg\vstea.mcg.x64.csproj">
       <BuildDependency Project="art\core\art.csproj" />
       <BuildDependency Project="art\host\arthost.csproj" />
       <BuildDependency Project="art\lmr\lmr.csproj" />
@@ -3188,7 +3188,7 @@
   </Folder>
   <Folder Name="/vstea/VsIntegration/">
     <File Path="vstea\VsIntegration\example.launch.pz.json" />
-    <Project Path="vstea\VsIntegration\VsIntegration\Microsoft.VisualStudio.Cabinet.VsCar.Integration.csproj" Type="C#">
+    <Project Path="vstea\VsIntegration\VsIntegration\Microsoft.VisualStudio.Cabinet.VsCar.Integration.csproj">
       <BuildDependency Project="prebuild\prebuild.csproj" />
       <BuildType Solution="Debug|*" Project="Standard.Debug" />
       <BuildType Solution="Release|*" Project="Standard.Release" />
@@ -3209,7 +3209,7 @@
       <Build Solution="Special.Debug|Any CPU" Project="false" />
       <Build Solution="Special.Release|Any CPU" Project="false" />
     </Project>
-    <Project Path="vstea\VsIntegration\VSIX\VsIntegration.VSIX.csproj" Type="C#">
+    <Project Path="vstea\VsIntegration\VSIX\VsIntegration.VSIX.csproj">
       <BuildDependency Project="prebuild\prebuild.csproj" />
       <BuildType Solution="Debug|*" Project="Standard.Debug" />
       <BuildType Solution="Release|*" Project="Standard.Release" />
@@ -3259,7 +3259,7 @@
       <Build Solution="Special.Debug|Any CPU" Project="false" />
       <Build Solution="Special.Release|Any CPU" Project="false" />
     </Project>
-    <Project Path="vstea\VsCar.Message\Desktop\vstea.accident.desktop.csproj" Type="C#">
+    <Project Path="vstea\VsCar.Message\Desktop\vstea.accident.desktop.csproj">
       <BuildDependency Project="prebuild\prebuild.csproj" />
       <BuildType Solution="Special.Debug|*" Project="Debug" />
       <BuildType Solution="Special.Release|*" Project="Release" />
@@ -3288,7 +3288,7 @@
     <Build Solution="*|x64" Project="false" />
     <Build Solution="*|x86" Project="false" />
   </Project>
-  <Project Path="Build-x64.csproj" Type="C#">
+  <Project Path="Build-x64.csproj">
     <BuildDependency Project="prebuild\prebuild.csproj" />
     <BuildType Solution="Special.Debug|x64" Project="Debug" />
     <BuildType Solution="Special.Debug|x86" Project="Debug" />
@@ -3322,7 +3322,7 @@
     <Build Solution="Standard.Debug|*" Project="false" />
     <Build Solution="Standard.Release|*" Project="false" />
   </Project>
-  <Project Path="ConfigTool\ConfigTool.csproj" Type="C#">
+  <Project Path="ConfigTool\ConfigTool.csproj">
     <BuildType Solution="Special.Debug|*" Project="Debug" />
     <BuildType Solution="Special.Release|*" Project="Release" />
     <BuildType Solution="Standard.Debug|*" Project="Debug" />
@@ -3337,7 +3337,7 @@
     <Build Solution="Standard.Debug|Any CPU" Project="false" />
     <Build Solution="Standard.Release|Any CPU" Project="false" />
   </Project>
-  <Project Path="prebuild\prebuild.csproj" Type="C#">
+  <Project Path="prebuild\prebuild.csproj">
     <BuildType Solution="Special.Debug|*" Project="Debug" />
     <BuildType Solution="Special.Release|*" Project="Release" />
     <BuildType Solution="Standard.Debug|*" Project="Debug" />
@@ -3347,7 +3347,4 @@
     <Build Solution="Standard.Release|ARM" Project="false" />
     <Build Solution="Standard.Release|ARM64EC" Project="false" />
   </Project>
-  <Properties Name="Visual Studio">
-    <Property Name="OpenWith" Value="Visual Studio Version 17" />
-  </Properties>
 </Solution>
