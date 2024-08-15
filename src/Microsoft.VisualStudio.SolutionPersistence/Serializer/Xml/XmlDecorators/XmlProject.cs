@@ -108,7 +108,7 @@ internal sealed partial class XmlProject(SlnxFile root, XmlFolder? xmlParentFold
         }
         catch (Exception ex) when (SolutionException.ShouldWrap(ex))
         {
-            throw SolutionException.Create(ex.Message, this, ex);
+            throw SolutionException.Create(ex, this);
         }
     }
 
@@ -120,7 +120,14 @@ internal sealed partial class XmlProject(SlnxFile root, XmlFolder? xmlParentFold
             SolutionProjectModel? dependencyProject = solution.FindProject(dependencyItemRef);
             if (dependencyProject is not null)
             {
-                projectModel.AddDependency(dependencyProject);
+                try
+                {
+                    projectModel.AddDependency(dependencyProject);
+                }
+                catch (Exception ex) when (SolutionException.ShouldWrap(ex))
+                {
+                    throw SolutionException.Create(ex, buildDependency);
+                }
             }
             else
             {

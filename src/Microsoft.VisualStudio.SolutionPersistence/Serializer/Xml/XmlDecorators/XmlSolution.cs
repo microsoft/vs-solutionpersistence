@@ -14,11 +14,7 @@ internal sealed partial class XmlSolution(SlnxFile file, XmlElement element) :
 {
     private ItemRefList<XmlConfigurations> configurationsSingle = new ItemRefList<XmlConfigurations>();
     private ItemRefList<XmlFolder> folders = new ItemRefList<XmlFolder>(ignoreCase: true);
-#pragma warning disable SA1401 // Fields should be private
-#pragma warning disable SA1202 // Elements should be ordered by access
-    internal ItemRefList<XmlProject> Projects = new ItemRefList<XmlProject>(ignoreCase: true);
-#pragma warning restore SA1202 // Elements should be ordered by access
-#pragma warning restore SA1401 // Fields should be private
+    private ItemRefList<XmlProject> rootProjects = new ItemRefList<XmlProject>(ignoreCase: true);
 
     internal string? Description
     {
@@ -46,7 +42,7 @@ internal sealed partial class XmlSolution(SlnxFile file, XmlElement element) :
 
 #if DEBUG
 
-    internal override string DebugDisplay => $"{base.DebugDisplay} Projects={this.Projects} Folders={this.folders}";
+    internal override string DebugDisplay => $"{base.DebugDisplay} RootProjects={this.rootProjects} Folders={this.folders}";
 
 #endif
 
@@ -76,7 +72,7 @@ internal sealed partial class XmlSolution(SlnxFile file, XmlElement element) :
                 this.folders.Add(folder);
                 break;
             case XmlProject project:
-                this.Projects.Add(project);
+                this.rootProjects.Add(project);
                 break;
             case XmlConfigurations configurations:
                 this.configurationsSingle.Add(configurations);
@@ -102,15 +98,15 @@ internal sealed partial class XmlSolution(SlnxFile file, XmlElement element) :
             ProjectTypes = this.Root.ProjectTypes.ProjectTypes,
         };
 
-        foreach (XmlFolder folder in this.folders.GetItems())
-        {
-            folder.AddToModel(solutionModel);
-        }
-
-        List<(XmlProject, SolutionProjectModel)> newProjects = new List<(XmlProject, SolutionProjectModel)>(this.Projects.ItemsCount);
-        foreach (XmlProject project in this.Projects.GetItems())
+        List<(XmlProject, SolutionProjectModel)> newProjects = new List<(XmlProject, SolutionProjectModel)>(this.rootProjects.ItemsCount);
+        foreach (XmlProject project in this.rootProjects.GetItems())
         {
             newProjects.Add((project, project.AddToModel(solutionModel)));
+        }
+
+        foreach (XmlFolder folder in this.folders.GetItems())
+        {
+            folder.AddToModel(solutionModel, newProjects);
         }
 
         // Dependencies need to be added after all the projects are loaded.
@@ -165,6 +161,7 @@ internal sealed partial class XmlSolution(SlnxFile file, XmlElement element) :
 
     #endregion
 
+    // Try to figure out indentation and line ending default from the XML.
     internal bool TryGetFormatting(out StringSpan newLine, out StringSpan indent)
     {
         foreach (XmlDecorator decorator in this.folders.GetItems())
@@ -175,7 +172,7 @@ internal sealed partial class XmlSolution(SlnxFile file, XmlElement element) :
             }
         }
 
-        foreach (XmlDecorator decorator in this.Projects.GetItems())
+        foreach (XmlDecorator decorator in this.rootProjects.GetItems())
         {
             if (TryDecorator(decorator, newLine: out newLine, indent: out indent))
             {

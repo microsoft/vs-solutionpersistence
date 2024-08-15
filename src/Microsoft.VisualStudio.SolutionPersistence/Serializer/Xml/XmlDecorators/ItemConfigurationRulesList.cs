@@ -59,12 +59,10 @@ internal struct ItemConfigurationRulesList
                 static (x, _) => (ItemRef: x.GetSolutionConfiguration(), Item: x),
                 dimension);
 
-            return xmlContainer.ApplyModelToXmlGeneric(
-                modelCollection: dimensionRules,
+            return xmlContainer.ApplyModelItemsToXml(
+                modelItems: dimensionRules,
                 decoratorItems: ref configurations,
                 decoratorElementName: dimensionElementName,
-                getItemRefs: static (config) => config.ToList(x => x.ItemRef),
-                getModelItem: static (configs, itemRef) => ModelHelper.FindByItemRef(configs, itemRef, x => x.ItemRef, ignoreCase: true).Item,
                 applyModelToXml: static (newConfiguration, modelConfiguration) => newConfiguration.ApplyModelToXml(modelConfiguration));
         }
     }

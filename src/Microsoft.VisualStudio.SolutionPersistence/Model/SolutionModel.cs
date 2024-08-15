@@ -282,6 +282,8 @@ public sealed class SolutionModel : PropertyContainerModel
     {
         Argument.ThrowIfNullOrEmpty(buildType, nameof(buildType));
 
+        ValidateName(buildType.AsSpan());
+
         if (!this.solutionBuildTypes.Contains(buildType, StringComparer.OrdinalIgnoreCase))
         {
             buildType = this.StringTable.GetString(buildType);
@@ -307,6 +309,8 @@ public sealed class SolutionModel : PropertyContainerModel
     public void AddPlatform(string platform)
     {
         Argument.ThrowIfNullOrEmpty(platform, nameof(platform));
+
+        ValidateName(platform.AsSpan());
 
         if (!this.solutionPlatforms.Contains(platform, StringComparer.OrdinalIgnoreCase))
         {

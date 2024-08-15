@@ -28,6 +28,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="SlnAssets\Invalid\DuplicateFolders.slnx.xml" />
+    <None Remove="SlnAssets\Invalid\DuplicateProjects.slnx.xml" />
     <None Remove="SlnAssets\Invalid\SolutionFolder-NoEndSlash.slnx.xml" />
     <None Remove="SlnAssets\Invalid\SolutionFolder-NoStartSlash.slnx.xml" />
     <None Remove="SlnAssets\Invalid\SolutionFolder-WrongSlash.slnx.xml" />

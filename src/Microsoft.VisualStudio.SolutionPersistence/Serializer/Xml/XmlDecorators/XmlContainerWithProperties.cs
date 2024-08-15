@@ -42,12 +42,10 @@ internal abstract partial class XmlContainerWithProperties(SlnxFile root, XmlEle
     // Update the Xml DOM with changes from the model.
     internal bool ApplyModelToXml(IReadOnlyList<SolutionPropertyBag>? modelPropertyBags)
     {
-        return this.ApplyModelToXmlGeneric(
-            modelCollection: modelPropertyBags ?? [],
+        return this.ApplyModelItemsToXml(
+            modelItems: modelPropertyBags?.ToList(propertyBag => (ItemRef: propertyBag.Id, Item: propertyBag)),
             decoratorItems: ref this.propertyBags,
             decoratorElementName: Keyword.Properties,
-            getItemRefs: static (modelPropertyBags) => modelPropertyBags.ToList(x => x.Id),
-            getModelItem: static (modelPropertyBags, itemRef) => ModelHelper.FindByItemRef(modelPropertyBags, itemRef),
             applyModelToXml: static (newProperties, newValue) => newProperties.ApplyModelToXml(newValue));
     }
 }

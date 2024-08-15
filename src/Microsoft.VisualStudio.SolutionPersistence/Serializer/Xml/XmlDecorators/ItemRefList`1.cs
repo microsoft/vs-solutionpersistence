@@ -8,20 +8,17 @@ using Microsoft.VisualStudio.SolutionPersistence.Utilities;
 namespace Microsoft.VisualStudio.SolutionPersistence.Serializer.Xml.XmlDecorators;
 
 /// <summary>
-/// This provides a list of items that are referenced by a unique identifier.
+/// This provides a list of decorators that are referenced by a unique identifier.
 /// This is used to cache unique items from the Xml DOM so they can be quickly referenced.
-/// The list is a type of dictionary where the ItemRef is the key. If a duplicate key
-/// or invalid key is found it is added to to an invalid list so it can be removed during
-/// the next save.
+/// The list is a type of dictionary where the ItemRef is the key.
 /// </summary>
 /// <typeparam name="T">The decorator type this represents.</typeparam>
 /// <param name="ignoreCase">Should this consider keys with different cases the same.</param>
 [DebuggerDisplay("{items?.Count} Items, {invalidItems?.Count} Invalid Items")]
-internal struct ItemRefList<T>(bool ignoreCase)
+internal readonly struct ItemRefList<T>(bool ignoreCase)
     where T : XmlDecorator, IItemRefDecorator
 {
     private readonly Lictionary<string, T> items = new Lictionary<string, T>(0, ignoreCase ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal);
-    private List<T>? invalidItems;
 
     public ItemRefList()
         : this(ignoreCase: false)
@@ -31,8 +28,6 @@ internal struct ItemRefList<T>(bool ignoreCase)
     internal readonly bool IgnoreCase { get; } = ignoreCase;
 
     internal readonly int ItemsCount => this.items.Count;
-
-    internal readonly int InvalidItemsCount => this.invalidItems?.Count ?? 0;
 
     internal readonly void Add(T item)
     {
@@ -56,27 +51,9 @@ internal struct ItemRefList<T>(bool ignoreCase)
         _ = this.items.Remove(item.ItemRef);
     }
 
-    /// <summary>
-    /// Finds the item that would be next in the list after the given item.
-    /// </summary>
-    internal readonly T? FindNext(string itemRef)
-    {
-        return this.items.TryFindNext(itemRef, out T? next) ? next : null;
-    }
-
     internal readonly EnumForwarder GetItems()
     {
         return new EnumForwarder(this);
-    }
-
-    internal readonly ReadOnlyListStructEnumerable<T> GetInvalidItems()
-    {
-        return this.invalidItems.GetStructEnumerable();
-    }
-
-    internal void ClearInvalidItems()
-    {
-        this.invalidItems = null;
     }
 
     internal ref struct EnumForwarder(ItemRefList<T> me)

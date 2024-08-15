@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Linq;
 using System.Xml;
 using Microsoft.VisualStudio.SolutionPersistence.Model;
 using Microsoft.VisualStudio.SolutionPersistence.Utilities;
@@ -17,6 +16,7 @@ internal sealed class XmlFolder(SlnxFile root, XmlSolution xmlSolution, XmlEleme
 {
     private readonly XmlSolution xmlSolution = xmlSolution;
     private ItemRefList<XmlFile> files = new ItemRefList<XmlFile>(ignoreCase: true);
+    private ItemRefList<XmlProject> folderProjects = new ItemRefList<XmlProject>(ignoreCase: true);
 
     public Keyword ItemRefAttribute => Keyword.Name;
 
@@ -24,7 +24,7 @@ internal sealed class XmlFolder(SlnxFile root, XmlSolution xmlSolution, XmlEleme
 
 #if DEBUG
 
-    internal override string DebugDisplay => $"{base.DebugDisplay} Files={this.files}";
+    internal override string DebugDisplay => $"{base.DebugDisplay} FolderProjects={this.folderProjects} Files={this.files}";
 
 #endif
 
@@ -49,8 +49,7 @@ internal sealed class XmlFolder(SlnxFile root, XmlSolution xmlSolution, XmlEleme
                 this.files.Add(file);
                 break;
             case XmlProject project:
-                // Forward project handling to the solution decorator.
-                this.xmlSolution.OnNewChildDecoratorAdded(project);
+                this.folderProjects.Add(project);
                 break;
         }
 
@@ -59,7 +58,7 @@ internal sealed class XmlFolder(SlnxFile root, XmlSolution xmlSolution, XmlEleme
 
     #region Deserialize model
 
-    internal void AddToModel(SolutionModel solutionModel)
+    internal void AddToModel(SolutionModel solutionModel, List<(XmlProject XmlProject, SolutionProjectModel ModelProject)> newProjects)
     {
         try
         {
@@ -74,38 +73,42 @@ internal sealed class XmlFolder(SlnxFile root, XmlSolution xmlSolution, XmlEleme
             {
                 properties.AddToModel(folderModel);
             }
+
+            foreach (XmlProject project in this.folderProjects.GetItems())
+            {
+                newProjects.Add((project, project.AddToModel(solutionModel)));
+            }
         }
         catch (Exception ex) when (SolutionException.ShouldWrap(ex))
         {
-            throw SolutionException.Create(ex.Message, this, ex);
+            throw SolutionException.Create(ex, this);
         }
     }
 
     #endregion
 
     // Update the Xml DOM with changes from the model.
-    internal bool ApplyModelToXml(SolutionModel modelSolution, SolutionFolderModel modelFolder)
+    internal bool ApplyModelToXml(SolutionFolderModel modelFolder)
     {
+        SolutionModel modelSolution = modelFolder.Solution;
         bool modified = false;
 
         // Files
-        modified |= this.ApplyModelToXmlGeneric(
-            modelCollection: modelFolder.Files?.ToList(static file => PathExtensions.ConvertToPersistencePath(file)),
+        modified |= this.ApplyModelItemsToXml(
+            itemRefs: modelFolder.Files?.ToList(static file => PathExtensions.ConvertToPersistencePath(file)),
             decoratorItems: ref this.files,
-            decoratorElementName: Keyword.File,
-            getItemRefs: static (files) => files?.ToList(),
-            getModelItem: static (files, itemRef) => ModelHelper.FindByItemRef(files, itemRef, ignoreCase: true),
-            applyModelToXml: null);
+            decoratorElementName: Keyword.File);
 
         // Projects
-        modified |= this.ApplyModelToXmlGeneric(
-            modelCollection: modelSolution.SolutionProjects.ToList(x => (ItemRef: PathExtensions.ConvertToPersistencePath(x.ItemRef), Item: x)),
-            ref this.xmlSolution.Projects,
-            Keyword.Project,
-            getItemRefs: static (modelProjects, modelFolder) => modelProjects.WhereToList((x, _) => ReferenceEquals(x.Item.Parent, modelFolder), (x, _) => x.ItemRef, false),
-            getModelItem: static (modelProjects, itemRef, modelFolder) => ModelHelper.FindByItemRef(modelProjects, itemRef, x => x.ItemRef, ignoreCase: true),
-            applyModelToXml: static (newProject, newValue, modelFolder) => newProject.ApplyModelToXml(newValue.Item),
+        List<(string ItemRef, SolutionProjectModel Item)> projectsInFolder = modelSolution.SolutionProjects.WhereToList(
+            (project, modelFolder) => ReferenceEquals(project.Parent, modelFolder),
+            (project, modelFolder) => (ItemRef: PathExtensions.ConvertToPersistencePath(project.ItemRef), Item: project),
             modelFolder);
+        modified |= this.ApplyModelItemsToXml(
+            modelItems: projectsInFolder,
+            ref this.folderProjects,
+            Keyword.Project,
+            applyModelToXml: static (newProject, modelProject) => newProject.ApplyModelToXml(modelProject));
 
         // Properties
         modified |= this.ApplyModelToXml(modelFolder.Properties);

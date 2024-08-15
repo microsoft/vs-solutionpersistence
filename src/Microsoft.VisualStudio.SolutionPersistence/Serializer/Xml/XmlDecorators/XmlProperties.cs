@@ -54,11 +54,18 @@ internal sealed partial class XmlProperties(SlnxFile root, XmlElement element) :
 
     internal void AddToModel(PropertyContainerModel model)
     {
-        // Even if there are no properties in this property table, create a model entry so the xml isn't deleted.
-        SolutionPropertyBag propertyBag = model.AddProperties(id: this.Name, scope: this.Scope);
-        foreach (XmlProperty properties in this.properties.GetItems())
+        try
         {
-            propertyBag.Add(properties.Name, properties.Value);
+            // Even if there are no properties in this property table, create a model entry so the xml isn't deleted.
+            SolutionPropertyBag propertyBag = model.AddProperties(id: this.Name, scope: this.Scope);
+            foreach (XmlProperty properties in this.properties.GetItems())
+            {
+                propertyBag.Add(properties.Name, properties.Value);
+            }
+        }
+        catch (Exception ex) when (SolutionException.ShouldWrap(ex))
+        {
+            throw SolutionException.Create(ex, this);
         }
     }
 
@@ -67,12 +74,10 @@ internal sealed partial class XmlProperties(SlnxFile root, XmlElement element) :
     // Update the Xml DOM with changes from the model.
     internal bool ApplyModelToXml(SolutionPropertyBag modelProperties)
     {
-        return this.ApplyModelToXmlGeneric(
-            modelCollection: modelProperties,
+        return this.ApplyModelItemsToXml(
+            modelItems: modelProperties.ToList(property => (ItemRef: property.Key, Item: property.Value)),
             decoratorItems: ref this.properties,
             decoratorElementName: Keyword.Property,
-            getItemRefs: static (modelProperties) => [.. modelProperties.PropertyNames],
-            getModelItem: static (modelProperties, itemRef) => modelProperties.TryGetValue(itemRef, out string? newValue) ? newValue : null,
             applyModelToXml: static (newProperty, newValue) => newProperty.ApplyModelToXml(newValue));
     }
 
