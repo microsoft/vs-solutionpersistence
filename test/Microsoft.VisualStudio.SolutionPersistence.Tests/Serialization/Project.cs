@@ -53,7 +53,7 @@ public sealed class Project
     {
         SolutionModel solution = await SolutionSerializers.SlnXml.OpenAsync(SlnAssets.XmlSlnxEverything.Stream, CancellationToken.None);
 
-        string toRemove = @"src\CoreMauiApp\CoreMauiApp.csproj";
+        string toRemove = Path.Join("src", "CoreMauiApp", "CoreMauiApp.csproj");
 
         SolutionProjectModel? projectToRemove = solution.FindProject(toRemove);
         Assert.NotNull(projectToRemove);
@@ -70,7 +70,7 @@ public sealed class Project
     {
         SolutionModel solution = await SolutionSerializers.SlnXml.OpenAsync(SlnAssets.XmlSlnxEverything.Stream, CancellationToken.None);
 
-        string toMove = @"BlazorApp1\BlazorApp1.csproj";
+        string toMove = Path.Join("BlazorApp1", "BlazorApp1.csproj");
 
         SolutionFolderModel? solutionFolder = solution.FindFolder("/SolutionFolder/");
 
