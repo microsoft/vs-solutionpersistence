@@ -9,7 +9,4 @@
     <Platform Solution="*|Mobile" Project="ARM64" />
     <Build Solution="*|ARM64" Project="false" />
   </Project>
-  <Properties Name="Visual Studio">
-    <Property Name="OpenWith" Value="Visual Studio Version 17" />
-  </Properties>
 </Solution>

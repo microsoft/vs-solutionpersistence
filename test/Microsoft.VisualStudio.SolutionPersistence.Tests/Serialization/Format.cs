@@ -8,7 +8,9 @@ namespace Serialization;
 /// </summary>
 public class Format
 {
-    // Test that SLN converts to UTF-8 automatically from ASCII.
+    /// <summary>
+    /// Test that SLN converts to UTF-8 automatically from ASCII.
+    /// </summary>
     [Fact]
     [Trait("TestCategory", "FailsInCloudTest")]
     public async Task ConvertASCIItoUTF8Async()

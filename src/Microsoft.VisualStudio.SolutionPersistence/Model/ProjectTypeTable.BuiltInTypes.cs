@@ -37,14 +37,14 @@ internal sealed partial class ProjectTypeTable
                 ]),
 
             // Common Project System CLR projects.
-            new ProjectType(new Guid("9A19103F-16F7-4668-BE54-9A1E7A4F7556"), ClrBuildRules) { Name = "Common C#", Extension = ".csproj" },
-            new ProjectType(new Guid("778DAE3C-4631-46EA-AA77-85C1314464D9"), ClrBuildRules) { Name = "Common VB", Extension = ".vbproj" },
-            new ProjectType(new Guid("6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705"), ClrBuildRules) { Name = "Common F#", Extension = ".fsproj" },
+            new ProjectType(new Guid("9A19103F-16F7-4668-BE54-9A1E7A4F7556"), ClrBuildRules) { Name = "Common C#" },
+            new ProjectType(new Guid("778DAE3C-4631-46EA-AA77-85C1314464D9"), ClrBuildRules) { Name = "Common VB" },
+            new ProjectType(new Guid("6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705"), ClrBuildRules) { Name = "Common F#" },
 
             // Default CLR projects.
-            new ProjectType(new Guid("FAE04EC0-301F-11D3-BF4B-00C04F79EFBC"), ClrBuildRules) { Name = "C#" },
-            new ProjectType(new Guid("F184B08F-C81C-45F6-A57F-5ABD9991F28F"), ClrBuildRules) { Name = "VB" },
-            new ProjectType(new Guid("F2A71F9B-5D33-465A-A702-920D77279786"), ClrBuildRules) { Name = "F#" },
+            new ProjectType(new Guid("FAE04EC0-301F-11D3-BF4B-00C04F79EFBC"), ClrBuildRules) { Name = "C#", Extension = ".csproj" },
+            new ProjectType(new Guid("F184B08F-C81C-45F6-A57F-5ABD9991F28F"), ClrBuildRules) { Name = "VB", Extension = ".vbproj" },
+            new ProjectType(new Guid("F2A71F9B-5D33-465A-A702-920D77279786"), ClrBuildRules) { Name = "F#", Extension = ".fsproj" },
 
             // CLR shared code project
             new ProjectType(new Guid("D954291E-2A0B-460D-934E-DC6B0785DB48"), NoBuildRules) { Name = "Shared", Extension = ".shproj" },

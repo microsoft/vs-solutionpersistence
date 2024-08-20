@@ -8,7 +8,9 @@ namespace Serialization;
 /// </summary>
 public sealed class Folders
 {
-    // Remove a folder from the solution model.
+    /// <summary>
+    /// Remove a folder from the solution model.
+    /// </summary>
     [Fact]
     public void RemoveFolder()
     {
@@ -58,7 +60,9 @@ public sealed class Folders
         Assert.Null(projectInFolder.Parent);
     }
 
-    // Rename a folder in the solution model.
+    /// <summary>
+    /// Rename a folder in the solution model.
+    /// </summary>
     [Fact]
     public void RenameFolder()
     {
@@ -98,6 +102,9 @@ public sealed class Folders
         Assert.Equal("/This/Is/The/Nested/Folder/", projectInFolder.Parent.ItemRef);
     }
 
+    /// <summary>
+    /// Ensures projects update correctly when moving between folders.
+    /// </summary>
     [Fact]
     public void MoveProjectToFolder()
     {
@@ -139,6 +146,9 @@ public sealed class Folders
         Assert.Null(wanderingProject.Parent);
     }
 
+    /// <summary>
+    /// Ensures that folders and subitems update correctly when moved to a new parent folder.
+    /// </summary>
     [Fact]
     public void MoveFolder()
     {

@@ -11,9 +11,15 @@ namespace Serialization;
 /// <param name="fixture">Fixture to ensure a temp directory is created for all the tests.</param>
 public sealed partial class MakeSlnx(MakeSlnx.MakeSlnxFixture fixture) : IClassFixture<MakeSlnx.MakeSlnxFixture>
 {
+    /// <summary>
+    /// Gets the classic SLN files to convert to SLNX.
+    /// </summary>
     public static TheoryData<ResourceName> ClassicSlnFiles =>
         new TheoryData<ResourceName>(SlnAssets.ClassicSlnFiles);
 
+    /// <summary>
+    /// Gets the SLNX files to convert to SLN.
+    /// </summary>
     public static TheoryData<ResourceName> XmlSlnxFiles =>
         new TheoryData<ResourceName>(SlnAssets.XmlSlnxFiles);
 
@@ -32,6 +38,7 @@ public sealed partial class MakeSlnx(MakeSlnx.MakeSlnxFixture fixture) : IClassF
         string slnViaSlnxFile = Path.Join(fixture.SlnViaSlnxDirectory, slnFile.Name);
 
         SolutionModel model = await SolutionSerializers.SlnFileV12.OpenAsync(slnFile.Stream, CancellationToken.None);
+        model.TrimVisualStudioProperties();
 
         // Original sln converted to slnx
         await SolutionSerializers.SlnXml.SaveAsync(slnToSlnxFile, model, CancellationToken.None);
@@ -45,6 +52,10 @@ public sealed partial class MakeSlnx(MakeSlnx.MakeSlnxFixture fixture) : IClassF
         File.Move(slnViaSlnxFile, slnViaSlnxFile + ".txt");
     }
 
+    /// <summary>
+    /// Converts all the sample SLNX files into SLN and puts them in the temp <see cref="OutputDirectory"/> directory.
+    /// </summary>
+    /// <param name="slnxFileName">The slnx file to conver.</param>
     [Theory]
     [MemberData(nameof(XmlSlnxFiles))]
     [Trait("TestCategory", "FailsInCloudTest")]

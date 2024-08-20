@@ -1,7 +1,8 @@
 [*.cs]
 
 # SA1600: Elements should be documented
-dotnet_diagnostic.SA1600.severity = silent
+# This is test code, but we want to ensure each test explains its purpose.
+dotnet_diagnostic.SA1600.severity = warning
 
 # SA1601: Partial elements should be documented
 dotnet_diagnostic.SA1601.severity = silent

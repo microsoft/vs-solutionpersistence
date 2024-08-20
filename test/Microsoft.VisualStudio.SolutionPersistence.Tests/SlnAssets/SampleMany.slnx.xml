@@ -5,11 +5,11 @@
     <Platform Name="x86" />
   </Configurations>
   <Folder Name="/Apps/">
-    <Project Path="ConAppA\ConAppA.csproj" Type="C#">
+    <Project Path="ConAppA\ConAppA.csproj">
       <BuildDependency Project="CPSConApp\CPSConApp.vbproj" />
       <BuildDependency Project="NativeApp\NativeApp.vcxproj" />
     </Project>
-    <Project Path="CPSConApp\CPSConApp.vbproj" Type="VB" />
+    <Project Path="CPSConApp\CPSConApp.vbproj" />
   </Folder>
   <Folder Name="/Apps/Native/">
     <Project Path="NativeApp\NativeApp.vcxproj">
@@ -19,12 +19,12 @@
     </Project>
   </Folder>
   <Folder Name="/Libs/">
-    <Project Path="ClassLibrary1\ClassLibrary1.csproj" Type="C#" />
+    <Project Path="ClassLibrary1\ClassLibrary1.csproj" />
     <Project Path="CSharpShared\CSharpShared.shproj" />
     <Project Path="SharedCPS\SharedCPS.vcxitems" />
   </Folder>
   <Folder Name="/Libs/SubLIb/">
-    <Project Path="ClassLibrary2\ClassLibrary2.csproj" Type="C#" />
+    <Project Path="ClassLibrary2\ClassLibrary2.csproj" />
     <Project Path="StaticLib1\StaticLib1.vcxproj" />
   </Folder>
   <Folder Name="/Solution Items/">
@@ -76,12 +76,5 @@
       </Properties>
     </Project>
   </Folder>
-  <Project Path="TestProjectRoot\TestProjectRoot.csproj" Type="C#" />
-  <Properties Name="SharedMSBuildProjectFiles">
-    <Property Name="CSharpShared\CSharpShared.projitems*{51cc7781-a8d3-4c60-8065-f3ceedba8032}*SharedItemsImports" Value="13" />
-    <Property Name="SharedCPS\SharedCPS.vcxitems*{919107bb-2e8e-4dbb-ac5d-36ff8a211ffc}*SharedItemsImports" Value="9" />
-  </Properties>
-  <Properties Name="Visual Studio">
-    <Property Name="OpenWith" Value="Visual Studio Version 17" />
-  </Properties>
+  <Project Path="TestProjectRoot\TestProjectRoot.csproj" />
 </Solution>

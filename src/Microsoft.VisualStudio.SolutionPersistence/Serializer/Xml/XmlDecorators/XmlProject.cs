@@ -23,6 +23,12 @@ internal sealed partial class XmlProject(SlnxFile root, XmlFolder? xmlParentFold
 
     internal StringSpan DefaultDisplayName => PathExtensions.GetStandardDisplayName(PathExtensions.ConvertFromPersistencePath(this.Path));
 
+    internal Guid Id
+    {
+        get => this.GetXmlAttributeGuid(Keyword.Id);
+        set => this.UpdateXmlAttributeGuid(Keyword.Id, value);
+    }
+
     internal string? DisplayName
     {
         get => this.GetXmlAttribute(Keyword.DisplayName);
@@ -92,6 +98,7 @@ internal sealed partial class XmlProject(SlnxFile root, XmlFolder? xmlParentFold
                 projectTypeName: this.Type ?? string.Empty,
                 folder: parentFolder);
 
+            projectModel.Id = this.Id;
             projectModel.DisplayName = this.DisplayName;
 
             foreach (ConfigurationRule configurationRule in this.configurationRules.ToModel())

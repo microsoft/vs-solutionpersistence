@@ -3,6 +3,7 @@
 
 using System.Xml;
 using Microsoft.VisualStudio.SolutionPersistence.Model;
+using Microsoft.VisualStudio.SolutionPersistence.Serializer.SlnV12;
 using Microsoft.VisualStudio.SolutionPersistence.Serializer.Xml.XmlDecorators;
 
 namespace Microsoft.VisualStudio.SolutionPersistence.Serializer.Xml;
@@ -20,6 +21,9 @@ internal partial class SlnXmlSerializer
 
             SlnXmlModelExtension? modelExtension = model.SerializerExtension as SlnXmlModelExtension;
 
+            // If converting from Sln always remove legacy values.
+            bool convertingFromSln = model.SerializerExtension is SlnV12ModelExtension;
+
             SlnxSerializerSettings xmlSerializerSettings = modelExtension?.Settings ??
                 new SlnxSerializerSettings()
                 {
@@ -27,7 +31,17 @@ internal partial class SlnXmlSerializer
                     PreserveWhitespace = false,
                     IndentChars = "  ",
                     NewLine = Environment.NewLine,
+                    TrimVisualStudioProperties = convertingFromSln,
                 };
+
+            if (xmlSerializerSettings.TrimVisualStudioProperties == true)
+            {
+                model.TrimVisualStudioProperties();
+            }
+            else
+            {
+                model.RemoveObsoleteProperties();
+            }
 
             // If this started as an XML document, merge the changes back into the original document.
             SlnxFile root = modelExtension?.Root ?? CreateNewSlnFile(fullPath, xmlSerializerSettings, model.StringTable);

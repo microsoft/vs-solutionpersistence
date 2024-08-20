@@ -14,10 +14,10 @@ internal sealed partial class XmlProject
         bool modified = false;
 
         // Attributes
-        string? type = this.Root.ProjectTypes.GetConciseType(modelProject);
+        string type = this.Root.ProjectTypes.GetConciseType(modelProject);
         if (!StringComparer.Ordinal.Equals(this.Type, type))
         {
-            this.Type = type;
+            this.Type = type.NullIfEmpty();
             modified = true;
         }
 
@@ -28,6 +28,13 @@ internal sealed partial class XmlProject
         if (!StringComparer.Ordinal.Equals(this.DisplayName, displayName))
         {
             this.DisplayName = displayName;
+            modified = true;
+        }
+
+        Guid id = modelProject.IsDefaultId ? Guid.Empty : modelProject.Id;
+        if (this.Id != id)
+        {
+            this.Id = id;
             modified = true;
         }
 

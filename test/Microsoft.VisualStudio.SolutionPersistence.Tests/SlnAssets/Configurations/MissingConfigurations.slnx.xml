@@ -17,7 +17,4 @@
     <Build Solution="Debug|x64" Project="false" />
     <Build Solution="Release|x86" Project="false" />
   </Project>
-  <Properties Name="Visual Studio">
-    <Property Name="OpenWith" Value="Visual Studio Version 17" />
-  </Properties>
 </Solution>

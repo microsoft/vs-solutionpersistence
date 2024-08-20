@@ -74,11 +74,23 @@ internal sealed partial class XmlProperties(SlnxFile root, XmlElement element) :
     // Update the Xml DOM with changes from the model.
     internal bool ApplyModelToXml(SolutionPropertyBag modelProperties)
     {
-        return this.ApplyModelItemsToXml(
+        bool modified = false;
+
+        // Scope
+        if (this.Scope != modelProperties.Scope)
+        {
+            this.Scope = modelProperties.Scope;
+            modified = true;
+        }
+
+        // Properties
+        modified |= this.ApplyModelItemsToXml(
             modelItems: modelProperties.ToList(property => (ItemRef: property.Key, Item: property.Value)),
             decoratorItems: ref this.properties,
             decoratorElementName: Keyword.Property,
             applyModelToXml: static (newProperty, newValue) => newProperty.ApplyModelToXml(newValue));
+
+        return modified;
     }
 
     private static string ScopeToString(PropertiesScope scope)

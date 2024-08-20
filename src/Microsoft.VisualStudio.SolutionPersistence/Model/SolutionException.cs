@@ -91,11 +91,12 @@ public class SolutionException : FormatException
             new SolutionException(message) { File = location?.Root.FullPath };
     }
 
-    internal static SolutionException Create(Exception innerException, XmlDecorator location)
+    internal static SolutionException Create(Exception innerException, XmlDecorator location, string? message = null)
     {
+        message ??= innerException.Message;
         return location?.XmlElement is IXmlLineInfo lineInfo && lineInfo.HasLineInfo() ?
-            new SolutionException(innerException.Message, innerException) { Line = lineInfo.LineNumber, Column = lineInfo.LinePosition, File = location.Root.FullPath } :
-            new SolutionException(innerException.Message, innerException) { File = location?.Root.FullPath };
+            new SolutionException(message, innerException) { Line = lineInfo.LineNumber, Column = lineInfo.LinePosition, File = location.Root.FullPath } :
+            new SolutionException(message, innerException) { File = location?.Root.FullPath };
     }
 
     // Checks if an exception caught during serialization should be wrapped by a SolutionException to add position information.

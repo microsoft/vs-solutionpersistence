@@ -16,9 +16,10 @@ public sealed class SolutionModel : PropertyContainerModel
 #if NETFRAMEWORK
     private const string InvalidNameChars = @"?:&\/*""<>|#%";
 #else
-    private static readonly SearchValues<char> InvalidNameChars = SearchValues.Create(@"?:&\*""<>|#%");
+    private static readonly SearchValues<char> InvalidNameChars = SearchValues.Create(@"?:&\/*""<>|#%");
 #endif
 
+    private readonly VisualStudioProperties visualStudioProperties;
     private readonly Dictionary<Guid, SolutionItemModel> solutionItemsById;
     private readonly List<SolutionItemModel> solutionItems;
     private readonly List<SolutionProjectModel> solutionProjects;
@@ -35,6 +36,7 @@ public sealed class SolutionModel : PropertyContainerModel
     /// </summary>
     public SolutionModel()
     {
+        this.visualStudioProperties = new VisualStudioProperties(this);
         this.StringTable = new StringTable().WithSolutionConstants();
         this.solutionItemsById = [];
         this.solutionItems = [];
@@ -53,6 +55,7 @@ public sealed class SolutionModel : PropertyContainerModel
     public SolutionModel(SolutionModel solutionModel)
         : base(solutionModel ?? throw new ArgumentNullException(nameof(solutionModel)))
     {
+        this.visualStudioProperties = new VisualStudioProperties(this);
         this.StringTable = solutionModel.StringTable;
         int itemCount = solutionModel.solutionItems.Count;
         int folderCount = solutionModel.solutionItems.Count(x => x is SolutionFolderModel);
@@ -84,9 +87,6 @@ public sealed class SolutionModel : PropertyContainerModel
             }
         }
 
-        this.MinVsVersion = solutionModel.MinVsVersion;
-        this.VsVersion = solutionModel.VsVersion;
-        this.SolutionId = solutionModel.SolutionId;
         this.Description = solutionModel.Description;
         this.solutionBuildTypes = [.. solutionModel.solutionBuildTypes];
         this.solutionPlatforms = [.. solutionModel.solutionPlatforms];
@@ -105,26 +105,6 @@ public sealed class SolutionModel : PropertyContainerModel
     /// This can be created by a serializer.
     /// </summary>
     public ISerializerModelExtension? SerializerExtension { get; set; }
-
-    // CONSIDER: Move these to VS property bag.
-    #region Visual Studio Properties
-
-    /// <summary>
-    /// Gets or sets an id for the solution.
-    /// </summary>
-    public Guid? SolutionId { get; set; }
-
-    /// <summary>
-    /// Gets or sets the version of Visual Studio that was used to save this solution.
-    /// </summary>
-    public string? VsVersion { get; set; }
-
-    /// <summary>
-    /// Gets or sets the minimum version of Visual Studio required to open this solution.
-    /// </summary>
-    public string? MinVsVersion { get; set; }
-
-    #endregion
 
     /// <summary>
     /// Gets or sets a user visible comment describing the solution.
@@ -175,6 +155,12 @@ public sealed class SolutionModel : PropertyContainerModel
             this.projectTypeTable = null;
         }
     }
+
+    /// <summary>
+    /// Gets a helper to get and set Visual Studio specific properties.
+    /// </summary>
+    /// <returns>A helper to get and set Visual Studio properties.</returns>
+    public ref readonly VisualStudioProperties VisualStudioProperties => ref this.visualStudioProperties;
 
     internal ProjectTypeTable ProjectTypeTable => this.projectTypeTable ??= new ProjectTypeTable(this.projectTypes);
 
@@ -228,7 +214,7 @@ public sealed class SolutionModel : PropertyContainerModel
             this.ProjectTypeTable.GetProjectTypeId(projectTypeName, Path.GetExtension(filePath.AsSpan())) ??
             throw new ArgumentException(string.Format(Errors.InvalidProjectTypeReference_Args1, projectTypeName), nameof(projectTypeName));
 
-        return this.AddProject(filePath, projectTypeName, projectTypeId, folder);
+        return this.AddProject(filePath, projectTypeName ?? string.Empty, projectTypeId, folder);
     }
 
     /// <summary>
@@ -437,9 +423,69 @@ public sealed class SolutionModel : PropertyContainerModel
         }
     }
 
-    internal SolutionProjectModel AddProject(string filePath, string? projectTypeName, Guid projectTypeId, SolutionFolderModel? folder)
+    /// <summary>
+    /// Remove any unneccessary VS properties from the model.
+    /// This removes project and solution guid ids plus any properties removed by <see cref="RemoveObsoleteProperties"/>.
+    /// </summary>
+    internal void TrimVisualStudioProperties()
     {
-        SolutionProjectModel project = new SolutionProjectModel(this, filePath, projectTypeId, projectTypeName ?? string.Empty, folder);
+        // Set project id to default.
+        foreach (SolutionItemModel item in this.SolutionItems)
+        {
+            item.Id = Guid.Empty;
+        }
+
+        this.VisualStudioProperties.SolutionId = null;
+        this.visualStudioProperties.OpenWith = null;
+
+        this.RemoveObsoleteProperties();
+    }
+
+    /// <summary>
+    /// Remove any obsolete VS properties from the model.
+    /// This removes minimum version older than Dev17, shared project properties, and
+    /// removes any CPS project types ids that were accidentally used in .sln files.
+    /// </summary>
+    internal void RemoveObsoleteProperties()
+    {
+        // Remove CPS project type ids.
+        // This explicitly checks for the built-in CPS type names, so a slnx file can still
+        // use the CPS project ids by creating a custom ProjectType.
+        foreach (SolutionProjectModel project in this.SolutionProjects)
+        {
+            // Remove CPS project type that were used by .sln for many years due to a bug.
+            if (StringComparer.OrdinalIgnoreCase.Equals(project.Type, "Common C#"))
+            {
+                project.Type = "C#";
+            }
+            else if (StringComparer.OrdinalIgnoreCase.Equals(project.Type, "Common VB"))
+            {
+                project.Type = "VB";
+            }
+            else if (StringComparer.OrdinalIgnoreCase.Equals(project.Type, "Common F#"))
+            {
+                project.Type = "F#";
+            }
+        }
+
+        _ = this.RemoveProperties(Serializer.SlnV12.SectionName.SharedMSBuildProjectFiles);
+
+        VisualStudioProperties vsProperties = this.VisualStudioProperties;
+        vsProperties.Version = null;
+#pragma warning disable CS0618 // Type or member is obsolete
+        vsProperties.HideSolutionNode = null;
+#pragma warning restore CS0618 // Type or member is obsolete
+
+        if (vsProperties.MinimumVersion is not null &&
+            vsProperties.MinimumVersion < new Version(18, 0))
+        {
+            vsProperties.MinimumVersion = null;
+        }
+    }
+
+    internal SolutionProjectModel AddProject(string filePath, string projectTypeName, Guid projectTypeId, SolutionFolderModel? folder)
+    {
+        SolutionProjectModel project = new SolutionProjectModel(this, filePath, projectTypeId, projectTypeName, folder);
 
         // Project is already in the solution.
         if (this.FindProject(project.FilePath) is not null)

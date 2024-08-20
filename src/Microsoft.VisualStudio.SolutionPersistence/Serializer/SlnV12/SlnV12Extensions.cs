@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Globalization;
 using System.Linq;
 using Microsoft.VisualStudio.SolutionPersistence.Model;
 using Microsoft.VisualStudio.SolutionPersistence.Utilities;
@@ -23,77 +22,6 @@ public static class SlnV12Extensions
         ActiveCfg = 1,
         Build = 2,
         Deploy = 3,
-    }
-
-    /// <summary>
-    /// Gets extra info for VS to open the solution with a specific installed version.
-    /// (e.g. # Visual Studio Version 17 in SLN file).
-    /// </summary>
-    /// <param name="solution">The solution model.</param>
-    /// <returns>The version of Visual Studio to open the solution with.</returns>
-    public static string? GetOpenWithVisualStudio(this SolutionModel solution)
-    {
-        Argument.ThrowIfNull(solution, nameof(solution));
-        SolutionPropertyBag? properties = solution.Properties.FindByItemRef(SectionName.VisualStudio);
-        return properties is null ? null : properties.TryGetValue(SlnConstants.OpenWith, out string? openWith) ? openWith : null;
-    }
-
-    /// <summary>
-    /// Sets extra info for VS to open the solution with a specific installed version.
-    /// (e.g. # Visual Studio Version 17 in SLN file).
-    /// </summary>
-    /// <param name="solution">The solution model.</param>
-    /// <param name="openWith">The version of Visual Studio to open the solution with.</param>
-    public static void SetOpenWithVisualStudio(this SolutionModel solution, string openWith)
-    {
-        Argument.ThrowIfNull(solution, nameof(solution));
-        solution.AddProperties(SectionName.VisualStudio)
-            .Add(SlnConstants.OpenWith, openWith);
-    }
-
-    /// <summary>
-    /// Gets the solution file property that is used to determine if the solution should be shown
-    /// in Visual Studio's solution explorer. This property is obsolete and should not be used.
-    /// </summary>
-    /// <param name="solution">The solution model.</param>
-    /// <returns>The value of the option or null if it is not explicitly set.</returns>
-    public static bool? GetHideSolutionNode(this SolutionModel solution)
-    {
-        Argument.ThrowIfNull(solution, nameof(solution));
-        SolutionPropertyBag? properties = solution.Properties.FindByItemRef(SectionName.SolutionProperties);
-        return
-            properties is null ? null :
-            !properties.TryGetValue(SlnConstants.HideSolutionNode, out string? hideSolutionNodeStr) ? null :
-            !bool.TryParse(hideSolutionNodeStr, out bool hideSolutionNode) ? null :
-            hideSolutionNode;
-    }
-
-    /// <summary>
-    /// Sets the solution file property that is used to determine if the solution should be shown
-    /// in Visual Studio's solution explorer. This property is obsolete and should not be used.
-    /// </summary>
-    /// <param name="solution">The solution model.</param>
-    /// <param name="hideSolutionNode">The value of the options.</param>
-    public static void SetHideSolutionNode(this SolutionModel solution, bool hideSolutionNode)
-    {
-        Argument.ThrowIfNull(solution, nameof(solution));
-        if (hideSolutionNode)
-        {
-            solution.AddProperties(SectionName.SolutionProperties)
-                .Add(SlnConstants.HideSolutionNode, hideSolutionNode.ToString(CultureInfo.InvariantCulture));
-        }
-        else
-        {
-            SolutionPropertyBag? solutionProperties = solution.FindProperties(SectionName.SolutionProperties);
-            if (solutionProperties is not null)
-            {
-                _ = solutionProperties.Remove(SlnConstants.HideSolutionNode);
-                if (solutionProperties.Count == 0)
-                {
-                    _ = solution.RemoveProperties(SectionName.SolutionProperties);
-                }
-            }
-        }
     }
 
     /// <summary>
@@ -264,10 +192,9 @@ public static class SlnV12Extensions
                 if (properties.TryGetValue(SlnConstants.HideSolutionNode, out string? hideSolutionNodeStr) &&
                     bool.TryParse(hideSolutionNodeStr, out bool hideSolutionNode))
                 {
-                    if (hideSolutionNode)
-                    {
-                        solution.SetHideSolutionNode(true);
-                    }
+#pragma warning disable CS0618 // Type or member is obsolete
+                    solution.VisualStudioProperties.HideSolutionNode = hideSolutionNode;
+#pragma warning restore CS0618 // Type or member is obsolete
 
                     if (properties.Count != 1)
                     {
@@ -282,10 +209,7 @@ public static class SlnV12Extensions
                 if (properties.TryGetValue(SlnConstants.SolutionGuid, out string? solutionGuidStr) &&
                     Guid.TryParse(solutionGuidStr, out Guid solutionId))
                 {
-                    if (solutionId != Guid.Empty)
-                    {
-                        solution.SolutionId = solutionId;
-                    }
+                    solution.VisualStudioProperties.SolutionId = solutionId;
 
                     if (properties.Count == 1)
                     {
@@ -572,18 +496,16 @@ public static class SlnV12Extensions
             SolutionPropertyBag? additionalProperties = ModelHelper.FindByItemRef(solution.Properties, SectionName.SolutionProperties);
             SolutionPropertyBag propertyBag = new SolutionPropertyBag(SectionName.SolutionProperties, PropertiesScope.PreLoad, 1 + additionalProperties?.Count ?? 0)
             {
-                { SlnConstants.HideSolutionNode, solution.GetHideSolutionNode().GetValueOrDefault(false) ? "TRUE" : "FALSE" },
+#pragma warning disable CS0618 // Type or member is obsolete
+                { SlnConstants.HideSolutionNode, solution.VisualStudioProperties.HideSolutionNode.GetValueOrDefault(false) ? "TRUE" : "FALSE" },
+#pragma warning restore CS0618 // Type or member is obsolete
             };
 
             if (additionalProperties is not null)
             {
                 foreach ((string propertyName, string value) in additionalProperties)
                 {
-                    // Ignore OpenWithVS as there is special logic to handle that case.
-                    if (!StringComparer.Ordinal.Equals(propertyName, SlnConstants.OpenWith))
-                    {
-                        propertyBag.Add(propertyName, value);
-                    }
+                    propertyBag.Add(propertyName, value);
                 }
             }
 
@@ -619,14 +541,14 @@ public static class SlnV12Extensions
         {
             SolutionPropertyBag? additionalProperties = ModelHelper.FindByItemRef(model.Properties, SectionName.ExtensibilityGlobals);
 
-            if (model.SolutionId is null)
+            if (model.VisualStudioProperties.SolutionId is null)
             {
                 return additionalProperties;
             }
 
             SolutionPropertyBag propertyBag = new SolutionPropertyBag(SectionName.ExtensibilityGlobals, PropertiesScope.PostLoad, 1 + additionalProperties?.Count ?? 0)
             {
-                { SlnConstants.SolutionGuid, (model.SolutionId ?? Guid.NewGuid()).ToSlnString() },
+                { SlnConstants.SolutionGuid, (model.VisualStudioProperties.SolutionId ?? Guid.NewGuid()).ToSlnString() },
             };
 
             if (additionalProperties is not null)
@@ -671,10 +593,8 @@ public static class SlnV12Extensions
         Argument.ThrowIfNull(solution, nameof(solution));
         solution.ValidateInModel(folder);
 
-        string? projectTypeName = solution.ProjectTypeTable.TryGetProjectType(projectTypeId, out ProjectType? projectType) ?
-                   projectType.Name ?? projectTypeId.ToString() :
-                   projectTypeId.ToString();
-
+        string extension = PathExtensions.GetExtension(filePath).ToString();
+        string projectTypeName = solution.ProjectTypeTable.GetConciseType(projectTypeId, string.Empty, extension);
         return solution.AddProject(filePath, projectTypeName, projectTypeId, folder);
     }
 
@@ -693,5 +613,63 @@ public static class SlnV12Extensions
     {
         Argument.ThrowIfNull(solution, nameof(solution));
         return solution.SuspendProjectValidation();
+    }
+
+#if NETFRAMEWORK
+
+    internal static Version? TryParseVSVersion(string? strVersion)
+    {
+        return strVersion is null ? null : TryParseVSVersion(strVersion.AsSpan());
+    }
+
+#endif
+
+    /// <summary>
+    /// Parses the version formats allowed in .sln files.
+    /// </summary>
+    /// <returns>Returns null if the version could not be parsed.</returns>
+    internal static Version? TryParseVSVersion(StringSpan strVersion)
+    {
+        strVersion = strVersion.Trim();
+        if (strVersion.IsEmpty)
+        {
+            return null;
+        }
+
+        if (strVersion[0] == 'v' || strVersion[0] == 'V')
+        {
+            strVersion = strVersion.Slice(1);
+        }
+
+        int indexOfSpace = strVersion.IndexOf(' ');
+        if (indexOfSpace >= 0)
+        {
+            strVersion = strVersion.Slice(0, indexOfSpace);
+        }
+
+        // Version.TryParse requires a major and minor version. (e.g. 16.0)
+        // The old native logic allowed for just the major version.
+        if (!strVersion.Contains('.'))
+        {
+            strVersion = StringExtensions.Concat(strVersion, ".0".AsSpan()).AsSpan();
+        }
+
+        do
+        {
+            if (Version.TryParse(strVersion.ToString(), out Version? version))
+            {
+                return version;
+            }
+
+            // If failed, just trim off extra stuff and try again.
+            int lastIndexOfDot = strVersion.LastIndexOf('.');
+            if (lastIndexOfDot >= 0)
+            {
+                strVersion = strVersion.Slice(0, lastIndexOfDot);
+            }
+        }
+        while (strVersion.Contains('.'));
+
+        return null;
     }
 }

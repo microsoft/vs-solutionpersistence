@@ -10,6 +10,7 @@ namespace Serialization;
 /// These tests validate SLNX files can be round-tripped through the serializer and model.
 /// These remove any user comments and whitespace from the original model.
 /// </summary>
+[SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1600:Elements should be documented", Justification = "All tests in this class have the same purpose.")]
 public class RoundTripXmlSlnxThruModelCopy
 {
     [Fact]
@@ -17,6 +18,9 @@ public class RoundTripXmlSlnxThruModelCopy
     {
         return Assert.ThrowsAsync<FailException>(() => TestRoundTripSerializerAsync(SlnAssets.XmlSlnxComments));
     }
+
+    [Fact]
+    public Task LegacyValuesAsync() => TestRoundTripSerializerAsync(SlnAssets.XmlSlnxLegacyValuesNoObsolete);
 
     [Fact]
     public Task BlankAsync() => TestRoundTripSerializerAsync(SlnAssets.XmlSlnxBlank);
@@ -52,19 +56,16 @@ public class RoundTripXmlSlnxThruModelCopy
         SolutionModel model = await SolutionSerializers.SlnXml.OpenAsync(slnStream.Stream, CancellationToken.None);
         AssertNotTarnished(model);
 
-        SlnxSerializerSettings? originalSettings = (model.SerializerExtension as ISerializerModelExtension<SlnxSerializerSettings>)?.Settings;
-        Assert.True(originalSettings.HasValue);
+        Assert.True(model.TryGetSettings(out SlnxSerializerSettings originalSettings));
 
         // Make a copy of the model.
         model = new SolutionModel(model)
         {
             // Strip off any comments or whitespace from the original model, but keep the indentation the same.
             SerializerExtension = SolutionSerializers.SlnXml.CreateModelExtension(
-                new SlnxSerializerSettings()
+                new SlnxSerializerSettings(originalSettings)
                 {
                     PreserveWhitespace = false,
-                    IndentChars = originalSettings.Value.IndentChars,
-                    NewLine = originalSettings.Value.NewLine,
                 }),
         };
 

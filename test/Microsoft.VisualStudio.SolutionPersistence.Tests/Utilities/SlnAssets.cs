@@ -42,7 +42,7 @@ internal static class SlnAssets
     public static ResourceStream ClassicSlnTraditional => LoadResource("Traditional.sln");
 
     // A solution with missing configurations. UTF8 BOM encoding.
-    public static ResourceStream ClassicSlnMissingConfigurations => LoadResource(@"Configurations\MissingConfigurations.sln");
+    public static ResourceStream ClassicSlnMissingConfigurations => LoadResource("Configurations/MissingConfigurations.sln");
 
     #endregion
 
@@ -53,6 +53,20 @@ internal static class SlnAssets
 
     // Solution with just a property bag and user XML.
     public static ResourceStream XmlSlnxJustProperties => LoadResource("JustProperties.slnx");
+
+    // Solution with optional legacy values.
+    public static ResourceStream XmlSlnxLegacyValues => LoadResource("Invalid/LegacyValues.slnx");
+
+    // Solution with optional legacy values, but all obsolete values are removed.
+    public static ResourceStream XmlSlnxLegacyValuesNoObsolete => LoadResource("LegacyValues-NoObsolete.slnx");
+
+    // Solution with that was trimmed of all optional legacy values.
+    public static ResourceStream XmlSlnxLegacyValuesTrimVS => LoadResource("LegacyValues-TrimVS.slnx");
+
+    // Validate slnx file version
+    public static ResourceStream XmlSlnxVersion => LoadResource("Version.slnx");
+
+    public static ResourceStream XmlSlnxVersionMin => LoadResource("VersionMin.slnx");
 
     // A single C++ project with "Mobile"->"ARM64" platform, doesn't and build ARM64 sln platform.
     public static ResourceStream XmlSlnxSingleNativeProject => LoadResource("SingleNativeProject.slnx");
@@ -72,7 +86,7 @@ internal static class SlnAssets
     public static ResourceStream XmlSlnxOrchardCore => LoadResource("OrchardCore.slnx");
 
     // Metadata for known project types.
-    public static ResourceStream XmlBuiltInProjectTypes => LoadResource(@"Configurations\BuiltInProjectTypes.slnx");
+    public static ResourceStream XmlBuiltInProjectTypes => LoadResource("Configurations/BuiltInProjectTypes.slnx");
 
     // A complex solution with multiple native and manager projects and configurations.
     public static ResourceStream XmlSlnxGiant => LoadResource("Giant.slnx");
@@ -81,7 +95,7 @@ internal static class SlnAssets
     public static ResourceStream XmlSlnxTraditional => LoadResource("Traditional.slnx");
 
     // A solution with missing configurations.
-    public static ResourceStream XmlSlnxMissingConfigurations => LoadResource(@"Configurations\MissingConfigurations.slnx");
+    public static ResourceStream XmlSlnxMissingConfigurations => LoadResource("Configurations/MissingConfigurations.slnx");
 
     public static ResourceName[] XmlSlnxFiles => GetAllSampleFiles(".slnx").ToArray();
 
@@ -89,13 +103,13 @@ internal static class SlnAssets
 
     #region Test result Slnx
 
-    public static ResourceStream XmlSlnxProperties_Empty => LoadResource(@"Properties\JustProperties-empty.slnx");
+    public static ResourceStream XmlSlnxProperties_Empty => LoadResource("Properties/JustProperties-empty.slnx");
 
-    public static ResourceStream XmlSlnxProperties_Add0Add7 => LoadResource(@"Properties\JustProperties-add0add7.slnx");
+    public static ResourceStream XmlSlnxProperties_Add0Add7 => LoadResource("Properties/JustProperties-add0add7.slnx");
 
-    public static ResourceStream XmlSlnxProperties_No2No4 => LoadResource(@"Properties\JustProperties-no2no4.slnx");
+    public static ResourceStream XmlSlnxProperties_No2No4 => LoadResource("Properties/JustProperties-no2no4.slnx");
 
-    public static ResourceStream XmlSlnxProperties_NoComments => LoadResource(@"Properties\JustProperties-nocomments.slnx");
+    public static ResourceStream XmlSlnxProperties_NoComments => LoadResource("Properties/JustProperties-nocomments.slnx");
 
     #endregion
 
@@ -131,7 +145,7 @@ internal static class SlnAssets
 
     public static ResourceStream LoadResource(string name)
     {
-        name = name.Replace('\\', '.');
+        name = name.Replace('/', '.');
         Stream? stream =
             ResourceAssembly.GetManifestResourceStream(SlnAssetsRoot + name + ".txt") ??
             ResourceAssembly.GetManifestResourceStream(SlnAssetsRoot + name + ".xml");

@@ -11,6 +11,10 @@ namespace Serialization;
 /// </summary>
 public class ManipulateXmlPropertyBag
 {
+    /// <summary>
+    /// Validates that properties can be removed from a properties bag.
+    /// It ensures that whitespace is updated correctly.
+    /// </summary>
     [Fact]
     public async Task RemoveSomePropertiesAsync()
     {
@@ -26,6 +30,10 @@ public class ManipulateXmlPropertyBag
         });
     }
 
+    /// <summary>
+    /// Validates that all properties can be removed from a properties bag.
+    /// It ensures that whitespace is updated correctly.
+    /// </summary>
     [Fact]
     public async Task RemoveAllPropertiesAsync()
     {
@@ -43,6 +51,10 @@ public class ManipulateXmlPropertyBag
         });
     }
 
+    /// <summary>
+    /// This test validates that properties can be added to an existing properties bag.
+    /// It ensures that whitespace is updated correctly.
+    /// </summary>
     [Fact]
     public async Task AddPropertiesAsync()
     {
@@ -58,6 +70,10 @@ public class ManipulateXmlPropertyBag
         });
     }
 
+    /// <summary>
+    /// Validates that properties can be added to an empty properties bag.
+    /// It ensures that whitespace is updated correctly.
+    /// </summary>
     [Fact]
     public async Task AddFromEmptyAsync()
     {

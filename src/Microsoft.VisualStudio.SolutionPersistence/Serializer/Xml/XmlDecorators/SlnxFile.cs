@@ -13,6 +13,8 @@ namespace Microsoft.VisualStudio.SolutionPersistence.Serializer.Xml.XmlDecorator
 [DebuggerDisplay("{Solution}")]
 internal sealed class SlnxFile
 {
+    internal const int CurrentVersion = 1;
+
     internal SlnxFile(
         XmlDocument xmlDocument,
         SlnxSerializerSettings serializationSettings,
@@ -42,6 +44,9 @@ internal sealed class SlnxFile
     }
 
     internal string? FullPath { get; }
+
+    // Slnx file version.
+    internal Version? FileVersion { get; set; }
 
     internal XmlDocument Document { get; }
 

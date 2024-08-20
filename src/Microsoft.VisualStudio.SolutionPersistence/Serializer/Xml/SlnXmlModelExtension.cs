@@ -32,4 +32,6 @@ internal sealed class SlnXmlModelExtension(ISolutionSerializer serializer, SlnxS
     internal SlnxFile? Root { get; init; }
 
     internal string? SolutionFileFullPath => this.Root?.FullPath;
+
+    internal Version? Version => this.Root?.FileVersion;
 }

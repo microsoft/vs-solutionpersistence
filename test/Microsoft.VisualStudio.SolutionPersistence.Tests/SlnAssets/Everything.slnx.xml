@@ -34,15 +34,15 @@
       <Property Name="UseLegacyDebugEngines" Value="No" />
     </Properties>
   </Project>
-  <Project Path="AzureFunctionApp1\AzureFunctionApp1.csproj" Type="C#">
+  <Project Path="AzureFunctionApp1\AzureFunctionApp1.csproj">
     <Build Solution="Debug|Any CPU" Project="false" />
   </Project>
-  <Project Path="BlazorApp1\BlazorApp1.csproj" Type="C#">
+  <Project Path="BlazorApp1\BlazorApp1.csproj">
     <Build Solution="Debug|Any CPU" Project="false" />
   </Project>
   <Project Path="SharedNativeProject\SharedNativeProject.vcxitems" />
-  <Project Path="src\ClassicWinFormsApp\ClassicWinFormsApp.csproj" Type="C#" />
-  <Project Path="src\ClassicWPFApp\ClassicWPFApp.csproj" Type="C#" />
+  <Project Path="src\ClassicWinFormsApp\ClassicWinFormsApp.csproj" />
+  <Project Path="src\ClassicWPFApp\ClassicWPFApp.csproj" />
   <Project Path="src\CoreConsole\CoreConsole.csproj" />
   <Project Path="src\CoreMauiApp\CoreMauiApp.csproj">
     <Deploy />
@@ -62,16 +62,5 @@
   </Project>
   <Project Path="src\SharedCode\SharedCode.shproj" />
   <Project Path="src\VBCoreConsoleApp\VBCoreConsoleApp.vbproj" />
-  <Project Path="WorkerService1\WorkerService1.csproj" Type="C#" />
-  <Properties Name="SharedMSBuildProjectFiles">
-    <Property Name="SharedNativeProject\SharedNativeProject.vcxitems*{4dfc3b22-d747-4f9e-a8f9-793b0f224c76}*SharedItemsImports" Value="4" />
-    <Property Name="SharedNativeProject\SharedNativeProject.vcxitems*{6f572a98-854c-4e9a-97aa-40aa0ae4a8a0}*SharedItemsImports" Value="4" />
-    <Property Name="SharedNativeProject\SharedNativeProject.vcxitems*{aeb99a17-93fe-4937-a4a8-dbbc56607860}*SharedItemsImports" Value="9" />
-    <Property Name="src\SharedCode\SharedCode.projitems*{51d540b2-1272-4954-91aa-184ba3d820cb}*SharedItemsImports" Value="5" />
-    <Property Name="src\SharedCode\SharedCode.projitems*{799413b8-394a-4df0-a8cb-9f1715603c36}*SharedItemsImports" Value="5" />
-    <Property Name="src\SharedCode\SharedCode.projitems*{9f828cea-ff08-4819-8700-f0bfad9d56d8}*SharedItemsImports" Value="13" />
-  </Properties>
-  <Properties Name="Visual Studio">
-    <Property Name="OpenWith" Value="Visual Studio Version 17" />
-  </Properties>
+  <Project Path="WorkerService1\WorkerService1.csproj" />
 </Solution>

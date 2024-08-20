@@ -80,8 +80,6 @@ Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel.DistillProjectCon
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel.FindFolder(string! path) -> Microsoft.VisualStudio.SolutionPersistence.Model.SolutionFolderModel?
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel.FindItemById(System.Guid id) -> Microsoft.VisualStudio.SolutionPersistence.Model.SolutionItemModel?
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel.FindProject(string! path) -> Microsoft.VisualStudio.SolutionPersistence.Model.SolutionProjectModel?
-Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel.MinVsVersion.get -> string?
-Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel.MinVsVersion.set -> void
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel.Platforms.get -> System.Collections.Generic.IReadOnlyList<string!>!
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel.ProjectTypes.get -> System.Collections.Generic.IReadOnlyList<Microsoft.VisualStudio.SolutionPersistence.Model.ProjectType!>!
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel.ProjectTypes.set -> void
@@ -92,16 +90,13 @@ Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel.RemoveProject(Mic
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel.SerializerExtension.get -> Microsoft.VisualStudio.SolutionPersistence.Model.ISerializerModelExtension?
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel.SerializerExtension.set -> void
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel.SolutionFolders.get -> System.Collections.Generic.IReadOnlyList<Microsoft.VisualStudio.SolutionPersistence.Model.SolutionFolderModel!>!
-Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel.SolutionId.get -> System.Guid?
-Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel.SolutionId.set -> void
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel.SolutionItems.get -> System.Collections.Generic.IReadOnlyList<Microsoft.VisualStudio.SolutionPersistence.Model.SolutionItemModel!>!
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel.SolutionModel() -> void
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel.SolutionModel(Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel! solutionModel) -> void
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel.SolutionProjects.get -> System.Collections.Generic.IReadOnlyList<Microsoft.VisualStudio.SolutionPersistence.Model.SolutionProjectModel!>!
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel.StringTable.get -> Microsoft.VisualStudio.SolutionPersistence.Model.StringTable!
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel.StringTable.set -> void
-Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel.VsVersion.get -> string?
-Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel.VsVersion.set -> void
+Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel.VisualStudioProperties.get -> Microsoft.VisualStudio.SolutionPersistence.Model.VisualStudioProperties
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionProjectModel
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionProjectModel.AddDependency(Microsoft.VisualStudio.SolutionPersistence.Model.SolutionProjectModel! dependency) -> void
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionProjectModel.AddProjectConfigurationRule(Microsoft.VisualStudio.SolutionPersistence.Model.ConfigurationRule rule) -> void
@@ -136,11 +131,24 @@ Microsoft.VisualStudio.SolutionPersistence.Model.StringTable
 Microsoft.VisualStudio.SolutionPersistence.Model.StringTable.GetString(string? str) -> string?
 Microsoft.VisualStudio.SolutionPersistence.Model.StringTable.GetString(System.ReadOnlySpan<char> str) -> string!
 Microsoft.VisualStudio.SolutionPersistence.Model.StringTable.StringTable() -> void
+Microsoft.VisualStudio.SolutionPersistence.Model.VisualStudioProperties
+Microsoft.VisualStudio.SolutionPersistence.Model.VisualStudioProperties.HideSolutionNode.get -> bool?
+Microsoft.VisualStudio.SolutionPersistence.Model.VisualStudioProperties.HideSolutionNode.set -> void
+Microsoft.VisualStudio.SolutionPersistence.Model.VisualStudioProperties.MinimumVersion.get -> System.Version?
+Microsoft.VisualStudio.SolutionPersistence.Model.VisualStudioProperties.MinimumVersion.set -> void
+Microsoft.VisualStudio.SolutionPersistence.Model.VisualStudioProperties.OpenWith.get -> string?
+Microsoft.VisualStudio.SolutionPersistence.Model.VisualStudioProperties.OpenWith.set -> void
+Microsoft.VisualStudio.SolutionPersistence.Model.VisualStudioProperties.SolutionId.get -> System.Guid?
+Microsoft.VisualStudio.SolutionPersistence.Model.VisualStudioProperties.SolutionId.set -> void
+Microsoft.VisualStudio.SolutionPersistence.Model.VisualStudioProperties.Version.get -> System.Version?
+Microsoft.VisualStudio.SolutionPersistence.Model.VisualStudioProperties.Version.set -> void
+Microsoft.VisualStudio.SolutionPersistence.Model.VisualStudioProperties.VisualStudioProperties() -> void
 Microsoft.VisualStudio.SolutionPersistence.Serializer.SlnV12.SlnV12Extensions
 Microsoft.VisualStudio.SolutionPersistence.Serializer.SlnV12.SlnV12SerializerSettings
 Microsoft.VisualStudio.SolutionPersistence.Serializer.SlnV12.SlnV12SerializerSettings.Encoding.get -> System.Text.Encoding?
 Microsoft.VisualStudio.SolutionPersistence.Serializer.SlnV12.SlnV12SerializerSettings.Encoding.init -> void
 Microsoft.VisualStudio.SolutionPersistence.Serializer.SlnV12.SlnV12SerializerSettings.SlnV12SerializerSettings() -> void
+Microsoft.VisualStudio.SolutionPersistence.Serializer.SlnV12.SlnV12SerializerSettings.SlnV12SerializerSettings(Microsoft.VisualStudio.SolutionPersistence.Serializer.SlnV12.SlnV12SerializerSettings settings) -> void
 Microsoft.VisualStudio.SolutionPersistence.Serializer.SolutionSerializers
 Microsoft.VisualStudio.SolutionPersistence.Serializer.Xml.SlnxSerializerSettings
 Microsoft.VisualStudio.SolutionPersistence.Serializer.Xml.SlnxSerializerSettings.IndentChars.get -> string?
@@ -150,6 +158,9 @@ Microsoft.VisualStudio.SolutionPersistence.Serializer.Xml.SlnxSerializerSettings
 Microsoft.VisualStudio.SolutionPersistence.Serializer.Xml.SlnxSerializerSettings.PreserveWhitespace.get -> bool?
 Microsoft.VisualStudio.SolutionPersistence.Serializer.Xml.SlnxSerializerSettings.PreserveWhitespace.init -> void
 Microsoft.VisualStudio.SolutionPersistence.Serializer.Xml.SlnxSerializerSettings.SlnxSerializerSettings() -> void
+Microsoft.VisualStudio.SolutionPersistence.Serializer.Xml.SlnxSerializerSettings.SlnxSerializerSettings(Microsoft.VisualStudio.SolutionPersistence.Serializer.Xml.SlnxSerializerSettings settings) -> void
+Microsoft.VisualStudio.SolutionPersistence.Serializer.Xml.SlnxSerializerSettings.TrimVisualStudioProperties.get -> bool?
+Microsoft.VisualStudio.SolutionPersistence.Serializer.Xml.SlnxSerializerSettings.TrimVisualStudioProperties.init -> void
 override Microsoft.VisualStudio.SolutionPersistence.Model.SolutionFolderModel.ActualDisplayName.get -> string!
 override Microsoft.VisualStudio.SolutionPersistence.Model.SolutionFolderModel.TypeId.get -> System.Guid
 override Microsoft.VisualStudio.SolutionPersistence.Model.SolutionProjectModel.ActualDisplayName.get -> string!
@@ -162,12 +173,8 @@ static Microsoft.VisualStudio.SolutionPersistence.Serializer.SlnV12.SlnV12Extens
 static Microsoft.VisualStudio.SolutionPersistence.Serializer.SlnV12.SlnV12Extensions.AddSlnProperties(this Microsoft.VisualStudio.SolutionPersistence.Model.SolutionItemModel! solutionItem, Microsoft.VisualStudio.SolutionPersistence.Model.SolutionPropertyBag? properties) -> bool
 static Microsoft.VisualStudio.SolutionPersistence.Serializer.SlnV12.SlnV12Extensions.AddSlnProperties(this Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel! solution, Microsoft.VisualStudio.SolutionPersistence.Model.SolutionPropertyBag? properties) -> bool
 static Microsoft.VisualStudio.SolutionPersistence.Serializer.SlnV12.SlnV12Extensions.CreateSlnFolder(this Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel! solution, string! name) -> Microsoft.VisualStudio.SolutionPersistence.Model.SolutionFolderModel!
-static Microsoft.VisualStudio.SolutionPersistence.Serializer.SlnV12.SlnV12Extensions.GetHideSolutionNode(this Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel! solution) -> bool?
-static Microsoft.VisualStudio.SolutionPersistence.Serializer.SlnV12.SlnV12Extensions.GetOpenWithVisualStudio(this Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel! solution) -> string?
 static Microsoft.VisualStudio.SolutionPersistence.Serializer.SlnV12.SlnV12Extensions.GetSlnProperties(this Microsoft.VisualStudio.SolutionPersistence.Model.SolutionItemModel! solutionItem) -> System.Collections.Generic.IEnumerable<Microsoft.VisualStudio.SolutionPersistence.Model.SolutionPropertyBag!>!
 static Microsoft.VisualStudio.SolutionPersistence.Serializer.SlnV12.SlnV12Extensions.GetSlnProperties(this Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel! solution) -> System.Collections.Generic.IEnumerable<Microsoft.VisualStudio.SolutionPersistence.Model.SolutionPropertyBag!>!
-static Microsoft.VisualStudio.SolutionPersistence.Serializer.SlnV12.SlnV12Extensions.SetHideSolutionNode(this Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel! solution, bool hideSolutionNode) -> void
-static Microsoft.VisualStudio.SolutionPersistence.Serializer.SlnV12.SlnV12Extensions.SetOpenWithVisualStudio(this Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel! solution, string! openWith) -> void
 static Microsoft.VisualStudio.SolutionPersistence.Serializer.SlnV12.SlnV12Extensions.SuspendProjectValidation(this Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel! solution) -> System.IDisposable!
 static Microsoft.VisualStudio.SolutionPersistence.Serializer.SolutionSerializers.GetSerializerByMoniker(string! moniker) -> Microsoft.VisualStudio.SolutionPersistence.ISolutionSerializer?
 static Microsoft.VisualStudio.SolutionPersistence.Serializer.SolutionSerializers.Serializers.get -> System.Collections.Generic.IReadOnlyCollection<Microsoft.VisualStudio.SolutionPersistence.ISolutionSerializer!>!
