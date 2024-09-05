@@ -119,63 +119,83 @@
   </resheader>
   <data name="NotSolution" xml:space="preserve">
     <value>Not a solution file.</value>
+    <comment>Error message</comment>
   </data>
   <data name="MissingSectionName" xml:space="preserve">
     <value>Missing section name.</value>
+    <comment>Error message</comment>
   </data>
   <data name="InvalidScope" xml:space="preserve">
     <value>Missing or invalid scope.</value>
+    <comment>Error message</comment>
   </data>
   <data name="InvalidProjectType" xml:space="preserve">
     <value>Missing or invalid project type guid.</value>
+    <comment>Error message</comment>
   </data>
   <data name="SyntaxError" xml:space="preserve">
     <value>Syntax error.</value>
+    <comment>Error message</comment>
   </data>
   <data name="MissingDisplayName" xml:space="preserve">
     <value>Missing display name.</value>
+    <comment>Error message</comment>
   </data>
   <data name="MissingPath" xml:space="preserve">
     <value>Missing project path.</value>
+    <comment>Error message</comment>
   </data>
   <data name="MissingProjectId" xml:space="preserve">
     <value>Missing project id.</value>
+    <comment>Error message</comment>
   </data>
   <data name="DuplicateExtension_Args2" xml:space="preserve">
     <value>Duplicate file extension '{0}' for project type '{1}'.</value>
+    <comment>Error message. {0} is a file extension (e.g. .csproj). {1} is a project type name or guid (e.g. C#)</comment>
   </data>
   <data name="DuplicateName_Args2" xml:space="preserve">
     <value>Duplicate name '{0}' for project type '{1}'.</value>
+    <comment>Error message. {0} is the name of an item in a project {1} is the name of the project that contains the items</comment>
   </data>
   <data name="DuplicateProjectTypeId_Args2" xml:space="preserve">
     <value>Duplicate project type id '{0}' for project type '{1}'.</value>
+    <comment>Error message. {0} is a Guid (e.g. fae04ec0-301f-11d3-bf4b-00c04f79efbc). {1} is a name (e.g. C#)</comment>
   </data>
   <data name="DuplicateDefaultProjectType" xml:space="preserve">
     <value>Multiple default project types defined.</value>
+    <comment>Error message</comment>
   </data>
   <data name="InvalidProjectTypeReference_Args1" xml:space="preserve">
     <value>ProjectType '{0}' not found.</value>
+    <comment>Error message. {0} is the name of a project type.</comment>
   </data>
   <data name="InvalidLoop_Args1" xml:space="preserve">
     <value>Circular dependency found for '{0}'.</value>
+    <comment>Error message. {0} is the name of item with a circular dependency.</comment>
   </data>
   <data name="InvalidItemRef_Args2" xml:space="preserve">
     <value>Missing or invalid '{0}' item in type '{1}'.</value>
+    <comment>Error message. {0} is the name of the item provided. {1} is the type of item (e.g. Project)</comment>
   </data>
   <data name="DuplicateItemRef_Args2" xml:space="preserve">
     <value>Duplicate item '{0}' of type '{1}'.</value>
+    <comment>Error message. {0} is the name of the item (e.g. FolderName). {1} is the type of item (e.g. Folder)</comment>
   </data>
   <data name="MissingProjectValue" xml:space="preserve">
     <value>Project attribute is empty.</value>
+    <comment>Error message</comment>
   </data>
   <data name="InvalidConfiguration_Args1" xml:space="preserve">
     <value>Invalid syntax for solution configuration '{0}'.</value>
+    <comment>Error message. {0} is the text provided.</comment>
   </data>
   <data name="InvalidFolderReference_Args1" xml:space="preserve">
     <value>Folder '{0}' not found.</value>
+    <comment>Error message. {0} is the name of the folder.</comment>
   </data>
   <data name="InvalidProjectReference_Args1" xml:space="preserve">
     <value>"Project '{0}' not found."</value>
+    <comment>Error message. {0} is a project file path.</comment>
   </data>
   <data name="InvalidName" xml:space="preserve">
     <value>Names cannot:
@@ -183,32 +203,42 @@
 - contain control characters
 - be system reserved names, including 'CON', 'AUX', 'PRN', 'COM1' or 'LPT2'
 - be '.' or '..'</value>
+    <comment>Error message</comment>
   </data>
   <data name="DuplicateProjectPath_Arg1" xml:space="preserve">
     <value>Project path '{0}' already exists in the solution.</value>
+    <comment>Error message. {0} is the file path that already exists.</comment>
   </data>
   <data name="DuplicateProjectName_Arg1" xml:space="preserve">
     <value>Project name '{0}' already exists in the solution folder.</value>
+    <comment>Error message. {0} is the name of the folder.</comment>
   </data>
   <data name="InvalidFolderPath_Args1" xml:space="preserve">
     <value>Solution folder path '{0}' must start and end with '/'.</value>
+    <comment>Error message. {0} is the path provided.</comment>
   </data>
   <data name="CannotMoveFolderToChildFolder" xml:space="preserve">
     <value>Cannot move a folder to a child folder.</value>
+    <comment>Error message</comment>
   </data>
   <data name="InvalidModelItem" xml:space="preserve">
     <value>Model does not belong to this solution.</value>
+    <comment>Error message</comment>
   </data>
   <data name="InvalidEncoding" xml:space="preserve">
     <value>Only ASCII, UTF-8, and Unicode encodings are supported for serializing '.sln' files.</value>
+    <comment>Error message</comment>
   </data>
   <data name="DuplicateKey" xml:space="preserve">
     <value>An element with the same key already exists.</value>
+    <comment>Error message</comment>
   </data>
   <data name="InvalidVersion_Args1" xml:space="preserve">
     <value>Invalid version '{0}'.</value>
+    <comment>Error message. {0} is the version provided.</comment>
   </data>
   <data name="UnsupportedVersion_Args1" xml:space="preserve">
     <value>The file version '{0}' is unsupported.</value>
+    <comment>Error message. {0} is the file version not supported (e.g. 22.3)</comment>
   </data>
 </root>
