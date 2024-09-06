@@ -212,3 +212,9 @@ dotnet_diagnostic.SA1124.severity = silent
 
 # SA1129: Do not use default value type constructor. This code uses many struct helpers.
 dotnet_diagnostic.SA1129.severity = silent
+
+# CA2016: Forward the CancellationToken parameter
+dotnet_diagnostic.CA2016.severity = warning
+
+[*.sln]
+indent_style = tab
