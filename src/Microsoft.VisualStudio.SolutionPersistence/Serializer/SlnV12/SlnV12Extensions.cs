@@ -45,7 +45,7 @@ public static class SlnV12Extensions
             case SectionName.SolutionItems when solutionItem is SolutionFolderModel folder:
                 foreach (string fileName in properties.PropertyNames)
                 {
-                    folder.AddFile(PathExtensions.ConvertFromPersistencePath(fileName));
+                    folder.AddFile(PathExtensions.ConvertBackslashToModel(fileName));
                 }
 
                 return true;
@@ -103,7 +103,7 @@ public static class SlnV12Extensions
             SolutionPropertyBag propertyBag = new SolutionPropertyBag(SectionName.SolutionItems, PropertiesScope.PreLoad, files.Count);
             foreach (string file in files)
             {
-                string persistenceFile = PathExtensions.ConvertToPersistencePath(file);
+                string persistenceFile = PathExtensions.ConvertModelToBackslashPath(file);
                 propertyBag.Add(persistenceFile, persistenceFile);
             }
 

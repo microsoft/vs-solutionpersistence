@@ -21,7 +21,7 @@ internal sealed partial class XmlProject(SlnxFile root, XmlFolder? xmlParentFold
 
     internal string Path => this.ItemRef;
 
-    internal StringSpan DefaultDisplayName => PathExtensions.GetStandardDisplayName(PathExtensions.ConvertFromPersistencePath(this.Path));
+    internal StringSpan DefaultDisplayName => PathExtensions.GetStandardDisplayName(PathExtensions.ConvertToModel(this.Path));
 
     internal Guid Id
     {
@@ -94,7 +94,7 @@ internal sealed partial class XmlProject(SlnxFile root, XmlFolder? xmlParentFold
             }
 
             SolutionProjectModel projectModel = solution.AddProject(
-                filePath: PathExtensions.ConvertFromPersistencePath(this.Path),
+                filePath: PathExtensions.ConvertToModel(this.Path),
                 projectTypeName: this.Type ?? string.Empty,
                 folder: parentFolder);
 
@@ -111,6 +111,8 @@ internal sealed partial class XmlProject(SlnxFile root, XmlFolder? xmlParentFold
                 properties.AddToModel(projectModel);
             }
 
+            this.Root.UserPaths[projectModel.FilePath] = this.Path;
+
             return projectModel;
         }
         catch (Exception ex) when (SolutionException.ShouldWrap(ex))
@@ -123,7 +125,7 @@ internal sealed partial class XmlProject(SlnxFile root, XmlFolder? xmlParentFold
     {
         foreach (XmlBuildDependency buildDependency in this.buildDependencies.GetItems())
         {
-            string dependencyItemRef = PathExtensions.ConvertFromPersistencePath(buildDependency.Project);
+            string dependencyItemRef = PathExtensions.ConvertToModel(buildDependency.Project);
             SolutionProjectModel? dependencyProject = solution.FindProject(dependencyItemRef);
             if (dependencyProject is not null)
             {

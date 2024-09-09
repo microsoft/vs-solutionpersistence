@@ -130,7 +130,7 @@ internal partial class SlnFileV12Serializer
         private void WriteProject(SolutionItemModel item)
         {
             // For solution folders, path is just the display name again.
-            string path = item is SolutionProjectModel project ? PathExtensions.ConvertToPersistencePath(project.FilePath) : item.ActualDisplayName;
+            string path = item is SolutionProjectModel project ? PathExtensions.ConvertModelToBackslashPath(project.FilePath) : item.ActualDisplayName;
 
             if (item.TypeId == Guid.Empty)
             {

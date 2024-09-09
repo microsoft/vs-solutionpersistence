@@ -539,7 +539,7 @@ internal sealed partial class SlnFileV12Serializer
             {
 #pragma warning disable CS0618 // Type or member is obsolete (Temporaily create a potentially invalid solution folder until nested projects is interpreted.)
                 SolutionProjectModel project = solution.AddSlnProject(
-                    filePath: PathExtensions.ConvertFromPersistencePath(relativePath.ToString()),
+                    filePath: PathExtensions.ConvertBackslashToModel(relativePath.ToString()),
                     projectTypeId: projectTypeId,
                     folder: null);
 #pragma warning restore CS0618 // Type or member is obsolete

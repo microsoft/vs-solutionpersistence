@@ -38,18 +38,16 @@ public sealed partial class MakeSlnx(MakeSlnx.MakeSlnxFixture fixture) : IClassF
         string slnViaSlnxFile = Path.Join(fixture.SlnViaSlnxDirectory, slnFile.Name);
 
         SolutionModel model = await SolutionSerializers.SlnFileV12.OpenAsync(slnFile.Stream, CancellationToken.None);
-        model.TrimVisualStudioProperties();
-
-        // Original sln converted to slnx
-        await SolutionSerializers.SlnXml.SaveAsync(slnToSlnxFile, model, CancellationToken.None);
 
         // Original sln converted back to sln via slnx file
         (SolutionModel slnxModel, _) = await SlnTestHelper.ThruSlnxStreamAsync(model, sampleFileSize * 10);
         await SolutionSerializers.SlnFileV12.SaveAsync(slnViaSlnxFile, slnxModel, CancellationToken.None);
+        RenameSolutionFile(slnViaSlnxFile);
 
-        // Make it easy to update open and update samples.
-        File.Move(slnToSlnxFile, slnToSlnxFile + ".xml");
-        File.Move(slnViaSlnxFile, slnViaSlnxFile + ".txt");
+        // Original sln converted to slnx
+        model.TrimVisualStudioProperties();
+        await SolutionSerializers.SlnXml.SaveAsync(slnToSlnxFile, model, CancellationToken.None);
+        RenameSolutionFile(slnToSlnxFile);
     }
 
     /// <summary>
@@ -69,8 +67,38 @@ public sealed partial class MakeSlnx(MakeSlnx.MakeSlnxFixture fixture) : IClassF
 
         // Convert slnx to sln
         await SolutionSerializers.SlnFileV12.SaveAsync(slnxToSlnFile, model, CancellationToken.None);
+        RenameSolutionFile(slnxToSlnFile);
+    }
 
-        // Make it easy to update open and update samples.
-        File.Move(slnxToSlnFile, slnxToSlnFile + ".txt");
+    // Make it easy to update open and update samples.
+    private static void RenameSolutionFile(string path)
+    {
+        StringSpan fileName = Path.GetFileNameWithoutExtension(path.AsSpan());
+        StringSpan extension = Path.GetExtension(path.AsSpan());
+
+        // If the file name contains a '.' then we need to create a directory structure.
+        string newPath = fileName.Contains('.') ?
+            Path.Join(Path.GetDirectoryName(path), fileName.ToString().Replace('.', Path.DirectorySeparatorChar) + extension.ToString()) :
+            path;
+
+        // Add common extensions to the file name to avoid opening test assets as solutions.
+        switch (extension)
+        {
+            case ".sln":
+                newPath += ".txt";
+                break;
+            case ".slnx":
+                newPath += ".xml";
+                break;
+        }
+
+        // Ensure the new directory exists.
+        string? directory = Path.GetDirectoryName(newPath);
+        if (!directory.IsNullOrEmpty() && !Directory.Exists(directory))
+        {
+            _ = Directory.CreateDirectory(directory);
+        }
+
+        File.Move(path, newPath);
     }
 }
