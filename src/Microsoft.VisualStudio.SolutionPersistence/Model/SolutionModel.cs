@@ -211,6 +211,7 @@ public sealed class SolutionModel : PropertyContainerModel
         this.ValidateInModel(folder);
 
         Guid projectTypeId =
+            Guid.TryParse(projectTypeName, out Guid projectTypeGuid) ? projectTypeGuid :
             this.ProjectTypeTable.GetProjectTypeId(projectTypeName, Path.GetExtension(filePath.AsSpan())) ??
             throw new ArgumentException(string.Format(Errors.InvalidProjectTypeReference_Args1, projectTypeName), nameof(projectTypeName));
 
