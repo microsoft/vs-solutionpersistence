@@ -161,9 +161,13 @@ internal sealed partial class ProjectTypeTable
 
             return new ConfigurationRuleFollower(rules);
         }
+        else if (!excludeProjectSpecificRules)
+        {
+            return new ConfigurationRuleFollower(projectModel.ProjectConfigurationRules);
+        }
         else
         {
-            return new ConfigurationRuleFollower([]);
+            return new ConfigurationRuleFollower(null);
         }
 
         void GetProjectTypeConfigurationRules(ProjectType? type, List<ConfigurationRule> rules)

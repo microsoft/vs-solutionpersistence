@@ -190,11 +190,12 @@ public sealed class SolutionProjectModel : SolutionItemModel
     {
         ConfigurationRuleFollower projectTypeRules = this.Solution.ProjectTypeTable.GetProjectConfigurationRules(this);
 
-        return (
-            MissingToNull(projectTypeRules.GetProjectBuildType(solutionBuildType, solutionPlatform) ?? solutionBuildType),
-            MissingToNull(projectTypeRules.GetProjectPlatform(solutionBuildType, solutionPlatform) ?? solutionPlatform),
-            projectTypeRules.GetIsBuildable(solutionBuildType, solutionPlatform) ?? true,
-            projectTypeRules.GetIsDeployable(solutionBuildType, solutionPlatform) ?? false);
+        string? buildType = MissingToNull(projectTypeRules.GetProjectBuildType(solutionBuildType, solutionPlatform) ?? solutionBuildType);
+        string? platform = MissingToNull(projectTypeRules.GetProjectPlatform(solutionBuildType, solutionPlatform) ?? solutionPlatform);
+        bool build = projectTypeRules.GetIsBuildable(solutionBuildType, solutionPlatform) ?? true;
+        bool deploy = projectTypeRules.GetIsDeployable(solutionBuildType, solutionPlatform) ?? false;
+
+        return (buildType, platform, build, deploy);
 
         static string? MissingToNull(string value) => value == BuildTypeNames.Missing ? null : value;
     }

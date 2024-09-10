@@ -121,4 +121,23 @@ public sealed class Configurations
             Assert.False(partial1.Deploy);
         }
     }
+
+    /// <summary>
+    /// Validate that the model can handle configurations on a project without a project type.
+    /// </summary>
+    [Fact]
+    public async Task UnknownProjectTypeWithConfigAsync()
+    {
+        ResourceStream projectTypeConfigResource = SlnAssets.LoadResource("ProjectTypeConfig.sln");
+
+        SolutionModel solution = await SolutionSerializers.SlnFileV12.OpenAsync(projectTypeConfigResource.Stream, CancellationToken.None);
+
+        SolutionProjectModel? project6 = solution.FindProject("Project6.wapproj");
+        Assert.NotNull(project6);
+
+        (string? BuildType, string? Platform, bool Build, bool Deploy) configs = project6.GetProjectConfiguration("Debug", "Win32");
+        Assert.Equal("Debug", configs.BuildType);
+        Assert.Equal("x86", configs.Platform);
+        Assert.True(configs.Build);
+    }
 }
