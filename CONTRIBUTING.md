@@ -7,6 +7,12 @@ FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
 contact [opencode@microsoft.com](mailto:opencode@microsoft.com)
 with any additional questions or comments.
 
+## Project Goals
+The primary goal of this project is to provide shared code that can be utilized across various products consuming Microsoft Visual Studio solution files. By centralizing this code, we aim to enhance consistency, reduce duplication, and streamline the development process for all associated products.
+
+## Contribution Guidelines
+We appreciate the community's interest in contributing to this project. However, please note that we are currently not accepting external contributions that add new functionality. This is because any new features need to be supported by multiple consumers, and maintaining this level of compatibility requires careful coordination and planning.
+
 ## Best practices
 
 * Use Windows PowerShell or [PowerShell Core][pwsh] (including on Linux/OSX) to run .ps1 scripts.
