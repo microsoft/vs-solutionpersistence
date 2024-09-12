@@ -40,7 +40,6 @@ public class RoundTripXmlSlnx
     public Task GiantAsync() => TestRoundTripSerializerAsync(SlnAssets.XmlSlnxGiant);
 
     [Fact]
-    [Trait("TestCategory", "FailsInCloudTest")]
     public Task TraditionalAsync() => TestRoundTripSerializerAsync(SlnAssets.XmlSlnxTraditional);
 
     [Fact]
@@ -61,6 +60,12 @@ public class RoundTripXmlSlnx
 
     private static async Task TestRoundTripSerializerAsync(ResourceStream slnStream)
     {
+        if (IsMono)
+        {
+            // Mono is not supported.
+            return;
+        }
+
         // Open the Model from stream.
         SolutionModel model = await SolutionSerializers.SlnXml.OpenAsync(slnStream.Stream, CancellationToken.None);
         AssertNotTarnished(model);

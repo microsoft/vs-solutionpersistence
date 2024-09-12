@@ -27,9 +27,14 @@ public sealed class InvalidSolutions
     /// Checks for an XML file that isn't an SLNX file.
     /// </summary>
     [Fact]
-    [Trait("TestCategory", "FailsInCloudTest")]
     public async Task InvalidSlnxAsync()
     {
+        if (IsMono)
+        {
+            // Mono is not supported.
+            return;
+        }
+
         ResourceStream wrongRoot = SlnAssets.LoadResource("Invalid/WrongRoot.slnx");
         string wrongRootFile = wrongRoot.SaveResourceToTempFile();
 
@@ -48,9 +53,14 @@ public sealed class InvalidSolutions
     /// Check for file that isn't an .sln file.
     /// </summary>
     [Fact]
-    [Trait("TestCategory", "FailsInCloudTest")]
     public async Task InvalidSlnAsync()
     {
+        if (IsMono)
+        {
+            // Mono is not supported.
+            return;
+        }
+
         ResourceStream invalidSln = SlnAssets.LoadResource("Invalid/Invalid.sln");
         string invalidSlnFile = invalidSln.SaveResourceToTempFile();
 

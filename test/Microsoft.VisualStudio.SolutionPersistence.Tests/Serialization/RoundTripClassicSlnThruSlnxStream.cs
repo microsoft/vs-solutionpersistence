@@ -10,7 +10,6 @@ namespace Serialization;
 public class RoundTripClassicSlnThruSlnxStream
 {
     [Fact]
-    [Trait("TestCategory", "FailsInCloudTest")]
     public Task BlankThruSlnxStreamAsync() => TestRoundTripSerializerAsync(SlnAssets.ClassicSlnBlank, SlnAssets.XmlSlnxBlank);
 
     [Fact]
@@ -20,11 +19,9 @@ public class RoundTripClassicSlnThruSlnxStream
     public Task EverythingThruSlnxStreamAsync() => TestRoundTripSerializerAsync(SlnAssets.ClassicSlnEverything, SlnAssets.XmlSlnxEverything);
 
     [Fact]
-    [Trait("TestCategory", "FailsInCloudTest")]
     public Task OrchardCoreThruSlnxStreamAsync() => TestRoundTripSerializerAsync(SlnAssets.ClassicSlnOrchardCore, SlnAssets.XmlSlnxOrchardCore);
 
     [Fact]
-    [Trait("TestCategory", "FailsInCloudTest")]
     public Task SingleNativeProjectThruSlnxStreamAsync() => TestRoundTripSerializerAsync(SlnAssets.ClassicSlnSingleNativeProject, SlnAssets.XmlSlnxSingleNativeProject);
 
     [Fact]
@@ -34,7 +31,6 @@ public class RoundTripClassicSlnThruSlnxStream
     public Task GiantThruSlnxStreamAsync() => TestRoundTripSerializerAsync(SlnAssets.ClassicSlnGiant, SlnAssets.XmlSlnxGiant);
 
     [Fact]
-    [Trait("TestCategory", "FailsInCloudTest")]
     public Task TraditionalThruSlnxStreamAsync() => TestRoundTripSerializerAsync(SlnAssets.ClassicSlnTraditional, SlnAssets.XmlSlnxTraditional);
 
     [Fact]
@@ -50,6 +46,12 @@ public class RoundTripClassicSlnThruSlnxStream
         ResourceStream slnStream,
         ResourceStream viaSlnxStream)
     {
+        if (IsMono)
+        {
+            // Mono is not supported.
+            return;
+        }
+
         FileContents originalSolution = slnStream.ToLines();
 
         // Open the Model from stream.
