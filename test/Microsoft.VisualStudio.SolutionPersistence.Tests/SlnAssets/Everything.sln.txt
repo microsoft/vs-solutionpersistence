@@ -76,6 +76,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorkerService1", "WorkerSer
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AzureFunctionApp1", "AzureFunctionApp1\AzureFunctionApp1.csproj", "{551BCD82-36E2-4265-8BFE-43A1EA4486DD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "file", "file:///c:/folder/file.csproj", "{7A09CD2D-FA93-4930-84B7-902DC8A9AB80}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "example", "https://example.com/path/", "{FB724ACC-B925-4CD2-9A46-6892E403F851}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -285,6 +289,24 @@ Global
 		{551BCD82-36E2-4265-8BFE-43A1EA4486DD}.Release|x64.Build.0 = Release|Any CPU
 		{551BCD82-36E2-4265-8BFE-43A1EA4486DD}.Release|x86.ActiveCfg = Release|Any CPU
 		{551BCD82-36E2-4265-8BFE-43A1EA4486DD}.Release|x86.Build.0 = Release|Any CPU
+		{7A09CD2D-FA93-4930-84B7-902DC8A9AB80}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7A09CD2D-FA93-4930-84B7-902DC8A9AB80}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{7A09CD2D-FA93-4930-84B7-902DC8A9AB80}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{7A09CD2D-FA93-4930-84B7-902DC8A9AB80}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7A09CD2D-FA93-4930-84B7-902DC8A9AB80}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7A09CD2D-FA93-4930-84B7-902DC8A9AB80}.Release|x64.ActiveCfg = Release|Any CPU
+		{7A09CD2D-FA93-4930-84B7-902DC8A9AB80}.Release|x64.Build.0 = Release|Any CPU
+		{7A09CD2D-FA93-4930-84B7-902DC8A9AB80}.Release|x86.ActiveCfg = Release|Any CPU
+		{7A09CD2D-FA93-4930-84B7-902DC8A9AB80}.Release|x86.Build.0 = Release|Any CPU
+		{FB724ACC-B925-4CD2-9A46-6892E403F851}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FB724ACC-B925-4CD2-9A46-6892E403F851}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{FB724ACC-B925-4CD2-9A46-6892E403F851}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{FB724ACC-B925-4CD2-9A46-6892E403F851}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FB724ACC-B925-4CD2-9A46-6892E403F851}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FB724ACC-B925-4CD2-9A46-6892E403F851}.Release|x64.ActiveCfg = Release|Any CPU
+		{FB724ACC-B925-4CD2-9A46-6892E403F851}.Release|x64.Build.0 = Release|Any CPU
+		{FB724ACC-B925-4CD2-9A46-6892E403F851}.Release|x86.ActiveCfg = Release|Any CPU
+		{FB724ACC-B925-4CD2-9A46-6892E403F851}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

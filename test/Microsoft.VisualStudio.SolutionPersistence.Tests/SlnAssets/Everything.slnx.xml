@@ -40,6 +40,12 @@
   <Project Path="BlazorApp1/BlazorApp1.csproj">
     <Build Solution="Debug|Any CPU" Project="false" />
   </Project>
+  <Project Path="file:///c:/folder/file.csproj" Type="C#" DisplayName="file">
+    <Build Solution="Debug|*" Project="false" />
+  </Project>
+  <Project Path="https://example.com/path/" Type="C#" DisplayName="example">
+    <Build Solution="Debug|*" Project="false" />
+  </Project>
   <Project Path="SharedNativeProject/SharedNativeProject.vcxitems" />
   <Project Path="src/ClassicWinFormsApp/ClassicWinFormsApp.csproj" />
   <Project Path="src/ClassicWPFApp/ClassicWPFApp.csproj" />
