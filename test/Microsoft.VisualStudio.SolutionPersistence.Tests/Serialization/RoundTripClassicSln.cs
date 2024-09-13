@@ -13,7 +13,6 @@ public class RoundTripClassicSln
         new TheoryData<ResourceName>(SlnAssets.ClassicSlnFiles);
 
     [Fact]
-    [Trait("TestCategory", "FailsInCloudTest")]
     public Task BlankAsync() => TestRoundTripSerializerAsync(SlnAssets.ClassicSlnBlank);
 
     [Fact]
@@ -26,18 +25,15 @@ public class RoundTripClassicSln
     public Task ManyAsync() => TestRoundTripSerializerAsync(SlnAssets.ClassicSlnMany);
 
     [Fact]
-    [Trait("TestCategory", "FailsInCloudTest")]
     public Task OrchardCoreAsync() => TestRoundTripSerializerAsync(SlnAssets.ClassicSlnOrchardCore);
 
     [Fact]
-    [Trait("TestCategory", "FailsInCloudTest")]
     public Task SingleNativeProjectAsync() => TestRoundTripSerializerAsync(SlnAssets.ClassicSlnSingleNativeProject);
 
     [Fact]
     public Task GiantAsync() => TestRoundTripSerializerAsync(SlnAssets.ClassicSlnGiant);
 
     [Fact]
-    [Trait("TestCategory", "FailsInCloudTest")]
     public Task TraditionalAsync() => TestRoundTripSerializerAsync(SlnAssets.ClassicSlnTraditional);
 
     [Fact]
@@ -45,7 +41,6 @@ public class RoundTripClassicSln
 
     [Theory]
     [MemberData(nameof(ClassicSlnFiles))]
-    [Trait("TestCategory", "FailsInCloudTest")]
     public Task AllClassicSolutionAsync(ResourceName sampleFile)
     {
         return TestRoundTripSerializerAsync(sampleFile.Load());
@@ -58,6 +53,12 @@ public class RoundTripClassicSln
     /// <returns>Task to track the asynchronous call status.</returns>
     private static async Task TestRoundTripSerializerAsync(ResourceStream slnStream)
     {
+        if (IsMono)
+        {
+            // Mono is not supported.
+            return;
+        }
+
         FileContents originalSolution = slnStream.ToLines();
 
         // Open the Model from stream.

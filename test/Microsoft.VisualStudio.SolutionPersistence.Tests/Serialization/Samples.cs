@@ -12,9 +12,14 @@ public class Samples
     /// Tests the wiki sample code to convert an SLN file to an SLNX file.
     /// </summary>
     [Fact]
-    [Trait("TestCategory", "FailsInCloudTest")]
     public async Task ConvertToSlnx()
     {
+        if (IsMono)
+        {
+            // Mono is not supported.
+            return;
+        }
+
         string filePath = SlnAssets.ClassicSlnEverything.SaveResourceToTempFile();
         string slnxFilePath = Path.ChangeExtension(filePath, SolutionSerializers.SlnXml.DefaultFileExtension);
 

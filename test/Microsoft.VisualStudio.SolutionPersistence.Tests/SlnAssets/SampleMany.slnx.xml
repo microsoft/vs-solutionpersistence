@@ -5,33 +5,33 @@
     <Platform Name="x86" />
   </Configurations>
   <Folder Name="/Apps/">
-    <Project Path="ConAppA\ConAppA.csproj">
-      <BuildDependency Project="CPSConApp\CPSConApp.vbproj" />
-      <BuildDependency Project="NativeApp\NativeApp.vcxproj" />
+    <Project Path="ConAppA/ConAppA.csproj">
+      <BuildDependency Project="CPSConApp/CPSConApp.vbproj" />
+      <BuildDependency Project="NativeApp/NativeApp.vcxproj" />
     </Project>
-    <Project Path="CPSConApp\CPSConApp.vbproj" />
+    <Project Path="CPSConApp/CPSConApp.vbproj" />
   </Folder>
   <Folder Name="/Apps/Native/">
-    <Project Path="NativeApp\NativeApp.vcxproj">
-      <BuildDependency Project="ClassLibrary1\ClassLibrary1.csproj" />
-      <BuildDependency Project="CPSConApp\CPSConApp.vbproj" />
-      <BuildDependency Project="StaticLib1\StaticLib1.vcxproj" />
+    <Project Path="NativeApp/NativeApp.vcxproj">
+      <BuildDependency Project="ClassLibrary1/ClassLibrary1.csproj" />
+      <BuildDependency Project="CPSConApp/CPSConApp.vbproj" />
+      <BuildDependency Project="StaticLib1/StaticLib1.vcxproj" />
     </Project>
   </Folder>
   <Folder Name="/Libs/">
-    <Project Path="ClassLibrary1\ClassLibrary1.csproj" />
-    <Project Path="CSharpShared\CSharpShared.shproj" />
-    <Project Path="SharedCPS\SharedCPS.vcxitems" />
+    <Project Path="ClassLibrary1/ClassLibrary1.csproj" />
+    <Project Path="CSharpShared/CSharpShared.shproj" />
+    <Project Path="SharedCPS/SharedCPS.vcxitems" />
   </Folder>
   <Folder Name="/Libs/SubLIb/">
-    <Project Path="ClassLibrary2\ClassLibrary2.csproj" />
-    <Project Path="StaticLib1\StaticLib1.vcxproj" />
+    <Project Path="ClassLibrary2/ClassLibrary2.csproj" />
+    <Project Path="StaticLib1/StaticLib1.vcxproj" />
   </Folder>
   <Folder Name="/Solution Items/">
     <File Path="TextFile1.txt" />
   </Folder>
   <Folder Name="/Web/">
-    <Project Path="..\..\1\" Type="Website" DisplayName="1">
+    <Project Path="../../1/" Type="Website" DisplayName="1">
       <BuildType Project="Debug" />
       <Properties Name="WebsiteProperties">
         <Property Name="Debug.AspNetCompiler.Debug" Value="&quot;True&quot;" />
@@ -76,5 +76,5 @@
       </Properties>
     </Project>
   </Folder>
-  <Project Path="TestProjectRoot\TestProjectRoot.csproj" />
+  <Project Path="TestProjectRoot/TestProjectRoot.csproj" />
 </Solution>

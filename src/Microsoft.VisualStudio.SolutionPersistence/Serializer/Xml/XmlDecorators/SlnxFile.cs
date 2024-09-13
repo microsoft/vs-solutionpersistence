@@ -4,6 +4,7 @@
 using System.Diagnostics;
 using System.Xml;
 using Microsoft.VisualStudio.SolutionPersistence.Model;
+using Microsoft.VisualStudio.SolutionPersistence.Utilities;
 
 namespace Microsoft.VisualStudio.SolutionPersistence.Serializer.Xml.XmlDecorators;
 
@@ -58,13 +59,27 @@ internal sealed class SlnxFile
 
     internal ProjectTypeTable ProjectTypes { get; private set; }
 
+    // Keep track of user project and file paths to preserve the user's path separators.
+    internal Dictionary<string, string> UserPaths { get; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
     internal bool Tarnished { get; private set; }
 
     internal SolutionModel ToModel()
     {
+        this.UserPaths.Clear();
         SolutionModel model = this.Solution?.ToModel() ?? new SolutionModel() { StringTable = this.StringTable };
         model.SerializerExtension = new SlnXmlModelExtension(SolutionSerializers.SlnXml, this.SerializationSettings, root: this);
         return model;
+    }
+
+    /// <summary>
+    /// Converts a model project path to use the slashes the user provides, or default to forward slashes.
+    /// </summary>
+    internal string ConvertToUserPath(string projectPath)
+    {
+        return this.UserPaths.TryGetValue(projectPath, out string? userProjectPath) ?
+            userProjectPath :
+            PathExtensions.ConvertModelToForwardSlashPath(projectPath);
     }
 
     /// <summary>

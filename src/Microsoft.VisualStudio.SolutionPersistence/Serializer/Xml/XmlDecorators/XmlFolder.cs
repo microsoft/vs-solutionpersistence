@@ -73,7 +73,9 @@ internal sealed class XmlFolder(SlnxFile root, XmlSolution xmlSolution, XmlEleme
 
             foreach (XmlFile file in this.files.GetItems())
             {
-                folderModel.AddFile(PathExtensions.ConvertFromPersistencePath(file.Path));
+                string modelPath = PathExtensions.ConvertToModel(file.Path);
+                folderModel.AddFile(modelPath);
+                this.Root.UserPaths[modelPath] = file.Path;
             }
 
             foreach (XmlProperties properties in this.propertyBags.GetItems())
@@ -110,14 +112,14 @@ internal sealed class XmlFolder(SlnxFile root, XmlSolution xmlSolution, XmlEleme
 
         // Files
         modified |= this.ApplyModelItemsToXml(
-            itemRefs: modelFolder.Files?.ToList(static file => PathExtensions.ConvertToPersistencePath(file)),
+            itemRefs: modelFolder.Files?.ToList(this.Root.ConvertToUserPath),
             decoratorItems: ref this.files,
             decoratorElementName: Keyword.File);
 
         // Projects
         List<(string ItemRef, SolutionProjectModel Item)> projectsInFolder = modelSolution.SolutionProjects.WhereToList(
             (project, modelFolder) => ReferenceEquals(project.Parent, modelFolder),
-            (project, modelFolder) => (ItemRef: PathExtensions.ConvertToPersistencePath(project.ItemRef), Item: project),
+            (project, modelFolder) => (ItemRef: this.Root.ConvertToUserPath(project.ItemRef), Item: project),
             modelFolder);
         modified |= this.ApplyModelItemsToXml(
             modelItems: projectsInFolder,

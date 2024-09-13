@@ -3,13 +3,13 @@
     <Platform Name="x64" />
     <Platform Name="x86" />
   </Configurations>
-  <Project Path="Good\Good.vcxproj" />
-  <Project Path="Missing\Missing.vcxproj">
+  <Project Path="Good/Good.vcxproj" />
+  <Project Path="Missing/Missing.vcxproj">
     <BuildType Project="?" />
     <Platform Project="?" />
     <Build Project="false" />
   </Project>
-  <Project Path="Partial\Partial.vcxproj">
+  <Project Path="Partial/Partial.vcxproj">
     <BuildType Solution="*|x86" Project="?" />
     <BuildType Solution="Debug|x64" Project="?" />
     <Platform Solution="*|x86" Project="?" />

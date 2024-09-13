@@ -12,9 +12,14 @@ public class Format
     /// Test that SLN converts to UTF-8 automatically from ASCII.
     /// </summary>
     [Fact]
-    [Trait("TestCategory", "FailsInCloudTest")]
     public async Task ConvertASCIItoUTF8Async()
     {
+        if (IsMono)
+        {
+            // Mono is not supported.
+            return;
+        }
+
         const string asciiFolderName = "directory123";
         const string utf8FolderName = "répertoire123";
 

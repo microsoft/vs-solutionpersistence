@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using Microsoft.VisualStudio.SolutionPersistence.Model;
-using Microsoft.VisualStudio.SolutionPersistence.Utilities;
 
 namespace Microsoft.VisualStudio.SolutionPersistence.Serializer.Xml.XmlDecorators;
 
@@ -40,7 +39,7 @@ internal sealed partial class XmlProject
 
         // BuildDependencies
         modified |= this.ApplyModelItemsToXml(
-            itemRefs: modelProject.Dependencies?.ToList(dependencyProject => PathExtensions.ConvertToPersistencePath(dependencyProject.FilePath)),
+            itemRefs: modelProject.Dependencies?.ToList(dependencyProject => this.Root.ConvertToUserPath(dependencyProject.FilePath)),
             decoratorItems: ref this.buildDependencies,
             decoratorElementName: Keyword.BuildDependency);
 
