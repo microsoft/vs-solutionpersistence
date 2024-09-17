@@ -62,6 +62,17 @@ internal sealed class XmlFolder(SlnxFile root, XmlSolution xmlSolution, XmlEleme
         base.OnNewChildDecoratorAdded(childDecorator);
     }
 
+    /// <inheritdoc/>
+    internal override XmlDecorator? FindNextDecorator<TDecorator>()
+    {
+        return typeof(TDecorator).Name switch
+        {
+            nameof(XmlFile) => this.folderProjects.FirstOrDefault() ?? this.FindNextDecorator<XmlProject>(),
+            nameof(XmlProject) => this.propertyBags.FirstOrDefault(),
+            _ => null,
+        };
+    }
+
     #region Deserialize model
 
     internal void AddToModel(SolutionModel solutionModel, List<(XmlProject XmlProject, SolutionProjectModel ModelProject)> newProjects)

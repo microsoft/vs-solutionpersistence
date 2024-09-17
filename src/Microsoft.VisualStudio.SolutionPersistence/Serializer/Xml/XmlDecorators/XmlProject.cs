@@ -73,6 +73,18 @@ internal sealed partial class XmlProject(SlnxFile root, XmlFolder? xmlParentFold
         base.OnNewChildDecoratorAdded(childDecorator);
     }
 
+    /// <inheritdoc/>
+    internal override XmlDecorator? FindNextDecorator<TDecorator>()
+    {
+        return typeof(TDecorator).Name switch
+        {
+            nameof(XmlBuildDependency) => this.configurationRules.FirstOrDefault() ?? this.FindNextDecorator<XmlConfiguration>(),
+            nameof(XmlConfiguration) or nameof(XmlConfigurationBuildType) or nameof(XmlConfigurationPlatform) or nameof(XmlConfigurationBuild) or nameof(XmlConfigurationDeploy) =>
+                this.configurationRules.FindNextDecorator<TDecorator>() ?? this.propertyBags.FirstOrDefault(),
+            _ => null,
+        };
+    }
+
     #region Deserialize model
 
     internal SolutionProjectModel AddToModel(SolutionModel solution)

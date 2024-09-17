@@ -124,8 +124,10 @@ internal abstract partial class XmlContainer
         modelItems.Sort(decoratorItems.IgnoreCase ? ComparisonOrdinalIgnoreCase : ComparisonOrdinal);
         foreach ((string itemRef, TModelItem modelItem) in modelItems)
         {
-            // CONSIDER: Find position to insert before based on general areas and alphabetical order.
-            TDecorator newDecorator = (TDecorator)this.CreateAndAddChild(decoratorElementName, itemRef, insertBefore: null);
+            // Find position to insert before based on general areas and alphabetical order.
+            XmlDecorator? insertBefore = decoratorItems.TryFindNext(itemRef, out TDecorator? insertBeforeLocal) ? insertBeforeLocal : this.FindNextDecorator<TDecorator>();
+
+            TDecorator newDecorator = (TDecorator)this.CreateAndAddChild(decoratorElementName, itemRef, insertBefore);
             _ = applyModelToXml?.Invoke(newDecorator, modelItem);
             modified = true;
         }
@@ -252,7 +254,7 @@ internal abstract partial class XmlContainer
         }
         else
         {
-            _ = this.XmlElement.AppendChild(newElement);
+            _ = this.XmlElement.InsertBefore(newElement, insertBefore.XmlElement);
         }
 
         return newElement;

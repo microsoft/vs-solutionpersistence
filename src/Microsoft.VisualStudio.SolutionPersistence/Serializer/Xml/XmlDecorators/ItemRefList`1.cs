@@ -46,6 +46,14 @@ internal readonly struct ItemRefList<T>(bool ignoreCase)
         }
     }
 
+    internal readonly T? FirstOrDefault() => this.items.Count > 0 ? this.items[0] : null;
+
+    // Finds the item that would be immediately after the given item ref.
+    internal readonly bool TryFindNext(string itemRef, out T? item)
+    {
+        return this.items.TryFindNext(itemRef, out item);
+    }
+
     internal readonly void Remove(T item)
     {
         _ = this.items.Remove(item.ItemRef);

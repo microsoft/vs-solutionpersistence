@@ -154,6 +154,26 @@ internal static class SlnTestHelper
         }
     }
 
+    /// <summary>
+    /// Starts with a slnx solution, modifies the model and verifies it matches the expected solution file.
+    /// </summary>
+    /// <param name="modifyModel">Action to modify the model.</param>
+    /// <param name="originalSlnx">Input slnx.</param>
+    /// <param name="expectedSlnx">Expected output slnx.</param>
+    internal static async Task ValidateModifiedSolutionAsync(Action<SolutionModel> modifyModel, ResourceStream originalSlnx, ResourceStream expectedSlnx)
+    {
+        // Open the Model from stream.
+        SolutionModel model = await SolutionSerializers.SlnXml.OpenAsync(originalSlnx.Stream, CancellationToken.None);
+        AssertNotTarnished(model);
+
+        modifyModel(model);
+
+        // Save the Model back to stream.
+        FileContents reserializedSolution = await ModelToLinesAsync(SolutionSerializers.SlnXml, model);
+
+        AssertSolutionsAreEqual(expectedSlnx.ToLines(), reserializedSolution);
+    }
+
     internal static Encoding GetSlnEncoding(SolutionModel model)
     {
         ISerializerModelExtension<SlnV12SerializerSettings>? slnExt = model.SerializerExtension as ISerializerModelExtension<SlnV12SerializerSettings>;

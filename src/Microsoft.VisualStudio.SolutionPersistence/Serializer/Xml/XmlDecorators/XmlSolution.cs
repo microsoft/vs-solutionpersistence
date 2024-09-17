@@ -70,6 +70,18 @@ internal sealed partial class XmlSolution(SlnxFile file, XmlElement element) :
         base.OnNewChildDecoratorAdded(childDecorator);
     }
 
+    /// <inheritdoc/>
+    internal override XmlDecorator? FindNextDecorator<TDecorator>()
+    {
+        return typeof(TDecorator).Name switch
+        {
+            nameof(XmlConfigurations) => this.folders.FirstOrDefault() ?? this.FindNextDecorator<XmlFolder>(),
+            nameof(XmlFolder) => this.rootProjects.FirstOrDefault() ?? this.FindNextDecorator<XmlProject>(),
+            nameof(XmlProject) => this.propertyBags.FirstOrDefault(),
+            _ => null,
+        };
+    }
+
     #region Deserialize model
 
     internal SolutionModel ToModel()
@@ -216,6 +228,13 @@ internal sealed partial class XmlSolution(SlnxFile file, XmlElement element) :
 
             indent = both.TrimStart(['\n', '\r']);
             newLine = both.Slice(0, both.Length - indent.Length);
+            if (newLine.Length > 1)
+            {
+                // If the sample line has multiple newlines, just take one.
+                bool isCrLf = newLine[0] is '\r' && newLine[1] is '\n';
+                newLine = newLine.Slice(0, isCrLf ? 2 : 1);
+            }
+
             return true;
         }
     }

@@ -12,8 +12,8 @@
         <BuildDependency Project="folder\folder/mixed.csproj" />
     </Project>
     <Project Path="referenceBack.csproj">
-        <BuildDependency Project="folder\backslash.csproj" />
         <BuildDependency Project="folder/forwardslash.csproj" />
+        <BuildDependency Project="folder\backslash.csproj" />
         <BuildDependency Project="folder\folder/mixed.csproj" />
     </Project>
 </Solution>

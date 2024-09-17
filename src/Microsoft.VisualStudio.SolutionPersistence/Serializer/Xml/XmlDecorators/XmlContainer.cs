@@ -27,6 +27,13 @@ internal abstract partial class XmlContainer(SlnxFile root, XmlElement element, 
 
     internal virtual XmlDecorator? FindChildDecorator(string itemRef) => null;
 
+    /// <summary>
+    /// Attempts to find the next decorator after the given type.
+    /// Used to insert new decorators in the correct order.
+    /// </summary>
+    internal abstract XmlDecorator? FindNextDecorator<TDecorator>()
+        where TDecorator : XmlDecorator, IItemRefDecorator;
+
     #region Update decorator from XML
 
     /// <inheritdoc/>

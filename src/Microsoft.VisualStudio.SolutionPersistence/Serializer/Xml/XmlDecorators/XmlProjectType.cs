@@ -111,6 +111,12 @@ internal sealed class XmlProjectType(SlnxFile root, XmlElement element) :
         base.OnNewChildDecoratorAdded(childDecorator);
     }
 
+    /// <inheritdoc/>
+    internal override XmlDecorator? FindNextDecorator<TDecorator>()
+    {
+        return this.configurationRules.FindNextDecorator<TDecorator>();
+    }
+
     internal override bool IsValid()
     {
         return base.IsValid();

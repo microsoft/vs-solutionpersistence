@@ -11,10 +11,10 @@ namespace Microsoft.VisualStudio.SolutionPersistence.Serializer.Xml.XmlDecorator
 /// </summary>
 internal struct ItemConfigurationRulesList
 {
-    private ItemRefList<XmlConfiguration> buildTypeRules = new(ignoreCase: true);
-    private ItemRefList<XmlConfiguration> platformRules = new(ignoreCase: true);
-    private ItemRefList<XmlConfiguration> buildRules = new(ignoreCase: true);
-    private ItemRefList<XmlConfiguration> deployRules = new(ignoreCase: true);
+    private ItemRefList<XmlConfigurationBuildType> buildTypeRules = new(ignoreCase: true);
+    private ItemRefList<XmlConfigurationPlatform> platformRules = new(ignoreCase: true);
+    private ItemRefList<XmlConfigurationBuild> buildRules = new(ignoreCase: true);
+    private ItemRefList<XmlConfigurationDeploy> deployRules = new(ignoreCase: true);
 
     public ItemConfigurationRulesList()
     {
@@ -41,6 +41,23 @@ internal struct ItemConfigurationRulesList
         }
     }
 
+    internal readonly XmlDecorator? FindNextDecorator<TDecorator>()
+    {
+        return typeof(TDecorator).Name switch
+        {
+            nameof(XmlConfigurationBuildType) or nameof(XmlConfiguration) => this.platformRules.FirstOrDefault() ?? this.FindNextDecorator<XmlConfigurationPlatform>(),
+            nameof(XmlConfigurationPlatform) => this.buildRules.FirstOrDefault() ?? this.FindNextDecorator<XmlConfigurationBuild>(),
+            nameof(XmlConfigurationBuild) => this.deployRules.FirstOrDefault(),
+            nameof(XmlConfigurationDeploy) => null,
+            _ => null,
+        };
+    }
+
+    internal readonly XmlDecorator? FirstOrDefault()
+    {
+        return this.buildTypeRules.FirstOrDefault() ?? this.platformRules.FirstOrDefault() ?? this.buildRules.FirstOrDefault() ?? (XmlDecorator?)this.deployRules.FirstOrDefault();
+    }
+
     internal bool ApplyModelToXml(XmlContainer xmlContainer, IReadOnlyList<ConfigurationRule>? configurationRules)
     {
         bool modified = false;
@@ -52,7 +69,8 @@ internal struct ItemConfigurationRulesList
         modified |= ApplyModelToXml(xmlContainer, configurationRules, BuildDimension.Deploy, Keyword.Deploy, ref this.deployRules);
         return modified;
 
-        static bool ApplyModelToXml(XmlContainer xmlContainer, IReadOnlyList<ConfigurationRule> configurationRules, BuildDimension dimension, Keyword dimensionElementName, ref ItemRefList<XmlConfiguration> configurations)
+        static bool ApplyModelToXml<T>(XmlContainer xmlContainer, IReadOnlyList<ConfigurationRule> configurationRules, BuildDimension dimension, Keyword dimensionElementName, ref ItemRefList<T> configurations)
+            where T : XmlConfiguration
         {
             List<(string ItemRef, ConfigurationRule Item)> dimensionRules = configurationRules.WhereToList(
                 static (x, dimension) => x.Dimension == dimension,
