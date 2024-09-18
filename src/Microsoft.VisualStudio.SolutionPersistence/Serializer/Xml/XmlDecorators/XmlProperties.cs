@@ -50,6 +50,11 @@ internal sealed partial class XmlProperties(SlnxFile root, XmlElement element) :
         base.OnNewChildDecoratorAdded(childDecorator);
     }
 
+    internal override XmlDecorator? FindNextDecorator<TDecorator>()
+    {
+        return null;
+    }
+
     #region Deserialize model
 
     internal void AddToModel(PropertyContainerModel model)

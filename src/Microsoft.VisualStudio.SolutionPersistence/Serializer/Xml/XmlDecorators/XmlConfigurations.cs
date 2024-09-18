@@ -58,6 +58,18 @@ internal sealed class XmlConfigurations(SlnxFile root, XmlElement element) :
         base.OnNewChildDecoratorAdded(childDecorator);
     }
 
+    /// <inheritdoc/>
+    internal override XmlDecorator? FindNextDecorator<TDecorator>()
+    {
+        return typeof(TDecorator).Name switch
+        {
+            nameof(XmlBuildType) => this.platforms.FirstOrDefault() ?? this.FindNextDecorator<XmlPlatform>(),
+            nameof(XmlPlatform) => this.projectTypes.FirstOrDefault(),
+            nameof(XmlProjectType) => null,
+            _ => null,
+        };
+    }
+
     #region Deserialize model
 
     internal void AddToModel(SolutionModel solution)

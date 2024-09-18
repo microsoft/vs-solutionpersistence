@@ -52,7 +52,7 @@ internal static class SlnAssets
     public static ResourceStream XmlSlnxComments => LoadResource("Comments.slnx");
 
     // Solution with just a property bag and user XML.
-    public static ResourceStream XmlSlnxJustProperties => LoadResource("JustProperties.slnx");
+    public static ResourceStream XmlSlnxJustProperties => LoadResource("SlnxWhitespace/JustProperties.slnx");
 
     // Solution with optional legacy values.
     public static ResourceStream XmlSlnxLegacyValues => LoadResource("Invalid/LegacyValues.slnx");
@@ -103,13 +103,13 @@ internal static class SlnAssets
 
     #region Test result Slnx
 
-    public static ResourceStream XmlSlnxProperties_Empty => LoadResource("Properties/JustProperties-empty.slnx");
+    public static ResourceStream XmlSlnxProperties_Empty => LoadResource("SlnxWhitespace/JustProperties-empty.slnx");
 
-    public static ResourceStream XmlSlnxProperties_Add0Add7 => LoadResource("Properties/JustProperties-add0add7.slnx");
+    public static ResourceStream XmlSlnxProperties_Add0Add7 => LoadResource("SlnxWhitespace/JustProperties-add0add7.slnx");
 
-    public static ResourceStream XmlSlnxProperties_No2No4 => LoadResource("Properties/JustProperties-no2no4.slnx");
+    public static ResourceStream XmlSlnxProperties_No2No4 => LoadResource("SlnxWhitespace/JustProperties-no2no4.slnx");
 
-    public static ResourceStream XmlSlnxProperties_NoComments => LoadResource("Properties/JustProperties-nocomments.slnx");
+    public static ResourceStream XmlSlnxProperties_NoComments => LoadResource("SlnxWhitespace/JustProperties-nocomments.slnx");
 
     #endregion
 

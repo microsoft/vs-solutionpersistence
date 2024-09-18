@@ -44,12 +44,14 @@ internal abstract partial class XmlDecorator
     internal XmlNode GetFirstTrivia()
     {
         XmlNode? previous = this.XmlElement.PreviousSibling;
+        XmlNode? trivia = null;
         while (previous is XmlWhitespace or XmlComment)
         {
+            trivia = previous;
             previous = previous.PreviousSibling;
         }
 
-        return previous ?? this.XmlElement;
+        return trivia ?? this.XmlElement;
     }
 
     internal StringSpan GetNewLineAndIndent()
@@ -77,7 +79,12 @@ internal abstract partial class XmlDecorator
                 startIndex--;
             }
 
-            while (startIndex > 0 && value[startIndex - 1] is '\r' or '\n')
+            if (startIndex > 0 && value[startIndex - 1] is '\n')
+            {
+                startIndex--;
+            }
+
+            if (startIndex > 0 && value[startIndex - 1] is '\r')
             {
                 startIndex--;
             }

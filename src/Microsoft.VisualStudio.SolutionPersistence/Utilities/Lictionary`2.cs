@@ -73,6 +73,8 @@ internal readonly struct Lictionary<TKey, TValue> : IReadOnlyDictionary<TKey, TV
         }
     }
 
+    public TValue this[int index] => this.items[index].Value;
+
     public bool ContainsKey(TKey key) => this.BinarySearch(key) >= 0;
 
 #if NETFRAMEWORK
@@ -146,9 +148,11 @@ internal readonly struct Lictionary<TKey, TValue> : IReadOnlyDictionary<TKey, TV
             value = this.items[index].Value;
             return true;
         }
-
-        value = default;
-        return false;
+        else
+        {
+            value = default;
+            return false;
+        }
     }
 
     internal void EnsureCapacity(int capacity)
@@ -171,10 +175,9 @@ internal readonly struct Lictionary<TKey, TValue> : IReadOnlyDictionary<TKey, TV
 
     private sealed class EntryKeyComparer(IComparer<TKey> keyComparer) : IComparer<KeyValuePair<TKey, TValue>>
     {
+        public IComparer<TKey> KeyComparer => keyComparer;
+
         public int Compare(KeyValuePair<TKey, TValue> x, KeyValuePair<TKey, TValue> y) =>
             keyComparer.Compare(x.Key, y.Key);
-
-        public bool Equals(KeyValuePair<TKey, TValue> x, KeyValuePair<TKey, TValue> y) =>
-            this.Compare(x, y) == 0;
     }
 }

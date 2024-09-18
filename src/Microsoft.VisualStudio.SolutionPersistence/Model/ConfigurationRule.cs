@@ -49,13 +49,13 @@ public readonly struct ConfigurationRule(
     /// The solution build type that gets mapped to the project value.
     /// If string.Empty, then the project value is applied for all solution build types.
     /// </summary>
-    public readonly string SolutionBuildType = solutionBuildType;
+    public readonly string SolutionBuildType = solutionBuildType == BuildTypeNames.All ? string.Empty : solutionBuildType;
 
     /// <summary>
     /// The solution platform that gets mapped to the project value.
     /// If string.Empty, then the project value is applied for all solution platforms.
     /// </summary>
-    public readonly string SolutionPlatform = solutionPlatform;
+    public readonly string SolutionPlatform = solutionPlatform == PlatformNames.All ? string.Empty : solutionPlatform;
 
     /// <summary>
     /// The value that the project configuration should be set to.

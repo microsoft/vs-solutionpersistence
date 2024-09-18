@@ -7,7 +7,7 @@ namespace Serialization;
 
 /// <summary>
 /// These tests update properties in a properties bag in a slnx file.
-/// This test is intented to exercize the code that updates child items in a collection.
+/// This test is intented to exercise the code that updates child items in a collection and maintains the correct whitespace.
 /// </summary>
 public class ManipulateXmlPropertyBag
 {
@@ -18,16 +18,16 @@ public class ManipulateXmlPropertyBag
     [Fact]
     public async Task RemoveSomePropertiesAsync()
     {
-        await ValidateModifiedPropertiesAsync(CreateModifiedModel, SlnAssets.XmlSlnxJustProperties, SlnAssets.XmlSlnxProperties_No2No4);
+        await ValidateModifiedSolutionAsync(CreateModifiedModel, SlnAssets.XmlSlnxJustProperties, SlnAssets.XmlSlnxProperties_No2No4);
 
         // Make a new model with some of the properties removed
-        static SolutionModel CreateModifiedModel(SolutionModel solution) => solution.CreateCopy(solution =>
+        static void CreateModifiedModel(SolutionModel solution)
         {
             // Remove some of the properties
             SolutionPropertyBag? properties = solution.FindProperties("TestProperties") ?? throw new InvalidOperationException();
             _ = properties.Remove("Prop2");
             _ = properties.Remove("Prop4");
-        });
+        }
     }
 
     /// <summary>
@@ -37,10 +37,10 @@ public class ManipulateXmlPropertyBag
     [Fact]
     public async Task RemoveAllPropertiesAsync()
     {
-        await ValidateModifiedPropertiesAsync(CreateModifiedModel, SlnAssets.XmlSlnxJustProperties, SlnAssets.XmlSlnxProperties_Empty);
+        await ValidateModifiedSolutionAsync(CreateModifiedModel, SlnAssets.XmlSlnxJustProperties, SlnAssets.XmlSlnxProperties_Empty);
 
         // Make a new model with all the properties removed
-        static SolutionModel CreateModifiedModel(SolutionModel solution) => solution.CreateCopy(solution =>
+        static void CreateModifiedModel(SolutionModel solution)
         {
             // Remove all of the properties
             SolutionPropertyBag? properties = solution.FindProperties("TestProperties") ?? throw new InvalidOperationException();
@@ -48,7 +48,7 @@ public class ManipulateXmlPropertyBag
             {
                 _ = properties.Remove(propertyName);
             }
-        });
+        }
     }
 
     /// <summary>
@@ -58,16 +58,16 @@ public class ManipulateXmlPropertyBag
     [Fact]
     public async Task AddPropertiesAsync()
     {
-        await ValidateModifiedPropertiesAsync(CreateModifiedModel, SlnAssets.XmlSlnxJustProperties, SlnAssets.XmlSlnxProperties_Add0Add7);
+        await ValidateModifiedSolutionAsync(CreateModifiedModel, SlnAssets.XmlSlnxJustProperties, SlnAssets.XmlSlnxProperties_Add0Add7);
 
         // Make a new model with all the properties removed
-        static SolutionModel CreateModifiedModel(SolutionModel solution) => solution.CreateCopy(solution =>
+        static void CreateModifiedModel(SolutionModel solution)
         {
             // Remove some of the properties
             SolutionPropertyBag? properties = solution.FindProperties("TestProperties") ?? throw new InvalidOperationException();
             properties.Add($"Prop0", $"Value0");
             properties.Add($"Prop7", $"Value7");
-        });
+        }
     }
 
     /// <summary>
@@ -77,10 +77,10 @@ public class ManipulateXmlPropertyBag
     [Fact]
     public async Task AddFromEmptyAsync()
     {
-        await ValidateModifiedPropertiesAsync(CreateModifiedModel, SlnAssets.XmlSlnxProperties_Empty, SlnAssets.XmlSlnxProperties_NoComments);
+        await ValidateModifiedSolutionAsync(CreateModifiedModel, SlnAssets.XmlSlnxProperties_Empty, SlnAssets.XmlSlnxProperties_NoComments);
 
         // Make a new model with all the properties removed
-        static SolutionModel CreateModifiedModel(SolutionModel solution) => solution.CreateCopy(solution =>
+        static void CreateModifiedModel(SolutionModel solution)
         {
             // Add all of the properties
             SolutionPropertyBag? properties = solution.FindProperties("TestProperties") ?? throw new InvalidOperationException();
@@ -89,20 +89,6 @@ public class ManipulateXmlPropertyBag
             {
                 properties.Add($"Prop{i + 1}", $"Value{i + 1}");
             }
-        });
-    }
-
-    private static async Task ValidateModifiedPropertiesAsync(Func<SolutionModel, SolutionModel> createModifiedModel, ResourceStream originalSlnx, ResourceStream expectedSlnx)
-    {
-        // Open the Model from stream.
-        SolutionModel model = await SolutionSerializers.SlnXml.OpenAsync(originalSlnx.Stream, CancellationToken.None);
-        AssertNotTarnished(model);
-
-        SolutionModel updateModel = createModifiedModel(model);
-
-        // Save the Model back to stream.
-        FileContents reserializedSolution = await ModelToLinesAsync(SolutionSerializers.SlnXml, updateModel);
-
-        AssertSolutionsAreEqual(expectedSlnx.ToLines(), reserializedSolution);
+        }
     }
 }
