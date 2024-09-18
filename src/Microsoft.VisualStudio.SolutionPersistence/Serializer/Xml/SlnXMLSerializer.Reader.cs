@@ -21,7 +21,7 @@ internal sealed partial class SlnXmlSerializer
             // We ideally want to preserver whitespace, but if this is on
             // we need to manually handle preserving all indenting and new lines
             // when elements are added or removed.
-            this.xmlDocument = new XmlDocument() { PreserveWhitespace = true };
+            this.xmlDocument = new LineInfoXmlDocument() { PreserveWhitespace = true };
             this.xmlDocument.Load(readerStream);
         }
 
