@@ -109,7 +109,7 @@ internal partial class SlnXmlSerializer
 
             static SlnxFile CreateNewSlnFile(string? fullPath, SlnxSerializerSettings xmlSerializerSettings, StringTable stringTable)
             {
-                XmlDocument xmlDocument = new XmlDocument() { PreserveWhitespace = xmlSerializerSettings.PreserveWhitespace ?? false, };
+                XmlDocument xmlDocument = new LineInfoXmlDocument() { PreserveWhitespace = xmlSerializerSettings.PreserveWhitespace ?? false, };
 
                 XmlElement slnElement = xmlDocument.CreateElement(Keyword.Solution.ToXmlString());
                 _ = xmlDocument.AppendChild(slnElement);
