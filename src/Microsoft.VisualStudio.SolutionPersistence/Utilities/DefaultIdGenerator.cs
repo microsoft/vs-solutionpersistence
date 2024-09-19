@@ -12,7 +12,7 @@ internal static class DefaultIdGenerator
 {
     internal static Guid CreateIdFrom(string uniqueName)
     {
-        byte[] bytes = Encoding.UTF8.GetBytes(uniqueName.ToUpperInvariant());
+        byte[] bytes = StringToBytes(uniqueName);
         return MakeId(bytes, null);
     }
 
@@ -24,8 +24,13 @@ internal static class DefaultIdGenerator
         }
 
         byte[] parentData = parentItemId.ToByteArray();
-        byte[] itemData = Encoding.UTF8.GetBytes(name.ToUpperInvariant());
+        byte[] itemData = StringToBytes(name);
         return MakeId(parentData, itemData);
+    }
+
+    private static byte[] StringToBytes(string text)
+    {
+        return Encoding.UTF8.GetBytes(text.Replace('\\', '/').ToUpperInvariant());
     }
 
     private static Guid MakeId(byte[] data1, byte[]? data2)
