@@ -112,7 +112,7 @@ public sealed class InvalidSolutions
         Assert.False(solution.SerializerExtension.Tarnished);
 
         // Save the Model back to stream.
-        FileContents reserializedSolution = await ModelToLinesAsync(SolutionSerializers.SlnFileV12, solution);
+        FileContents reserializedSolution = await solution.ToLinesAsync(SolutionSerializers.SlnFileV12);
 
         AssertSolutionsAreEqual(SlnAssets.ClassicSlnMin.ToLines(), reserializedSolution);
     }

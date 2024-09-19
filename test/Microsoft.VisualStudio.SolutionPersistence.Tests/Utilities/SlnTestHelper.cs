@@ -20,25 +20,18 @@ internal static class SlnTestHelper
     internal static bool IsMono = false;
 #endif
 
-    internal static async Task<FileContents> ModelToLinesAsync<T>(ISolutionSingleFileSerializer<T> serializer, SolutionModel updateModel, int bufferSize = 1024 * 1024)
+    /// <summary>
+    /// Converts the model to it's file contents using the specified serializer.
+    /// </summary>
+    internal static async Task<FileContents> ToLinesAsync<T>(this SolutionModel model, ISolutionSingleFileSerializer<T> serializer, int bufferSize = 1024 * 1024)
     {
         byte[] buffer = new byte[bufferSize];
         using (MemoryStream memoryStream = new MemoryStream(buffer))
         {
-            await serializer.SaveAsync(memoryStream, updateModel, CancellationToken.None);
+            await serializer.SaveAsync(memoryStream, model, CancellationToken.None);
         }
 
         return buffer.ToLines();
-    }
-
-    /// <summary>
-    /// Helper to creating a new model and update it.
-    /// </summary>
-    internal static SolutionModel CreateCopy(this SolutionModel solution, Action<SolutionModel> modifyModel)
-    {
-        SolutionModel model = new SolutionModel(solution) { SerializerExtension = solution.SerializerExtension };
-        modifyModel(model);
-        return model;
     }
 
     /// <summary>
@@ -158,20 +151,32 @@ internal static class SlnTestHelper
     /// Starts with a slnx solution, modifies the model and verifies it matches the expected solution file.
     /// </summary>
     /// <param name="modifyModel">Action to modify the model.</param>
-    /// <param name="originalSlnx">Input slnx.</param>
-    /// <param name="expectedSlnx">Expected output slnx.</param>
-    internal static async Task ValidateModifiedSolutionAsync(Action<SolutionModel> modifyModel, ResourceStream originalSlnx, ResourceStream expectedSlnx)
+    /// <param name="original">Input slnx.</param>
+    /// <param name="expected">Expected output slnx.</param>
+    internal static Task ValidateModifiedSolutionAsync(Action<SolutionModel> modifyModel, ResourceStream original, ResourceStream expected)
+    {
+        return ValidateModifiedSolutionAsync(modifyModel, original, expected, SolutionSerializers.SlnXml);
+    }
+
+    /// <summary>
+    /// Starts with a solution, modifies the model and verifies it matches the expected solution file.
+    /// </summary>
+    /// <param name="modifyModel">Action to modify the model.</param>
+    /// <param name="original">Input solution.</param>
+    /// <param name="expected">Expected output solution.</param>
+    /// <param name="serializer">Serializer to use.</param>
+    internal static async Task ValidateModifiedSolutionAsync<T>(Action<SolutionModel> modifyModel, ResourceStream original, ResourceStream expected, ISolutionSingleFileSerializer<T> serializer)
     {
         // Open the Model from stream.
-        SolutionModel model = await SolutionSerializers.SlnXml.OpenAsync(originalSlnx.Stream, CancellationToken.None);
+        SolutionModel model = await serializer.OpenAsync(original.Stream, CancellationToken.None);
         AssertNotTarnished(model);
 
         modifyModel(model);
 
         // Save the Model back to stream.
-        FileContents reserializedSolution = await ModelToLinesAsync(SolutionSerializers.SlnXml, model);
+        FileContents reserializedSolution = await ToLinesAsync(model, serializer);
 
-        AssertSolutionsAreEqual(expectedSlnx.ToLines(), reserializedSolution);
+        AssertSolutionsAreEqual(expected.ToLines(), reserializedSolution);
     }
 
     internal static Encoding GetSlnEncoding(SolutionModel model)

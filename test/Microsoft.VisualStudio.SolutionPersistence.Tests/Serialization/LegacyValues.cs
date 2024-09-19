@@ -33,4 +33,52 @@ public sealed class LegacyValues
 
         AssertSolutionsAreEqual(expectedCleaned.ToLines(), cleaned);
     }
+
+    /// <summary>
+    /// The 'DisplayName' property should be ignored if a project has a file path.
+    /// </summary>
+    [Fact]
+    public async Task IgnoreDisplayNameSlnx()
+    {
+        if (IsMono)
+        {
+            // Mono is not supported.
+            return;
+        }
+
+        await ValidateModifiedSolutionAsync(CreateModifiedModel, SlnAssets.XmlSlnxSingleNativeProject, SlnAssets.XmlSlnxSingleNativeProject);
+
+        static void CreateModifiedModel(SolutionModel solution)
+        {
+            SolutionProjectModel? project = solution.FindProject("SingleNativeProject.vcxproj");
+            Assert.NotNull(project);
+
+            // Display name should be ignored if a project has a file path.
+            project.DisplayName = "ThisDisplayNameShouldBeIgnored";
+        }
+    }
+
+    /// <summary>
+    /// The 'DisplayName' property should be ignored if a project has a file path.
+    /// </summary>
+    [Fact]
+    public async Task IgnoreDisplayNameSln()
+    {
+        if (IsMono)
+        {
+            // Mono is not supported.
+            return;
+        }
+
+        await ValidateModifiedSolutionAsync(CreateModifiedModel, SlnAssets.ClassicSlnSingleNativeProject, SlnAssets.ClassicSlnSingleNativeProject, SolutionSerializers.SlnFileV12);
+
+        static void CreateModifiedModel(SolutionModel solution)
+        {
+            SolutionProjectModel? project = solution.FindProject("SingleNativeProject.vcxproj");
+            Assert.NotNull(project);
+
+            // Display name should be ignored if a project has a file path.
+            project.DisplayName = "ThisDisplayNameShouldBeIgnored";
+        }
+    }
 }
