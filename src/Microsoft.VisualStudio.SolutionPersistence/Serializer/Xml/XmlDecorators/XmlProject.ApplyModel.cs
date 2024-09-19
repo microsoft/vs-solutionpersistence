@@ -21,7 +21,7 @@ internal sealed partial class XmlProject
         }
 
         string? displayName =
-            modelProject.DisplayName is null || StringExtensions.EqualsOrdinal(this.DefaultDisplayName, modelProject.DisplayName) ?
+            modelProject.DisplayName is null || StringExtensions.EqualsOrdinal(this.DefaultDisplayName, modelProject.ActualDisplayName) ?
             null :
             modelProject.DisplayName;
         if (!StringComparer.Ordinal.Equals(this.DisplayName, displayName))

@@ -71,7 +71,7 @@ public class RoundTripXmlSlnx
         AssertNotTarnished(model);
 
         // Save the Model back to stream.
-        FileContents reserializedSolution = await ModelToLinesAsync(SolutionSerializers.SlnXml, model);
+        FileContents reserializedSolution = await model.ToLinesAsync(SolutionSerializers.SlnXml);
 
         AssertSolutionsAreEqual(slnStream.ToLines(), reserializedSolution);
     }

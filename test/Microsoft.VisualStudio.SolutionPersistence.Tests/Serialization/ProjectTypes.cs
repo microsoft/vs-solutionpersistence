@@ -28,7 +28,7 @@ public sealed class ProjectTypes
                 }),
         };
 
-        FileContents builtInFromCodeLines = await ModelToLinesAsync(SolutionSerializers.SlnXml, builtInTypesModel);
+        FileContents builtInFromCodeLines = await builtInTypesModel.ToLinesAsync(SolutionSerializers.SlnXml);
 
         AssertSolutionsAreEqual(builtInFromCodeLines, SlnAssets.XmlBuiltInProjectTypes.ToLines());
     }

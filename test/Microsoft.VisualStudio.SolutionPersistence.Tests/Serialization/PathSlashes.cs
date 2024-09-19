@@ -75,7 +75,7 @@ public sealed class PathSlashes
         // Save the Model back to stream.
         ResourceStream slashesResource = SlnAssets.LoadResource("Invalid/PathSlashes.slnx");
         SolutionModel solution = await SolutionSerializers.SlnXml.OpenAsync(slashesResource.Stream, CancellationToken.None);
-        FileContents reserializedSolution = await ModelToLinesAsync(SolutionSerializers.SlnXml, solution);
+        FileContents reserializedSolution = await solution.ToLinesAsync(SolutionSerializers.SlnXml);
 
         SlnTestHelper.AssertSolutionsAreEqual(fixedSlashesResource, reserializedSolution);
     }
