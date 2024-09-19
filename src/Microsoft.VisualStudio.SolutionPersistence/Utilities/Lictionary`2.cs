@@ -175,8 +175,6 @@ internal readonly struct Lictionary<TKey, TValue> : IReadOnlyDictionary<TKey, TV
 
     private sealed class EntryKeyComparer(IComparer<TKey> keyComparer) : IComparer<KeyValuePair<TKey, TValue>>
     {
-        public IComparer<TKey> KeyComparer => keyComparer;
-
         public int Compare(KeyValuePair<TKey, TValue> x, KeyValuePair<TKey, TValue> y) =>
             keyComparer.Compare(x.Key, y.Key);
     }
