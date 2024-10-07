@@ -1,9 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net472;net8.0</TargetFrameworks>
+    <TargetFrameworks Condition="'$(TargetFrameworks)'==''">net472;net8.0</TargetFrameworks>
   </PropertyGroup>
 
-  <ItemGroup Label="Packages">
+  <!-- Don't run analyzers when building in source build. -->
+  <ItemGroup Label="Analyzers" Condition=" '$(SourceBuild)' != 'true' ">
     <PackageReference Include="Microsoft.CodeAnalysis.PublicApiAnalyzers" PrivateAssets="all" />
   </ItemGroup>
   <ItemGroup Label="NetFrameworkPackages" Condition=" '$(TargetFramework)' == 'net472' ">
