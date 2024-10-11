@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections;
-using System.Linq;
 using PropertyBag = Microsoft.VisualStudio.SolutionPersistence.Utilities.Lictionary<string, string>;
 
 namespace Microsoft.VisualStudio.SolutionPersistence.Model;
@@ -82,7 +81,16 @@ public sealed class SolutionPropertyBag : IReadOnlyDictionary<string, string>
     public IEnumerable<string> Keys => this.PropertyNames;
 
     /// <inheritdoc/>
-    public IEnumerable<string> Values => this.PropertyNames.Select(x => this[x]);
+    public IEnumerable<string> Values
+    {
+        get
+        {
+            foreach (var name in this.PropertyNames)
+            {
+                yield return name;
+            }
+        }
+    }
 
     /// <inheritdoc/>
     public string this[string key] => this.properties[key];

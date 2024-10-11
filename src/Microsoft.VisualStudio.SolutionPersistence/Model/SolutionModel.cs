@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Linq;
 using Microsoft.VisualStudio.SolutionPersistence.Serializer.Xml;
 
 namespace Microsoft.VisualStudio.SolutionPersistence.Model;
@@ -58,7 +57,16 @@ public sealed class SolutionModel : PropertyContainerModel
         this.visualStudioProperties = new VisualStudioProperties(this);
         this.StringTable = solutionModel.StringTable;
         int itemCount = solutionModel.solutionItems.Count;
-        int folderCount = solutionModel.solutionItems.Count(x => x is SolutionFolderModel);
+        int folderCount = 0;
+
+        foreach (var item in solutionModel.solutionItems)
+        {
+            if (item is SolutionFolderModel)
+            {
+                folderCount++;
+            }
+        }
+
         this.solutionItems = new List<SolutionItemModel>(itemCount);
         this.solutionItemsById = new Dictionary<Guid, SolutionItemModel>(itemCount);
         this.solutionFolders = new List<SolutionFolderModel>(folderCount);
@@ -271,11 +279,16 @@ public sealed class SolutionModel : PropertyContainerModel
 
         ValidateName(buildType.AsSpan());
 
-        if (!this.solutionBuildTypes.Contains(buildType, StringComparer.OrdinalIgnoreCase))
+        foreach (var type in this.solutionBuildTypes)
         {
-            buildType = this.StringTable.GetString(buildType);
-            this.solutionBuildTypes.Add(buildType);
+            if (string.Equals(type, buildType, StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
         }
+
+        buildType = this.StringTable.GetString(buildType);
+        this.solutionBuildTypes.Add(buildType);
     }
 
     /// <summary>
@@ -299,11 +312,16 @@ public sealed class SolutionModel : PropertyContainerModel
 
         ValidateName(platform.AsSpan());
 
-        if (!this.solutionPlatforms.Contains(platform, StringComparer.OrdinalIgnoreCase))
+        foreach (var plat in this.solutionPlatforms)
         {
-            platform = this.StringTable.GetString(platform);
-            this.solutionPlatforms.Add(platform);
+            if (string.Equals(plat, platform, StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
         }
+
+        platform = this.StringTable.GetString(platform);
+        this.solutionPlatforms.Add(platform);
     }
 
     /// <summary>
@@ -563,8 +581,10 @@ public sealed class SolutionModel : PropertyContainerModel
         return
             this.BuildTypes.Count == 0 ||
             (this.BuildTypes.Count == 2 &&
-            this.BuildTypes.Contains(BuildTypeNames.Debug) &&
-            this.BuildTypes.Contains(BuildTypeNames.Release));
+            ((this.BuildTypes[0] == BuildTypeNames.Debug &&
+            this.BuildTypes[1] == BuildTypeNames.Release) ||
+            (this.BuildTypes[0] == BuildTypeNames.Release &&
+            this.BuildTypes[1] == BuildTypeNames.Debug)));
     }
 
     internal bool IsPlatformImplicit()
