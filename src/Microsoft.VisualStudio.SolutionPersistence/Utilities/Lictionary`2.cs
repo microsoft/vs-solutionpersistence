@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections;
-using System.Linq;
 
 namespace Microsoft.VisualStudio.SolutionPersistence.Utilities;
 
@@ -50,9 +49,27 @@ internal readonly struct Lictionary<TKey, TValue> : IReadOnlyDictionary<TKey, TV
         }
     }
 
-    public IEnumerable<TKey> Keys => this.Select(x => x.Key);
+    public IEnumerable<TKey> Keys
+    {
+        get
+        {
+            foreach (var item in this)
+            {
+                yield return item.Key;
+            }
+        }
+    }
 
-    public IEnumerable<TValue> Values => this.Select(x => x.Value);
+    public IEnumerable<TValue> Values
+    {
+        get
+        {
+            foreach (var item in this)
+            {
+                yield return item.Value;
+            }
+        }
+    }
 
     public int Count => this.items.Count;
 

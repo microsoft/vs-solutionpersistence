@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Linq;
 using Microsoft.VisualStudio.SolutionPersistence.Model;
 using Microsoft.VisualStudio.SolutionPersistence.Utilities;
 
@@ -520,7 +519,15 @@ public static class SlnV12Extensions
                 return null;
             }
 
-            int count = solution.SolutionItems.Count(static x => x.Parent is not null);
+            int count = 0;
+
+            foreach (var item in solution.SolutionItems)
+            {
+                if (item.Parent is not null)
+                {
+                    count++;
+                }
+            }
 
             SolutionPropertyBag propertyBag = new SolutionPropertyBag(SectionName.NestedProjects, PropertiesScope.PreLoad, count);
             foreach (SolutionItemModel item in solution.SolutionItems)
@@ -533,8 +540,18 @@ public static class SlnV12Extensions
 
             return propertyBag;
 
-            static bool AnyNestedProjects(SolutionModel model) =>
-                model.SolutionItems.Any(static item => item.Parent is not null);
+            static bool AnyNestedProjects(SolutionModel model)
+            {
+                foreach (var item in model.SolutionItems)
+                {
+                    if (item.Parent is not null)
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
         }
 
         static SolutionPropertyBag? GetExtensibilityGlobals(SolutionModel model)
