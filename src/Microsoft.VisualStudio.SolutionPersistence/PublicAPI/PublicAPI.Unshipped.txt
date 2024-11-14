@@ -1,6 +1,6 @@
 #nullable enable
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionArgumentException
-Microsoft.VisualStudio.SolutionPersistence.Model.SolutionArgumentException.SolutionArgumentException(string? message) -> void
+Microsoft.VisualStudio.SolutionPersistence.Model.SolutionArgumentException.Type -> Microsoft.VisualStudio.SolutionPersistence.Model.SolutionArgumentExceptionType?
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionArgumentExceptionType
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionArgumentExceptionType.CannotMoveFolderToChildFolder = 0 -> Microsoft.VisualStudio.SolutionPersistence.Model.SolutionArgumentExceptionType
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionArgumentExceptionType.DuplicateDefaultProjectType = 1 -> Microsoft.VisualStudio.SolutionPersistence.Model.SolutionArgumentExceptionType

@@ -1,13 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+using System;
 
 namespace Microsoft.VisualStudio.SolutionPersistence.Model;
 
 /// <summary>
-/// Enumeration of all different exception types.
+/// Reasons the SolutionArgumentException was raised.
 /// </summary>
 public enum SolutionArgumentExceptionType
 {
@@ -15,7 +14,7 @@ public enum SolutionArgumentExceptionType
     DuplicateDefaultProjectType,
     DuplicateExtension,
     DuplicateItemRef,
-    DUplicateName,
+    DuplicateName,
     DuplicateProjectName,
     DuplicateProjectPath,
     DuplicateProjectTypeId,
