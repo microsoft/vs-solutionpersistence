@@ -44,7 +44,7 @@ public enum SolutionArgumentExceptionType
 
 public class SolutionArgumentException : ArgumentException
 {
-    public SolutionArgumentExceptionType? Type;
+    public SolutionArgumentExceptionType? Type { get; private set; }
 
     public SolutionArgumentException(string? message, SolutionArgumentExceptionType? type)
         : base(message)
