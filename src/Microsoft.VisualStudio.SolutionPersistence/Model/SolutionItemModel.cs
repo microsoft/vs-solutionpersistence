@@ -122,6 +122,13 @@ public abstract class SolutionItemModel : PropertyContainerModel
         try
         {
             this.Parent = folder;
+
+            // Reevaulate the id.
+            if (this.id == this.DefaultId)
+            {
+                this.id = null;
+            }
+
             if (this is SolutionProjectModel thisProject)
             {
                 this.Solution.ValidateProjectName(thisProject);
