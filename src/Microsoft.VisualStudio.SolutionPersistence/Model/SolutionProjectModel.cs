@@ -99,7 +99,7 @@ public sealed class SolutionProjectModel : SolutionItemModel
             {
                 if (this.Solution.FindProject(value) is not null)
                 {
-                    throw new SolutionArgumentException(string.Format(Errors.DuplicateItemRef_Args2, value, "Project"), nameof(value), SolutionArgumentExceptionType.DuplicateItemRef);
+                    throw new SolutionArgumentException(string.Format(Errors.DuplicateItemRef_Args2, value, "Project"), nameof(value), SolutionErrorType.DuplicateItemRef);
                 }
 
                 string oldPath = this.filePath!;
@@ -211,7 +211,7 @@ public sealed class SolutionProjectModel : SolutionItemModel
 
         if (ReferenceEquals(dependency, this))
         {
-            throw new SolutionArgumentException(string.Format(Errors.InvalidLoop_Args1, dependency.ItemRef), nameof(dependency), SolutionArgumentExceptionType.InvalidLoop);
+            throw new SolutionArgumentException(string.Format(Errors.InvalidLoop_Args1, dependency.ItemRef), nameof(dependency), SolutionErrorType.InvalidLoop);
         }
 
         this.dependencies ??= [];

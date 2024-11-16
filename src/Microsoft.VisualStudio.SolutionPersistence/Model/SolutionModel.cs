@@ -177,7 +177,7 @@ public sealed class SolutionModel : PropertyContainerModel
         Argument.ThrowIfNullOrEmpty(path, nameof(path));
         if (!path.StartsWith('/') || !path.EndsWith('/'))
         {
-            throw new SolutionArgumentException(string.Format(Errors.InvalidFolderPath_Args1, path), nameof(path), SolutionArgumentExceptionType.InvalidFolderPath);
+            throw new SolutionArgumentException(string.Format(Errors.InvalidFolderPath_Args1, path), nameof(path), SolutionErrorType.InvalidFolderPath);
         }
 
         SolutionFolderModel? existingFolder = this.FindFolder(path);
@@ -213,7 +213,7 @@ public sealed class SolutionModel : PropertyContainerModel
         Guid projectTypeId =
             Guid.TryParse(projectTypeName, out Guid projectTypeGuid) ? projectTypeGuid :
             this.ProjectTypeTable.GetProjectTypeId(projectTypeName, Path.GetExtension(filePath.AsSpan())) ??
-            throw new SolutionArgumentException(string.Format(Errors.InvalidProjectTypeReference_Args1, projectTypeName), nameof(projectTypeName), SolutionArgumentExceptionType.InvalidProjectReference);
+            throw new SolutionArgumentException(string.Format(Errors.InvalidProjectTypeReference_Args1, projectTypeName), nameof(projectTypeName), SolutionErrorType.InvalidProjectReference);
 
         return this.AddProject(filePath, projectTypeName ?? string.Empty, projectTypeId, folder);
     }
@@ -337,7 +337,7 @@ public sealed class SolutionModel : PropertyContainerModel
         Argument.ThrowIfNullOrEmpty(path, nameof(path));
         if (!path.StartsWith('/') || !path.EndsWith('/'))
         {
-            throw new SolutionArgumentException(string.Format(Errors.InvalidFolderPath_Args1, path), nameof(path), SolutionArgumentExceptionType.InvalidFolderPath);
+            throw new SolutionArgumentException(string.Format(Errors.InvalidFolderPath_Args1, path), nameof(path), SolutionErrorType.InvalidFolderPath);
         }
 
         return ModelHelper.FindByItemRef(this.solutionFolders, path);
@@ -386,13 +386,13 @@ public sealed class SolutionModel : PropertyContainerModel
         {
             if (char.IsControl(c) || InvalidNameChars.Contains(c))
             {
-                throw new SolutionArgumentException(Errors.InvalidName, nameof(name), SolutionArgumentExceptionType.InvalidName);
+                throw new SolutionArgumentException(Errors.InvalidName, nameof(name), SolutionErrorType.InvalidName);
             }
         }
 
         if (IsDosWord(name))
         {
-            throw new SolutionArgumentException(Errors.InvalidName, nameof(name), SolutionArgumentExceptionType.InvalidName);
+            throw new SolutionArgumentException(Errors.InvalidName, nameof(name), SolutionErrorType.InvalidName);
         }
 
         static bool IsDosWord(scoped StringSpan name)
@@ -491,7 +491,7 @@ public sealed class SolutionModel : PropertyContainerModel
         // Project is already in the solution.
         if (this.FindProject(project.FilePath) is not null)
         {
-            throw new SolutionArgumentException(string.Format(Errors.DuplicateProjectPath_Arg1, project.ItemRef), nameof(filePath), SolutionArgumentExceptionType.DuplicateProjectPath);
+            throw new SolutionArgumentException(string.Format(Errors.DuplicateProjectPath_Arg1, project.ItemRef), nameof(filePath), SolutionErrorType.DuplicateProjectPath);
         }
 
         this.ValidateProjectName(project);
@@ -602,7 +602,7 @@ public sealed class SolutionModel : PropertyContainerModel
 
             if (existingProject.ActualDisplayName.Equals(displayName, StringComparison.OrdinalIgnoreCase))
             {
-                throw new SolutionArgumentException(string.Format(Errors.DuplicateProjectName_Arg1, displayName), SolutionArgumentExceptionType.DuplicateProjectName);
+                throw new SolutionArgumentException(string.Format(Errors.DuplicateProjectName_Arg1, displayName), SolutionErrorType.DuplicateProjectName);
             }
         }
     }
@@ -611,7 +611,7 @@ public sealed class SolutionModel : PropertyContainerModel
     {
         if (item is not null && item.Solution != this)
         {
-            throw new SolutionArgumentException(Errors.InvalidModelItem, nameof(item), SolutionArgumentExceptionType.InvalidModelItem);
+            throw new SolutionArgumentException(Errors.InvalidModelItem, nameof(item), SolutionErrorType.InvalidModelItem);
         }
     }
 

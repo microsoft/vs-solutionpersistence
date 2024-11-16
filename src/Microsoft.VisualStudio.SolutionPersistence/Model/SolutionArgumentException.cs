@@ -5,66 +5,29 @@ using System;
 
 namespace Microsoft.VisualStudio.SolutionPersistence.Model;
 
-/// <summary>
-/// Reasons the SolutionArgumentException was raised.
-/// </summary>
-public enum SolutionArgumentExceptionType
-{
-    CannotMoveFolderToChildFolder,
-    DuplicateDefaultProjectType,
-    DuplicateExtension,
-    DuplicateItemRef,
-    DuplicateName,
-    DuplicateProjectName,
-    DuplicateProjectPath,
-    DuplicateProjectTypeId,
-    InvalidConfiguration,
-    InvalidEncoding,
-    InvalidFolderPath,
-    InvalidFolderReference,
-    InvalidItemRef,
-    InvalidLoop,
-    InvalidModelItem,
-    InvalidName,
-    InvalidProjectReference,
-    InvalidProjectType,
-    InvalidProjectTypeReference,
-    InvalidScope,
-    InvalidVersion,
-    MissingDisplayName,
-    MissingPath,
-    MissingProjectId,
-    MissingProjectValue,
-    MissingSectionName,
-    NotSolution,
-    SyntaxError,
-    UnsupportedVersion,
-    InvalidXmlDecoratorElementName
-}
-
 public class SolutionArgumentException : ArgumentException
 {
-    public SolutionArgumentExceptionType? Type;
+    public SolutionErrorType Type;
 
-    public SolutionArgumentException(string? message, SolutionArgumentExceptionType? type)
+    public SolutionArgumentException(string? message, SolutionErrorType type)
         : base(message)
     {
         this.Type = type;
     }
 
-    public SolutionArgumentException(string? message, Exception? innerException, SolutionArgumentExceptionType? type)
+    public SolutionArgumentException(string? message, Exception? innerException, SolutionErrorType type)
         : base(message, innerException)
     {
         this.Type = type;
     }
 
-    public SolutionArgumentException(string? message, string? paramName, SolutionArgumentExceptionType? type)
+    public SolutionArgumentException(string? message, string? paramName, SolutionErrorType type)
         : base(message, paramName)
     {
         this.Type = type;
     }
 
-    public SolutionArgumentException(string? message, string? paramName, Exception? innerException, SolutionArgumentExceptionType? type)
+    public SolutionArgumentException(string? message, string? paramName, Exception? innerException, SolutionErrorType type)
         : base(message, paramName, innerException)
     {
         this.Type = type;

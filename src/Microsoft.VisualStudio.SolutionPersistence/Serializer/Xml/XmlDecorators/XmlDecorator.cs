@@ -25,7 +25,7 @@ internal abstract partial class XmlDecorator
         this.ElementName = elementName;
         if (this.ElementName != Keywords.ToKeyword(element.Name))
         {
-            throw new SolutionArgumentException($"Expected element name {this.ElementName}, but got {element.Name}", SolutionArgumentExceptionType.InvalidXmlDecoratorElementName);
+            throw new SolutionArgumentException($"Expected element name {this.ElementName}, but got {element.Name}", SolutionErrorType.InvalidXmlDecoratorElementName);
         }
     }
 

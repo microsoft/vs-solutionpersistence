@@ -31,3 +31,7 @@ Microsoft.VisualStudio.SolutionPersistence.Model.SolutionArgumentExceptionType.M
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionArgumentExceptionType.NotSolution = 26 -> Microsoft.VisualStudio.SolutionPersistence.Model.SolutionArgumentExceptionType
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionArgumentExceptionType.SyntaxError = 27 -> Microsoft.VisualStudio.SolutionPersistence.Model.SolutionArgumentExceptionType
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionArgumentExceptionType.UnsupportedVersion = 28 -> Microsoft.VisualStudio.SolutionPersistence.Model.SolutionArgumentExceptionType
+Microsoft.VisualStudio.SolutionPersistence.Model.SolutionException.ErrorType.get -> Microsoft.VisualStudio.SolutionPersistence.Model.SolutionErrorType?
+Microsoft.VisualStudio.SolutionPersistence.Model.SolutionException.ErrorType.init -> void
+Microsoft.VisualStudio.SolutionPersistence.Model.SolutionException.SolutionException(string! message, Microsoft.VisualStudio.SolutionPersistence.Model.SolutionErrorType errorType = Microsoft.VisualStudio.SolutionPersistence.Model.SolutionErrorType.Undefined) -> void
+Microsoft.VisualStudio.SolutionPersistence.Model.SolutionException.SolutionException(string! message, System.Exception! inner, Microsoft.VisualStudio.SolutionPersistence.Model.SolutionErrorType errorType = Microsoft.VisualStudio.SolutionPersistence.Model.SolutionErrorType.Undefined) -> void
