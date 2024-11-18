@@ -193,7 +193,12 @@ public sealed class SolutionModel : PropertyContainerModel
         string? parentItemRef = lastSlash > 0 ? folderPath.Slice(0, lastSlash + 1).ToString() : null;
         StringSpan newName = lastSlash > 0 ? folderPath.Slice(lastSlash + 1) : folderPath.Slice(1);
 
-        return this.AddFolder(newName, parentItemRef);
+        SolutionFolderModel folder = this.AddFolder(newName, parentItemRef);
+
+        // Ensure the project type is in the project type table, if it is not already.
+        this.solutionItemsById[folder.Id] = folder;
+
+        return folder;
     }
 
     /// <summary>
@@ -629,8 +634,6 @@ public sealed class SolutionModel : PropertyContainerModel
         this.solutionFolders.Add(folder);
         this.solutionItems.Add(folder);
 
-        // Ensure the project type is in the project type table, if it is not already.
-        this.solutionItemsById[folder.Id] = folder;
         return folder;
     }
 
