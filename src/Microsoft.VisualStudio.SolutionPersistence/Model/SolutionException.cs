@@ -23,9 +23,11 @@ public class SolutionException : FormatException
     /// Initializes a new instance of the <see cref="SolutionException"/> class.
     /// </summary>
     /// <param name="message">The error message that explains the reason for the exception.</param>
-    public SolutionException(string message)
+    /// <param name="errorType">The type of error associated to this exception.</param>
+    public SolutionException(string message, SolutionErrorType errorType = SolutionErrorType.Undefined)
         : base(message)
     {
+        this.ErrorType = errorType;
     }
 
     /// <summary>
@@ -33,9 +35,11 @@ public class SolutionException : FormatException
     /// </summary>
     /// <param name="message">The error message that explains the reason for the exception.</param>
     /// <param name="inner">The exception that is the cause of the current exception.</param>
-    public SolutionException(string message, Exception inner)
+    /// <param name="errorType">The type of error associated to this exception.</param>
+    public SolutionException(string message, Exception inner, SolutionErrorType errorType = SolutionErrorType.Undefined)
         : base(message, inner)
     {
+        this.ErrorType = errorType;
     }
 
 #if NETFRAMEWORK
@@ -56,6 +60,11 @@ public class SolutionException : FormatException
         this.Column = column < 0 ? null : column;
     }
 #endif
+
+    /// <summary>
+    /// Gets error type.
+    /// </summary>
+    public SolutionErrorType? ErrorType { get; init; }
 
     /// <summary>
     /// Gets file the error occurred in if known.
@@ -84,19 +93,19 @@ public class SolutionException : FormatException
     }
 #endif
 
-    internal static SolutionException Create(string message, XmlDecorator location)
+    internal static SolutionException Create(string message, XmlDecorator location, SolutionErrorType errorType = SolutionErrorType.Undefined)
     {
         return location?.XmlElement is IXmlLineInfo lineInfo && lineInfo.HasLineInfo() ?
-            new SolutionException(message) { Line = lineInfo.LineNumber, Column = lineInfo.LinePosition, File = location.Root.FullPath } :
-            new SolutionException(message) { File = location?.Root.FullPath };
+            new SolutionException(message, errorType) { Line = lineInfo.LineNumber, Column = lineInfo.LinePosition, File = location.Root.FullPath } :
+            new SolutionException(message, errorType) { File = location?.Root.FullPath };
     }
 
-    internal static SolutionException Create(Exception innerException, XmlDecorator location, string? message = null)
+    internal static SolutionException Create(Exception innerException, XmlDecorator location, string? message = null, SolutionErrorType errorType = SolutionErrorType.Undefined)
     {
         message ??= innerException.Message;
         return location?.XmlElement is IXmlLineInfo lineInfo && lineInfo.HasLineInfo() ?
-            new SolutionException(message, innerException) { Line = lineInfo.LineNumber, Column = lineInfo.LinePosition, File = location.Root.FullPath } :
-            new SolutionException(message, innerException) { File = location?.Root.FullPath };
+            new SolutionException(message, innerException, errorType) { Line = lineInfo.LineNumber, Column = lineInfo.LinePosition, File = location.Root.FullPath } :
+            new SolutionException(message, innerException, errorType) { File = location?.Root.FullPath };
     }
 
     // Checks if an exception caught during serialization should be wrapped by a SolutionException to add position information.
