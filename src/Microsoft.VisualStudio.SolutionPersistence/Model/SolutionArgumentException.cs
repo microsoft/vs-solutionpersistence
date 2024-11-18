@@ -7,7 +7,7 @@ namespace Microsoft.VisualStudio.SolutionPersistence.Model;
 
 public class SolutionArgumentException : ArgumentException
 {
-    public SolutionErrorType Type;
+    public readonly SolutionErrorType Type;
 
     public SolutionArgumentException(string? message, SolutionErrorType type)
         : base(message)
