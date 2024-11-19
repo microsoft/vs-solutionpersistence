@@ -33,5 +33,5 @@ Microsoft.VisualStudio.SolutionPersistence.Model.SolutionErrorType.Undefined = 0
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionErrorType.UnsupportedVersion = 22 -> Microsoft.VisualStudio.SolutionPersistence.Model.SolutionErrorType
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionException.ErrorType.get -> Microsoft.VisualStudio.SolutionPersistence.Model.SolutionErrorType?
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionException.ErrorType.init -> void
-Microsoft.VisualStudio.SolutionPersistence.Model.SolutionException.SolutionException(string! message, Microsoft.VisualStudio.SolutionPersistence.Model.SolutionErrorType errorType = Microsoft.VisualStudio.SolutionPersistence.Model.SolutionErrorType.Undefined) -> void
-Microsoft.VisualStudio.SolutionPersistence.Model.SolutionException.SolutionException(string! message, System.Exception! inner, Microsoft.VisualStudio.SolutionPersistence.Model.SolutionErrorType errorType = Microsoft.VisualStudio.SolutionPersistence.Model.SolutionErrorType.Undefined) -> void
+Microsoft.VisualStudio.SolutionPersistence.Model.SolutionException.SolutionException(string! message, Microsoft.VisualStudio.SolutionPersistence.Model.SolutionErrorType errorType) -> void
+Microsoft.VisualStudio.SolutionPersistence.Model.SolutionException.SolutionException(string! message, System.Exception! inner, Microsoft.VisualStudio.SolutionPersistence.Model.SolutionErrorType errorType) -> void

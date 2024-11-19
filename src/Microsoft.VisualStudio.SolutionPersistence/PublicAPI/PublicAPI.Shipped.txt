@@ -52,8 +52,6 @@ Microsoft.VisualStudio.SolutionPersistence.Model.SolutionException.File.init -> 
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionException.Line.get -> int?
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionException.Line.init -> void
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionException.SolutionException() -> void
-Microsoft.VisualStudio.SolutionPersistence.Model.SolutionException.SolutionException(string! message) -> void
-Microsoft.VisualStudio.SolutionPersistence.Model.SolutionException.SolutionException(string! message, System.Exception! inner) -> void
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionFolderModel
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionFolderModel.AddFile(string! file) -> void
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionFolderModel.Files.get -> System.Collections.Generic.IReadOnlyList<string!>?

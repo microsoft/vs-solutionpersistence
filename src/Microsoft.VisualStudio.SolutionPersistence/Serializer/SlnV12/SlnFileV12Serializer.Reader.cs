@@ -213,7 +213,7 @@ internal sealed partial class SlnFileV12Serializer
             }
             catch (Exception ex) when (SolutionException.ShouldWrap(ex))
             {
-                throw new SolutionException(ex.Message, ex) { File = fullPath, Line = this.lineNumber };
+                throw new SolutionException(ex.Message, ex, SolutionErrorType.Undefined) { File = fullPath, Line = this.lineNumber };
             }
 
             return new ValueTask<SolutionModel>(solutionModel);
@@ -564,7 +564,7 @@ internal sealed partial class SlnFileV12Serializer
                 return;
             }
 
-            throw new SolutionException(message) { File = fullPath, Line = this.lineNumber };
+            throw new SolutionException(message, SolutionErrorType.Undefined) { File = fullPath, Line = this.lineNumber };
         }
     }
 }
