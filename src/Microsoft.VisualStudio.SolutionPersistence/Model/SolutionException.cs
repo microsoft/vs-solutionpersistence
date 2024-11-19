@@ -23,8 +23,29 @@ public class SolutionException : FormatException
     /// Initializes a new instance of the <see cref="SolutionException"/> class.
     /// </summary>
     /// <param name="message">The error message that explains the reason for the exception.</param>
+    public SolutionException(string message)
+        : base(message)
+    {
+        this.ErrorType = SolutionErrorType.Undefined;
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="SolutionException"/> class.
+    /// </summary>
+    /// <param name="message">The error message that explains the reason for the exception.</param>
+    /// <param name="inner">The exception that is the cause of the current exception.</param>
+    public SolutionException(string message, Exception inner)
+        : base(message, inner)
+    {
+        this.ErrorType = SolutionErrorType.Undefined;
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="SolutionException"/> class.
+    /// </summary>
+    /// <param name="message">The error message that explains the reason for the exception.</param>
     /// <param name="errorType">The type of error associated to this exception.</param>
-    public SolutionException(string message, SolutionErrorType errorType = SolutionErrorType.Undefined)
+    public SolutionException(string message, SolutionErrorType errorType)
         : base(message)
     {
         this.ErrorType = errorType;
@@ -36,7 +57,7 @@ public class SolutionException : FormatException
     /// <param name="message">The error message that explains the reason for the exception.</param>
     /// <param name="inner">The exception that is the cause of the current exception.</param>
     /// <param name="errorType">The type of error associated to this exception.</param>
-    public SolutionException(string message, Exception inner, SolutionErrorType errorType = SolutionErrorType.Undefined)
+    public SolutionException(string message, Exception inner, SolutionErrorType errorType)
         : base(message, inner)
     {
         this.ErrorType = errorType;
