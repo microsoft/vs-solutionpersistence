@@ -14,9 +14,9 @@ namespace Microsoft.VisualStudio.SolutionPersistence.Model;
 public sealed class SolutionModel : PropertyContainerModel
 {
 #if NETFRAMEWORK
-    private const string InvalidNameChars = @"?:&\/*""<>|#%";
+    private const string InvalidNameChars = @"?:\/*""<>|";
 #else
-    private static readonly SearchValues<char> InvalidNameChars = SearchValues.Create(@"?:&\/*""<>|#%");
+    private static readonly SearchValues<char> InvalidNameChars = SearchValues.Create(@"?:\/*""<>|");
 #endif
 
     private readonly VisualStudioProperties visualStudioProperties;
