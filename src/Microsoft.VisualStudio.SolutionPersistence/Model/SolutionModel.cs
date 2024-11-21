@@ -218,7 +218,7 @@ public sealed class SolutionModel : PropertyContainerModel
         Guid projectTypeId =
             Guid.TryParse(projectTypeName, out Guid projectTypeGuid) ? projectTypeGuid :
             this.ProjectTypeTable.GetProjectTypeId(projectTypeName, Path.GetExtension(filePath.AsSpan())) ??
-            throw new SolutionArgumentException(string.Format(Errors.InvalidProjectTypeReference_Args1, projectTypeName), nameof(projectTypeName), SolutionErrorType.InvalidProjectReference);
+            throw new SolutionArgumentException(string.Format(Errors.InvalidProjectTypeReference_Args1, projectTypeName), nameof(projectTypeName), SolutionErrorType.InvalidProjectTypeReference);
 
         return this.AddProject(filePath, projectTypeName ?? string.Empty, projectTypeId, folder);
     }
