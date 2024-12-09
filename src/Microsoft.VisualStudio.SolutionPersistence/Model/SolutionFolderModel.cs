@@ -20,6 +20,7 @@ public sealed class SolutionFolderModel : SolutionItemModel
     {
         Argument.ThrowIfNullOrEmpty(name, nameof(name));
         this.name = name;
+        this.Children = [];
     }
 
     /// <summary>
@@ -36,7 +37,21 @@ public sealed class SolutionFolderModel : SolutionItemModel
         {
             this.files = [.. folderModel.Files];
         }
+
+        if (folderModel.Children is not null)
+        {
+            this.Children = [.. folderModel.Children];
+        }
+        else
+        {
+            this.Children = [];
+        }
     }
+
+    /// <summary>
+    /// Gets the children in this solution folder.
+    /// </summary>
+    public HashSet<SolutionItemModel> Children { get; private set; }
 
     /// <summary>
     /// Gets the files in this solution folder.
@@ -141,6 +156,29 @@ public sealed class SolutionFolderModel : SolutionItemModel
     public bool RemoveFile(string file)
     {
         return this.files is not null && this.files.Remove(file);
+    }
+
+    /// <summary>
+    /// Returns the number of non-folder SolutionItem descendants recursively (includes projects and files).
+    /// </summary>
+    /// <returns>Number of non-folder SolutionItem descendents.</returns>
+    public int CountNonFolderDescendants()
+    {
+        int count = 0;
+
+        foreach (SolutionItemModel item in this.Children)
+        {
+            if (item is SolutionFolderModel folderModel)
+            {
+                count += folderModel.CountNonFolderDescendants();
+            }
+            else
+            {
+                count++;
+            }
+        }
+
+        return count + (this.Files?.Count ?? 0);
     }
 
     internal override void OnItemRefChanged()

@@ -652,6 +652,11 @@ public sealed class SolutionModel : PropertyContainerModel
 
     private bool RemoveItem(SolutionItemModel item)
     {
+        if (item.Parent != null)
+        {
+            _ = item.Parent.Children.Remove(item);
+        }
+
         _ = this.solutionItemsById.Remove(item.Id);
         return this.solutionItems.Remove(item);
     }

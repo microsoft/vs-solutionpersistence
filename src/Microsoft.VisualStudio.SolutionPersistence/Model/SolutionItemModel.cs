@@ -10,6 +10,7 @@ public abstract class SolutionItemModel : PropertyContainerModel
 {
     private Guid? id;
     private Guid? defaultId;
+    private SolutionFolderModel? parent;
 
     private protected SolutionItemModel(SolutionModel solutionModel, SolutionFolderModel? parent)
     {
@@ -44,7 +45,20 @@ public abstract class SolutionItemModel : PropertyContainerModel
     /// <summary>
     /// Gets the parent solution folder.
     /// </summary>
-    public SolutionFolderModel? Parent { get; private set; }
+    public SolutionFolderModel? Parent
+    {
+        get
+        {
+            return this.parent;
+        }
+
+        private set
+        {
+            _ = this.parent?.Children.Remove(this);
+            this.parent = value;
+            _ = this.parent?.Children.Add(this);
+        }
+    }
 
     /// <summary>
     /// Gets or sets the unique Id of the item within the solution.
