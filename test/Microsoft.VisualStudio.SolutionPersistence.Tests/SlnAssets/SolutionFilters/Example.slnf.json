@@ -1,0 +1,10 @@
+{
+  "solution": {
+    "path": "OriginalSolution.slnx",
+    "projects": [
+      "Data\\Differential\\ProjectData.Differential.csproj",
+      "Data\\ProjectData.csproj",
+      "Data\\ProjectData.Depot.csproj"
+    ]
+  }
+}

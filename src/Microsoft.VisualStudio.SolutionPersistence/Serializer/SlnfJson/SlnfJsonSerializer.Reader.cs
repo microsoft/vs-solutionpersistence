@@ -19,7 +19,16 @@ internal sealed partial class SlnfJsonSerializer
         internal Reader(string? fullPath, Stream readerStream)
         {
             this.fullPath = fullPath;
-            this.jsonDocument = JsonDocument.Parse(readerStream);
+            try
+            {
+                // Read json document from stream
+                _ = readerStream.Seek(0, SeekOrigin.Begin);
+                this.jsonDocument = JsonDocument.Parse(readerStream);
+            }
+            catch
+            {
+                throw new SolutionException(Errors.NotSolution, SolutionErrorType.NotSolution);
+            }
         }
 
         internal SolutionModel Parse()
@@ -30,18 +39,26 @@ internal sealed partial class SlnfJsonSerializer
             JsonElement root = this.jsonDocument.RootElement;
             JsonElement solution = root.GetProperty("solution");
             string originalSolutionPath = solution.GetProperty("path").GetString()!;
-            string[] projectPaths = solution.GetProperty("projects").EnumerateArray().Select(projectPath => projectPath.GetString()!).ToArray();
+            List<string> projectPaths = solution.GetProperty("projects").EnumerateArray().Select(projectPath => projectPath.GetString()!).ToList();
 
             ISolutionSerializer originalSolutionSerializer = SolutionSerializers.GetSerializerByMoniker(originalSolutionPath)!;
             SolutionModel originalSolution = originalSolutionSerializer.OpenAsync(originalSolutionPath, CancellationToken.None).Result;
 
-            List<SolutionProjectModel> projects = originalSolution.SolutionProjects.Where(project => projectPaths.Contains(project.FilePath)).ToList();
-
-            projects.ForEach(project =>
-                filteredSolution.AddProject(
+            projectPaths.ForEach(projectPath =>
+            {
+                SolutionProjectModel? project = originalSolution.FindProject(projectPath);
+                if (project is not null)
+                {
+                    _ = filteredSolution.AddProject(
                     project.FilePath,
                     project.Type,
-                    project.Parent is not null ? filteredSolution.AddFolder(project.Parent.Path) : null));
+                    project.Parent is not null ? filteredSolution.AddFolder(project.Parent.Path) : null);
+                }
+                else
+                {
+                    throw new SolutionException(string.Format(Errors.InvalidProjectReference_Args1, projectPath), SolutionErrorType.InvalidProjectReference);
+                }
+            });
 
             return filteredSolution;
         }

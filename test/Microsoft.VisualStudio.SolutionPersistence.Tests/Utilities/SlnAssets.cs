@@ -101,7 +101,9 @@ internal static class SlnAssets
 
     #endregion
 
-    public static ResourceStream SlnfExample => LoadResource("Example.slnf");
+    public static ResourceStream SlnfExample => LoadResource("SolutionFilters/Example.slnf");
+
+    public static ResourceStream SlnfOriginal => LoadResource("SolutionFilters/Example.slnx");
 
     #region Test result Slnx
 

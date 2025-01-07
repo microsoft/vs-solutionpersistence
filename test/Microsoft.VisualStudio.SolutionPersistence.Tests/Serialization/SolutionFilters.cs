@@ -20,7 +20,18 @@ public class SolutionFilters
     [Fact]
     public async Task ReadSolutionFilterProjects()
     {
-        SolutionModel solution = await SolutionSerializers.SlnfJson.OpenAsync(SlnAssets.SlnfExample.Stream, CancellationToken.None);
+        string slnfFilePath = SlnAssets.SlnfExample.SaveResourceToTempFile();
+        string slnOriginalFilePath = SlnAssets.SlnfOriginal.SaveResourceToTempFile().Replace("\\", "\\\\");
+
+        // Edit slnf file to point to the original sln file.
+        string slnfContent = File.ReadAllText(slnfFilePath);
+        slnfContent = slnfContent.Replace("OriginalSolution.slnx", slnOriginalFilePath);
+        File.WriteAllText(slnfFilePath, slnfContent);
+
+        // Get ResourceStream for slnf file.
+        using Stream slnfStream = File.OpenRead(slnfFilePath);
+
+        SolutionModel solution = await SolutionSerializers.SlnfJson.OpenAsync(slnfStream, CancellationToken.None);
         if (solution.SolutionProjects.Count != 3)
         {
             throw new InvalidOperationException("Expected 3 projects in the solution.");
