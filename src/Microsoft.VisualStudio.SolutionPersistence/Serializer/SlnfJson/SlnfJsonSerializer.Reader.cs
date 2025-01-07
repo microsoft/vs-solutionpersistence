@@ -36,8 +36,13 @@ internal sealed partial class SlnfJsonSerializer
             SolutionModel originalSolution = originalSolutionSerializer.OpenAsync(originalSolutionPath, CancellationToken.None).Result;
 
             List<SolutionProjectModel> projects = originalSolution.SolutionProjects.Where(project => projectPaths.Contains(project.FilePath)).ToList();
-
+            List<SolutionFolderModel> folders = projects
+                .Where(project => project.Parent != null)
+                .Select(project => project.Parent!)
+                .ToList();
+            folders.ForEach(folder => filteredSolution.AddFolder(folder.Path));
             projects.ForEach(project => filteredSolution.SolutionProjects.Append(project));
+
             return filteredSolution;
         }
     }
