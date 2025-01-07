@@ -35,3 +35,6 @@ Microsoft.VisualStudio.SolutionPersistence.Model.SolutionException.ErrorType.get
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionException.ErrorType.init -> void
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionException.SolutionException(string! message, Microsoft.VisualStudio.SolutionPersistence.Model.SolutionErrorType errorType) -> void
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionException.SolutionException(string! message, System.Exception! inner, Microsoft.VisualStudio.SolutionPersistence.Model.SolutionErrorType errorType) -> void
+Microsoft.VisualStudio.SolutionPersistence.Serializer.SlnfJson.SlnfJsonSerializerSettings
+Microsoft.VisualStudio.SolutionPersistence.Serializer.SlnfJson.SlnfJsonSerializerSettings.SlnfJsonSerializerSettings() -> void
+static Microsoft.VisualStudio.SolutionPersistence.Serializer.SolutionSerializers.SlnfJson.get -> Microsoft.VisualStudio.SolutionPersistence.ISolutionSingleFileSerializer<Microsoft.VisualStudio.SolutionPersistence.Serializer.SlnfJson.SlnfJsonSerializerSettings!>!

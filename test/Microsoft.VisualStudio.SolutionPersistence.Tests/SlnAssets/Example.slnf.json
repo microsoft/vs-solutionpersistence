@@ -1,0 +1,10 @@
+{
+    "solution": {
+        "path": "..\\..\\Example\\Example.sln",
+        "projects": [
+            "src\\ExampleProject\\Example.Project.One.csproj",
+            "src\\ExampleProject\\Example.Project.Two.csproj",
+            "src\\ExampleProject\\Example.Project.Three.csproj"
+        ]
+    }
+}

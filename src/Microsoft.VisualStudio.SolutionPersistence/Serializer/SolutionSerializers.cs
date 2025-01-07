@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using Microsoft.VisualStudio.SolutionPersistence.Serializer.SlnfJson;
 using Microsoft.VisualStudio.SolutionPersistence.Serializer.SlnV12;
 using Microsoft.VisualStudio.SolutionPersistence.Serializer.Xml;
 
@@ -22,9 +23,14 @@ public static class SolutionSerializers
     public static ISolutionSingleFileSerializer<SlnxSerializerSettings> SlnXml => SlnXmlSerializer.Instance;
 
     /// <summary>
+    /// Gets the .slnf JSON solution serializer.
+    /// </summary>
+    public static ISolutionSingleFileSerializer<SlnfJsonSerializerSettings> SlnfJson => SlnfJsonSerializer.Instance;
+
+    /// <summary>
     /// Gets all the solution serializers implemented by this package.
     /// </summary>
-    public static IReadOnlyCollection<ISolutionSerializer> Serializers => [SlnFileV12, SlnXml];
+    public static IReadOnlyCollection<ISolutionSerializer> Serializers => new List<ISolutionSerializer> { SlnFileV12, SlnXml, SlnfJson };
 
     /// <summary>
     /// Finds a serializer that supports opening the given solution moniker.

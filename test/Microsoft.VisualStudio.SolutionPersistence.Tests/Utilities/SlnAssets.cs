@@ -101,6 +101,8 @@ internal static class SlnAssets
 
     #endregion
 
+    public static ResourceStream SlnfExample => LoadResource("Example.slnf");
+
     #region Test result Slnx
 
     public static ResourceStream XmlSlnxProperties_Empty => LoadResource("SlnxWhitespace/JustProperties-empty.slnx");
@@ -148,7 +150,8 @@ internal static class SlnAssets
         name = name.Replace('/', '.');
         Stream? stream =
             ResourceAssembly.GetManifestResourceStream(SlnAssetsRoot + name + ".txt") ??
-            ResourceAssembly.GetManifestResourceStream(SlnAssetsRoot + name + ".xml");
+            ResourceAssembly.GetManifestResourceStream(SlnAssetsRoot + name + ".xml") ??
+            ResourceAssembly.GetManifestResourceStream(SlnAssetsRoot + name + ".json");
         if (stream is not null)
         {
             return new ResourceStream(name, stream);
