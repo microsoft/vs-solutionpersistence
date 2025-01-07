@@ -24,14 +24,21 @@ internal sealed partial class SlnfJsonSerializer
 
         internal SolutionModel Parse()
         {
-            SolutionModel solution = new SolutionModel();
-            solution.SerializerExtension = new SlnfJsonModelExtension(SolutionSerializers.SlnfJson, new SlnfJsonSerializerSettings(), this.fullPath);
+            SolutionModel filteredSolution = new SolutionModel();
+            filteredSolution.SerializerExtension = new SlnfJsonModelExtension(SolutionSerializers.SlnfJson, new SlnfJsonSerializerSettings(), this.fullPath);
+
             JsonElement root = this.jsonDocument.RootElement;
-            root.GetProperty("solution").GetProperty("projects").EnumerateArray().ToList().ForEach(projectPath =>
-            {
-                _ = solution.AddProject(projectPath.GetString()!);
-            });
-            return solution;
+            JsonElement solution = root.GetProperty("solution");
+            string originalSolutionPath = solution.GetProperty("path").GetString()!;
+            string[] projectPaths = solution.GetProperty("projects").EnumerateArray().Select(projectPath => projectPath.GetString()!).ToArray();
+
+            ISolutionSerializer originalSolutionSerializer = SolutionSerializers.GetSerializerByMoniker(originalSolutionPath)!;
+            SolutionModel originalSolution = originalSolutionSerializer.OpenAsync(originalSolutionPath, CancellationToken.None).Result;
+
+            List<SolutionProjectModel> projects = originalSolution.SolutionProjects.Where(project => projectPaths.Contains(project.FilePath)).ToList();
+
+            projects.ForEach(project => filteredSolution.SolutionProjects.Append(project));
+            return filteredSolution;
         }
     }
 }
