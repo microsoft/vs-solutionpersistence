@@ -20,18 +20,21 @@ internal partial class SlnfJsonSerializer
             SolutionModel model,
             Stream streamWriter)
         {
-            var slnFile = new Dictionary<string, object>
+            var slnfDictionary = new Dictionary<string, object>
             {
                 {
                     "solution", new Dictionary<string, object>
                     {
-                        { "path", fullPath! },
+                        { "path", model.FilteredOriginalSolutionFilePath! },
                         { "projects", model.SolutionProjects.Select(p => p.FilePath).ToList() },
                     }
                 },
             };
 
-            await JsonSerializer.SerializeAsync(streamWriter, slnFile, new JsonSerializerOptions { WriteIndented = true });
+            string slnfJsonString = JsonSerializer.Serialize(slnfDictionary, new JsonSerializerOptions { WriteIndented = true });
+
+            byte[] slnfJsonBytes = Encoding.UTF8.GetBytes(slnfJsonString);
+            await streamWriter.WriteAsync(slnfJsonBytes, 0, slnfJsonBytes.Length).ConfigureAwait(false);
         }
     }
 }

@@ -112,6 +112,11 @@ public sealed class SolutionModel : PropertyContainerModel
     public string? Description { get; set; }
 
     /// <summary>
+    /// Gets or sets the full path to the original solution file (for filtered solution files).
+    /// </summary>
+    public string? FilteredOriginalSolutionFilePath { get; set; }
+
+    /// <summary>
     /// Gets the list of solution items in the solution.
     /// This is all of the solution folders and projects in the solution.
     /// </summary>

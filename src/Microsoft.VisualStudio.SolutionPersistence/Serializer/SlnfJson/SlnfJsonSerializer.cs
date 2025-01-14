@@ -37,6 +37,6 @@ internal sealed partial class SlnfJsonSerializer : SingleFileSerializerBase<Slnf
 
     private protected override Task WriteModelAsync(string? fullPath, SolutionModel model, Stream writerStream, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        return Writer.SaveAsync(fullPath, model, writerStream);
     }
 }
