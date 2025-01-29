@@ -25,5 +25,4 @@ internal sealed class SlnfJsonModelExtension(ISolutionSerializer serializer, Sln
     public SlnfJsonSerializerSettings Settings { get; } = settings;
 
     internal string? SolutionFileFullPath { get; init; }
-
 }
