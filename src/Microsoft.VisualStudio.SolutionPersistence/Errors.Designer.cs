@@ -115,11 +115,11 @@ namespace Microsoft.VisualStudio.SolutionPersistence {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Project name &apos;{0}&apos; already exists in the solution folder..
+        ///   Looks up a localized string similar to Project name &apos;{0}&apos; already exists in the &apos;{1}&apos; solution folder..
         /// </summary>
-        internal static string DuplicateProjectName_Arg1 {
+        internal static string DuplicateProjectName_Arg2 {
             get {
-                return ResourceManager.GetString("DuplicateProjectName_Arg1", resourceCulture);
+                return ResourceManager.GetString("DuplicateProjectName_Arg2", resourceCulture);
             }
         }
         
