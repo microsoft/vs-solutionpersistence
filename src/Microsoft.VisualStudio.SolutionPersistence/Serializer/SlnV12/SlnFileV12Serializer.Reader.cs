@@ -491,7 +491,7 @@ internal sealed partial class SlnFileV12Serializer
             // So that is valid: ProjectSection ((( ))XXX===(())preProect
             // We have to keep that behaviour, only slight difference  will allow space in adition to tab at the end of name
             // With all wierd syntaxes old will accepet, it will not accept ProjectSection( Foo )  (but will do ) ProjectSection(  Foo) ...
-            StringSpan sectionName = tokenizer.NextToken(SlnConstants.SectionSeparators).Trim();
+            StringSpan sectionName = tokenizer.NextToken(SlnConstants.SectionSeparators2).Trim();
             this.SolutionAssert(!sectionName.IsEmpty, Errors.MissingSectionName);
             StringSpan sectionScopeStr = tokenizer.NextToken(SlnConstants.SectionSeparators).Trim();
             this.SolutionAssert(TryParseScope(sectionScopeStr, isSolution, out PropertiesScope scope), Errors.InvalidScope);
