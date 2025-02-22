@@ -46,12 +46,6 @@ public class RoundTripClassicSlnThruSlnxStream
         ResourceStream slnStream,
         ResourceStream viaSlnxStream)
     {
-        if (IsMono)
-        {
-            // Mono is not supported.
-            return;
-        }
-
         FileContents originalSolution = slnStream.ToLines();
 
         // Open the Model from stream.
