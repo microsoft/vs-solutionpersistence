@@ -13,6 +13,8 @@ internal static class SlnAssets
 
     public static ResourceName[] ClassicSlnFiles => GetAllSampleFiles(".sln").ToArray();
 
+    public static ResourceName[] XmlSlnxFiles => GetAllSampleFiles(".slnx").ToArray();
+
     #region Sample Classic Sln
 
     // Empty VS Solution template. ASCII encoding.
@@ -43,6 +45,9 @@ internal static class SlnAssets
 
     // A solution with missing configurations. UTF8 BOM encoding.
     public static ResourceStream ClassicSlnMissingConfigurations => LoadResource("Configurations/MissingConfigurations.sln");
+
+    // A solution with duplicate project ids. ASCII encoding.
+    public static ResourceStream ClassicSlnDuplicateProjectIds => LoadResource("Invalid/DuplicateProjectId.sln");
 
     #endregion
 
@@ -97,7 +102,8 @@ internal static class SlnAssets
     // A solution with missing configurations.
     public static ResourceStream XmlSlnxMissingConfigurations => LoadResource("Configurations/MissingConfigurations.slnx");
 
-    public static ResourceName[] XmlSlnxFiles => GetAllSampleFiles(".slnx").ToArray();
+    // A solution with duplicate project ids.
+    public static ResourceStream XmlSlnxDuplicateProjectIds => LoadResource("Invalid/DuplicateProjectId.slnx");
 
     #endregion
 

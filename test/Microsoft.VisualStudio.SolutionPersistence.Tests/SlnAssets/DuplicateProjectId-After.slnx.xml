@@ -1,0 +1,10 @@
+<Solution>
+  <Project Path="DuplicateProjectId.csproj">
+    <BuildType Solution="Debug|*" Project="Release" />
+    <BuildType Solution="Release|*" Project="Debug" />
+  </Project>
+  <Project Path="DuplicateProjectIdOpposite.csproj">
+    <BuildType Solution="Debug|*" Project="Release" />
+    <BuildType Solution="Release|*" Project="Debug" />
+  </Project>
+</Solution>

@@ -69,6 +69,11 @@ internal sealed partial class SlnFileV12Serializer
             // Some property bags need to be loaded after all projects have been resolved.
             List<(SolutionItemModel, SolutionPropertyBag)> delayLoadProperties = [];
 
+            // Keep track of projects with duplicate ids so that we can
+            // duplicate the configuration after all projects have been loaded.
+            // This preserves the orginial buggy behavior of the solution parser.
+            List<(Guid NewId, SolutionProjectModel DuplicateProject)> fixedProjectIds = [];
+
             try
             {
                 using (solutionModel.SuspendProjectValidation())
@@ -87,7 +92,7 @@ internal sealed partial class SlnFileV12Serializer
                             case LineType.Project:
                                 this.TarnishIf(inProject);
                                 inProject = true;
-                                currentProject = this.ReadProjectInfo(solutionModel, ref tokenizer);
+                                currentProject = this.ReadProjectInfo(solutionModel, ref tokenizer, fixedProjectIds);
                                 break;
 
                             case LineType.EndProject:
@@ -200,6 +205,17 @@ internal sealed partial class SlnFileV12Serializer
                         this.TarnishIf(!item.AddSlnProperties(properties));
                     }
 
+                    foreach ((Guid newId, SolutionProjectModel duplicateProject) in fixedProjectIds)
+                    {
+                        // The newly generate id will not have configurations, so make a
+                        // copy of the original project configurations.
+                        // This preserves the orginial buggy behavior of the solution parser.
+                        if (solutionModel.FindItemById(newId) is SolutionProjectModel project)
+                        {
+                            project.ProjectConfigurationRules = duplicateProject.ProjectConfigurationRules;
+                        }
+                    }
+
                     VisualStudioProperties vsProperties = solutionModel.VisualStudioProperties;
                     vsProperties.OpenWith = CommentToOpenWithVS(openWithVsVersion.AsSpan());
                     vsProperties.MinimumVersion = minVsVersion;
@@ -218,17 +234,21 @@ internal sealed partial class SlnFileV12Serializer
 
             return new ValueTask<SolutionModel>(solutionModel);
 
+            // Adds the property bag to the project or folder.
+            // Handles special cases for the sln parser.
+            // Returns false if there was an error reading the properties and the solution file should be considered tarnished.
             static bool AddProjectProperties(
                 SolutionItemModel? currentProject,
                 SolutionPropertyBag? currentPropertyBag,
-                List<(SolutionItemModel, SolutionPropertyBag)> delayLoadProperties)
+                in List<(SolutionItemModel, SolutionPropertyBag)> delayLoadProperties)
             {
                 if (currentProject is null || currentPropertyBag is null)
                 {
                     return true;
                 }
 
-                if (SectionName.InternKnownSectionName(currentPropertyBag.Id) is SectionName.ProjectDependencies)
+                string sectionName = SectionName.InternKnownSectionName(currentPropertyBag.Id);
+                if (sectionName is SectionName.ProjectDependencies)
                 {
                     delayLoadProperties.Add((currentProject, currentPropertyBag));
                     return true;
@@ -498,7 +518,7 @@ internal sealed partial class SlnFileV12Serializer
             return checkOnly ? null : new SolutionPropertyBag(sectionName.ToString(), scope);
         }
 
-        private SolutionItemModel ReadProjectInfo(SolutionModel solution, ref StringTokenizer tokenizer)
+        private SolutionItemModel ReadProjectInfo(SolutionModel solution, ref StringTokenizer tokenizer, List<(Guid NewId, SolutionProjectModel DuplicateProject)> fixedProjectIds)
         {
             // Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "App1", "App1\App1.csproj", "{B0D4AB54-EB86-4C88-A2A4-C55D0C200244}"
             //         ^  <- this is tokenizer pos.
@@ -527,6 +547,8 @@ internal sealed partial class SlnFileV12Serializer
             this.SolutionAssert(!projectUniqueId.IsEmpty, Errors.MissingProjectId);
             this.TarnishIf(!Guid.TryParse(projectUniqueId.ToString(), out Guid projectId));
 
+            SolutionItemModel? duplicateItem = solution.FindItemById(projectId);
+
             if (projectTypeId == ProjectTypeTable.SolutionFolder)
             {
 #pragma warning disable CS0618 // Type or member is obsolete (Temporaily create a potentially invalid solution folder until nested projects is interpreted.)
@@ -534,7 +556,7 @@ internal sealed partial class SlnFileV12Serializer
 #pragma warning restore CS0618 // Type or member is obsolete
 
                 // Solution folders with duplicate ids should not error when reading sln files to preserve legacy behavior.
-                if (solution.FindItemById(projectId) is not null)
+                if (duplicateItem is not null)
                 {
                     projectId = Guid.NewGuid();
                     this.tarnished = true;
@@ -545,6 +567,22 @@ internal sealed partial class SlnFileV12Serializer
             }
             else
             {
+                // This should error, or remove any configuration associated with the duplicate id.
+                // However some old parsers would just ignore the duplicate id and continue.
+                if (duplicateItem is SolutionFolderModel duplicateFolder)
+                {
+                    duplicateFolder.Id = new Guid();
+                    this.tarnished = true;
+                }
+                else if (duplicateItem is SolutionProjectModel duplicateProject)
+                {
+                    projectId = Guid.NewGuid();
+                    this.tarnished = true;
+
+                    // Record the new project id so it's configuration can be duplicated.
+                    fixedProjectIds.Add((projectId, duplicateProject));
+                }
+
 #pragma warning disable CS0618 // Type or member is obsolete (Temporaily create a potentially invalid solution folder until nested projects is interpreted.)
                 SolutionProjectModel project = solution.AddSlnProject(
                     filePath: PathExtensions.ConvertBackslashToModel(relativePath.ToString()),
