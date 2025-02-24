@@ -60,12 +60,6 @@ public class RoundTripXmlSlnx
 
     private static async Task TestRoundTripSerializerAsync(ResourceStream slnStream)
     {
-        if (IsMono)
-        {
-            // Mono is not supported.
-            return;
-        }
-
         // Open the Model from stream.
         SolutionModel model = await SolutionSerializers.SlnXml.OpenAsync(slnStream.Stream, CancellationToken.None);
         AssertNotTarnished(model);
