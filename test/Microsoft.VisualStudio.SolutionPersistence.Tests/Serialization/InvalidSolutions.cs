@@ -307,16 +307,19 @@ public sealed class InvalidSolutions
     }
 
     /// <summary>
-    /// Checks that an error is thrown if the solution contains an invalid project type id.
+    /// Verifies that a malformed project type id is loaded as an empty guid without errors, and
+    /// the solution is marked as tarnished.
     /// </summary>
     [Fact]
     public async Task InvalidProjectTypeSlnAsync()
     {
         ResourceStream invalidProjectType = SlnAssets.LoadResource("Invalid/InvalidProjectType.sln");
-        SolutionException ex = await Assert.ThrowsAsync<SolutionException>(
-            async () => _ = await SolutionSerializers.SlnFileV12.OpenAsync(invalidProjectType.Stream, CancellationToken.None));
-        Assert.StartsWith(Errors.InvalidProjectType, ex.Message);
-        Assert.Equal(5, ex.Line);
-        Assert.Null(ex.Column);
+        SolutionModel solution = await SolutionSerializers.SlnFileV12.OpenAsync(invalidProjectType.Stream, CancellationToken.None);
+        Assert.NotNull(solution.SerializerExtension);
+        Assert.True(solution.SerializerExtension.Tarnished);
+
+        SolutionProjectModel? project = solution.FindProject("InvalidProjectType.csproj");
+        Assert.NotNull(project);
+        Assert.Equal(Guid.Empty, project.TypeId);
     }
 }

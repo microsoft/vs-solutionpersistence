@@ -227,15 +227,6 @@ namespace Microsoft.VisualStudio.SolutionPersistence {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Missing or invalid project type guid..
-        /// </summary>
-        internal static string InvalidProjectType {
-            get {
-                return ResourceManager.GetString("InvalidProjectType", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to ProjectType &apos;{0}&apos; not found..
         /// </summary>
         internal static string InvalidProjectTypeReference_Args1 {

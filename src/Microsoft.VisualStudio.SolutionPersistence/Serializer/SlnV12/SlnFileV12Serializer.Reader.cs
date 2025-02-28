@@ -525,7 +525,11 @@ internal sealed partial class SlnFileV12Serializer
             StringSpan projectType = tokenizer.NextToken(SlnConstants.ProjectSeparators);
 
             // but it must end with [sep]) ... checked later.
-            this.SolutionAssert(Guid.TryParse(projectType.ToString(), out Guid projectTypeId), Errors.InvalidProjectType);
+            if (!Guid.TryParse(projectType.ToString(), out Guid projectTypeId))
+            {
+                projectTypeId = Guid.Empty;
+                this.tarnished = true;
+            }
 
             // this just skips up to Display's name "App1" first quote, position at 'A". The TrimStart is extension to allow spaces before ')';
             // and yes, any characters are allowed for example // Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "App1", valid bad format :P "App1\App1.csproj",
