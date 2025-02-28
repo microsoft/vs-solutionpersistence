@@ -129,10 +129,6 @@
     <value>Missing or invalid scope.</value>
     <comment>Error message</comment>
   </data>
-  <data name="InvalidProjectType" xml:space="preserve">
-    <value>Missing or invalid project type guid.</value>
-    <comment>Error message</comment>
-  </data>
   <data name="SyntaxError" xml:space="preserve">
     <value>Syntax error.</value>
     <comment>Error message</comment>
