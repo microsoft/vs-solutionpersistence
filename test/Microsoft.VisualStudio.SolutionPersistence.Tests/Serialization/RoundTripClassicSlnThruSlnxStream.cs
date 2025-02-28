@@ -36,6 +36,9 @@ public class RoundTripClassicSlnThruSlnxStream
     [Fact]
     public Task MissingConfigurationsThruSlnxStreamAsync() => TestRoundTripSerializerAsync(SlnAssets.ClassicSlnMissingConfigurations, SlnAssets.XmlSlnxMissingConfigurations);
 
+    [Fact]
+    public Task ReportProjectThruSlnxStreamAsync() => TestRoundTripSerializerAsync(SlnAssets.LoadResource("Report Project.sln"), SlnAssets.LoadResource("Report Project.slnx"));
+
     /// <summary>
     /// Round trip a .SLN file through the slnx serializer.
     /// </summary>
