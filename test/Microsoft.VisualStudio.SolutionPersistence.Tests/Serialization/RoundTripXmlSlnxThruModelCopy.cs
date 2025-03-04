@@ -49,6 +49,9 @@ public class RoundTripXmlSlnxThruModelCopy
     [Fact]
     public Task TraditionalAsync() => TestRoundTripSerializerAsync(SlnAssets.XmlSlnxTraditional);
 
+    [Fact]
+    public Task ReportProjectAsync() => TestRoundTripSerializerAsync(SlnAssets.LoadResource("Report Project.slnx"));
+
     private static async Task TestRoundTripSerializerAsync(ResourceStream slnStream)
     {
         // Open the Model from stream.
