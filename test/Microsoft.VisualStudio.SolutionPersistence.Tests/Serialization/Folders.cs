@@ -222,4 +222,26 @@ public sealed class Folders
         Assert.Equal("/A/Nested/Deep/", folderNestedA.Path);
         Assert.Equal("/C/Nested/Deep/", folderNestedB.Path);
     }
+
+    [Fact]
+    public async Task DuplicateFolderPaths()
+    {
+        ResourceStream aspNetCore = SlnAssets.LoadResource("AspNetCore.sln");
+        SolutionModel solution = await SolutionSerializers.SlnFileV12.OpenAsync(aspNetCore.Stream, CancellationToken.None);
+
+        HashSet<string> folderPaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        HashSet<Guid> folderGuids = new HashSet<Guid>();
+        foreach (SolutionFolderModel folder in solution.SolutionFolders)
+        {
+            if (!folderGuids.Add(folder.Id))
+            {
+                Assert.Fail($"Duplicate folder ID found: {folder.Id}");
+            }
+
+            if (!folderPaths.Add(folder.Path))
+            {
+                Assert.Fail($"Duplicate folder path found: {folder.Path}");
+            }
+        }
+    }
 }

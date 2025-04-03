@@ -39,6 +39,9 @@ public class RoundTripClassicSlnThruSlnxStream
     [Fact]
     public Task ReportProjectThruSlnxStreamAsync() => TestRoundTripSerializerAsync(SlnAssets.LoadResource("Report Project.sln"), SlnAssets.LoadResource("Report Project.slnx"));
 
+    [Fact]
+    public Task AspNetCoreThruSlnxStreamAsync() => TestRoundTripSerializerAsync(SlnAssets.LoadResource("AspNetCore.sln"), SlnAssets.LoadResource("AspNetCore.slnx"));
+
     /// <summary>
     /// Round trip a .SLN file through the slnx serializer.
     /// </summary>

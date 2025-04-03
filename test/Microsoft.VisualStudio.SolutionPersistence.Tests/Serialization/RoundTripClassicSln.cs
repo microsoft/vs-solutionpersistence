@@ -45,6 +45,9 @@ public class RoundTripClassicSln
     [Fact]
     public Task ReportProjectAsync() => TestRoundTripSerializerAsync(SlnAssets.LoadResource("Report Project.sln"));
 
+    [Fact]
+    public Task AspNetCoreAsync() => TestRoundTripSerializerAsync(SlnAssets.LoadResource("AspNetCore.sln"));
+
     [Theory]
     [MemberData(nameof(ClassicSlnFiles))]
     public Task AllClassicSolutionAsync(ResourceName sampleFile)

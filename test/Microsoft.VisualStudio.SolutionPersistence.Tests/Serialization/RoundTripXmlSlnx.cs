@@ -54,6 +54,9 @@ public class RoundTripXmlSlnx
     [Fact]
     public Task ReportProject() => TestRoundTripSerializerAsync(SlnAssets.LoadResource("Report Project.slnx"));
 
+    [Fact]
+    public Task AspNetCore() => TestRoundTripSerializerAsync(SlnAssets.LoadResource("AspNetCore.slnx"));
+
     [Theory]
     [MemberData(nameof(XmlSlnxFiles))]
     public Task AllXmlSolutionAsync(ResourceName sampleFile)
