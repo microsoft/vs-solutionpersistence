@@ -11,7 +11,8 @@ namespace Microsoft.VisualStudio.SolutionPersistence.Serializer.SlnV12;
 /// </summary>
 internal sealed partial class SlnFileV12Serializer : SingleFileSerializerBase<SlnV12SerializerSettings>
 {
-    internal const int CurrentFileVersion = 12;
+    // Although the solution file format was version 12.0, it accepted 13.0 and 14.0 as valid.
+    internal const int MaxFileVersion = 14;
 
     [Obsolete("Use Instance")]
     public SlnFileV12Serializer()
