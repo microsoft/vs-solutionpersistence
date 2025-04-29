@@ -322,4 +322,42 @@ public sealed class InvalidSolutions
         Assert.NotNull(project);
         Assert.Equal(Guid.Empty, project.TypeId);
     }
+
+    /// <summary>
+    /// Make sure sln parsing ignore invalid lines in the NestedProjects section.
+    /// </summary>
+    [Fact]
+    public async Task IgnoreInvalidSlnNestingsAsync()
+    {
+        ResourceStream invalidNestings = SlnAssets.LoadResource("Invalid/SampleMany-InvalidNestings.sln");
+        ResourceStream baseline = SlnAssets.LoadResource("SampleMany.sln");
+
+        SolutionModel solution = await SolutionSerializers.SlnFileV12.OpenAsync(invalidNestings.Stream, CancellationToken.None);
+        Assert.NotNull(solution.SerializerExtension);
+        Assert.True(solution.SerializerExtension.Tarnished);
+
+        // Save the fixed sln to make sure it matches baseline.
+        FileContents fixedLines = await solution.ToLinesAsync(SolutionSerializers.SlnFileV12);
+
+        SlnTestHelper.AssertSolutionsAreEqual(baseline.ToLines(), fixedLines);
+    }
+
+    /// <summary>
+    /// Make sure sln parsing ignore invalid lines in the ProjectDependencies section.
+    /// </summary>
+    [Fact]
+    public async Task IgnoreInvalidSlnDependenciesAsync()
+    {
+        ResourceStream invalidNestings = SlnAssets.LoadResource("Invalid/SampleMany-InvalidDependencies.sln");
+        ResourceStream baseline = SlnAssets.LoadResource("SampleMany.sln");
+
+        SolutionModel solution = await SolutionSerializers.SlnFileV12.OpenAsync(invalidNestings.Stream, CancellationToken.None);
+        Assert.NotNull(solution.SerializerExtension);
+        Assert.True(solution.SerializerExtension.Tarnished);
+
+        // Save the fixed sln to make sure it matches baseline.
+        FileContents fixedLines = await solution.ToLinesAsync(SolutionSerializers.SlnFileV12);
+
+        SlnTestHelper.AssertSolutionsAreEqual(baseline.ToLines(), fixedLines);
+    }
 }
