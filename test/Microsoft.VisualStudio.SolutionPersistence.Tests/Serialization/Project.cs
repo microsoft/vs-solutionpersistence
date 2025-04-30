@@ -96,4 +96,18 @@ public sealed class Project
         Assert.NotNull(foundProject.Parent);
         Assert.Equal("/SolutionFolder/", foundProject.Parent.Path);
     }
+
+    /// <summary>
+    /// Ensure the default startup project is read correctly.
+    /// </summary>
+    [Fact]
+    public async Task DefaultStartupAsync()
+    {
+        ResourceStream defaultStartupSolution = SlnAssets.LoadResource("DefaultStartup.slnx");
+        SolutionModel solution = await SolutionSerializers.SlnXml.OpenAsync(defaultStartupSolution.Stream, CancellationToken.None);
+        SolutionProjectModel firstProject = solution.SolutionProjects[0];
+        SolutionItemModel firstItem = solution.SolutionItems[0];
+        Assert.Equal("DefaultStartup.csproj", firstProject.FilePath);
+        Assert.Equal(firstItem, firstProject);
+    }
 }

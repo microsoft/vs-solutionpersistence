@@ -41,6 +41,12 @@ internal sealed partial class XmlProject(SlnxFile root, XmlFolder? xmlParentFold
         set => this.UpdateXmlAttribute(Keyword.Type, value);
     }
 
+    internal bool DefaultStartup
+    {
+        get => this.GetXmlAttributeBool(Keyword.DefaultStartup, defaultValue: false);
+        set => this.UpdateXmlAttributeBool(Keyword.DefaultStartup, value);
+    }
+
     internal XmlFolder? ParentFolder { get; } = xmlParentFolder;
 
     /// <inheritdoc/>
@@ -121,6 +127,11 @@ internal sealed partial class XmlProject(SlnxFile root, XmlFolder? xmlParentFold
             foreach (XmlProperties properties in this.propertyBags.GetItems())
             {
                 properties.AddToModel(projectModel);
+            }
+
+            if (this.DefaultStartup)
+            {
+                solution.MoveProjectFirst(projectModel);
             }
 
             this.Root.UserPaths[projectModel.FilePath] = this.Path;
