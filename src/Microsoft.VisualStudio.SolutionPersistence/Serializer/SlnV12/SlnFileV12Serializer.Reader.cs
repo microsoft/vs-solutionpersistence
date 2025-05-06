@@ -476,7 +476,7 @@ internal sealed partial class SlnFileV12Serializer
                 fileVersionMaj = versionPath.Slice(0, dotIndex).ToString();
             }
 
-            if (string.IsNullOrEmpty(fileVersionMaj) || !int.TryParse(fileVersionMaj, out int fileVer) || fileVer > CurrentFileVersion)
+            if (string.IsNullOrEmpty(fileVersionMaj) || !int.TryParse(fileVersionMaj, out int fileVer) || fileVer > MaxFileVersion)
             {
                 throw new SolutionException(string.Format(Errors.UnsupportedVersion_Args1, fileVersionMaj), SolutionErrorType.UnsupportedVersion) { File = fullPath, Line = this.lineNumber };
             }

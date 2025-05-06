@@ -180,7 +180,19 @@ public sealed class InvalidSolutions
         ResourceStream version = SlnAssets.LoadResource("Invalid/VersionFuture.sln");
         SolutionException ex = await Assert.ThrowsAsync<SolutionException>(
             async () => _ = await SolutionSerializers.SlnFileV12.OpenAsync(version.Stream, CancellationToken.None));
-        Assert.StartsWith(string.Format(Errors.UnsupportedVersion_Args1, "13"), ex.Message);
+        Assert.StartsWith(string.Format(Errors.UnsupportedVersion_Args1, "15"), ex.Message);
+    }
+
+    /// <summary>
+    /// Sln solutions with version 13.0 and 14.0 were considered valid by the Visual Studio parser.
+    /// </summary>
+    [Fact]
+    public async Task Sln14VersionAsync()
+    {
+        ResourceStream version14Sln = SlnAssets.LoadResource("Invalid/Version14.sln");
+        SolutionModel solution = await SolutionSerializers.SlnFileV12.OpenAsync(version14Sln.Stream, CancellationToken.None);
+        Assert.NotNull(solution.SerializerExtension);
+        Assert.False(solution.SerializerExtension.Tarnished);
     }
 
     /// <summary>
