@@ -612,6 +612,22 @@ public sealed class SolutionModel : PropertyContainerModel
         }
     }
 
+    // Moves the project to the first position in the solution so that it is used as the default startup project.
+    internal void MoveProjectFirst(SolutionProjectModel projectModel)
+    {
+        int projectIndex = this.solutionProjects.IndexOf(projectModel);
+        if (projectIndex > 0)
+        {
+            (this.solutionProjects[projectIndex], this.solutionProjects[0]) = (this.solutionProjects[0], this.solutionProjects[projectIndex]);
+        }
+
+        int itemIndex = this.solutionItems.IndexOf(projectModel);
+        if (itemIndex > 0)
+        {
+            (this.solutionItems[itemIndex], this.solutionItems[0]) = (this.solutionItems[0], this.solutionItems[itemIndex]);
+        }
+    }
+
     // Creates a new solution folder. Assumes name has been validated and deduplicated.
     private SolutionFolderModel AddFolder(StringSpan name, string? parentItemRef)
     {
