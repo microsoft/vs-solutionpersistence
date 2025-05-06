@@ -50,6 +50,8 @@ public static class SlnV12Extensions
 
                 return true;
             case SectionName.ProjectDependencies when solutionItem is SolutionProjectModel project:
+
+                bool readAllDependencies = true;
                 foreach (string dependencyProjectId in properties.PropertyNames)
                 {
                     if (Guid.TryParse(dependencyProjectId, out Guid dependencyProjectGuid) &&
@@ -59,11 +61,11 @@ public static class SlnV12Extensions
                     }
                     else
                     {
-                        return false;
+                        readAllDependencies = false;
                     }
                 }
 
-                return true;
+                return readAllDependencies;
             default:
                 solutionItem.AddProperties(properties.Id, properties.Scope).AddRange(properties);
                 return true;
@@ -165,6 +167,7 @@ public static class SlnV12Extensions
                 return true;
 
             case SectionName.NestedProjects:
+                bool readAllValues = true;
                 foreach ((string childProjectIdStr, string parentProjectIdStr) in properties)
                 {
                     if (Guid.TryParse(childProjectIdStr, out Guid childProjectId) &&
@@ -178,16 +181,16 @@ public static class SlnV12Extensions
                         }
                         else
                         {
-                            return false;
+                            readAllValues = false;
                         }
                     }
                     else
                     {
-                        return false;
+                        readAllValues = false;
                     }
                 }
 
-                return true;
+                return readAllValues;
             case SectionName.SolutionProperties:
                 if (properties.TryGetValue(SlnConstants.HideSolutionNode, out string? hideSolutionNodeStr) &&
                     bool.TryParse(hideSolutionNodeStr, out bool hideSolutionNode))
@@ -211,11 +214,7 @@ public static class SlnV12Extensions
                 {
                     solution.VisualStudioProperties.SolutionId = solutionId;
 
-                    if (properties.Count == 1)
-                    {
-                        return true;
-                    }
-                    else
+                    if (properties.Count != 1)
                     {
                         properties.Remove(SlnConstants.SolutionGuid);
                         solution.AddProperties(SectionName.ExtensibilityGlobals, properties.Scope).AddRange(properties);
