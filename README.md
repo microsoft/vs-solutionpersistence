@@ -16,7 +16,7 @@ Shared serializers and models for Visual Studio solution files. Handles traditio
   - Model extension that allows specifying the file encoding.
 * SLNX File Format
   - Simplified format to make merge conflicts easier to resolve.
-  - Preserves user added elements, comments and whitespace when possible. Updaing only modifies changed elements to reduce chances of changing user content.
+  - Preserves user added elements, comments and whitespace when possible. Updating only modifies changed elements to reduce chances of changing user content.
   - Simplified configuration rules and default logic reduce the file size.
   - Model extension that allows specifying XML formatting.
 
