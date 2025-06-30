@@ -14,6 +14,8 @@ pipelines:
           lastModifiedDate: 2024-08-22
         psscriptanalyzer:
           lastModifiedDate: 2024-08-22
+        accessibilityinsights:
+          lastModifiedDate: 2025-06-30
       binary:
         credscan:
           lastModifiedDate: 2024-08-22
