@@ -118,6 +118,7 @@ jobs:
           zipSources: false
           ${{ if parameters.RealSign }}:
             signType: real
+            signWithProd: true
           ${{ else }}:
             signType: test
         sbom:
