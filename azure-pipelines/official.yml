@@ -1,8 +1,4 @@
-# Trigger pipeline on all commits to main, so signing will always happen without PME check.
-trigger:
-  branches:
-    include:
-      - main
+trigger: none # We only want to trigger manually or based on a schedule
 pr: none
 #schedules:
 #- cron: "0 3 * * *" # Daily @ 8 PM PST
