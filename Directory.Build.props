@@ -7,6 +7,8 @@
     <BaseOutputPath Condition=" '$(BaseOutputPath)' == '' ">$(RepoRootPath)bin\$(MSBuildProjectName)\</BaseOutputPath>
     <PackageOutputPath>$(RepoRootPath)bin\Packages\$(Configuration)\NuGet\</PackageOutputPath>
     <VSIXOutputPath>$(RepoRootPath)bin\Packages\$(Configuration)\Vsix\$(Platform)\</VSIXOutputPath>
+    <VSIXOutputPath Condition="'$(Platform)'=='' or '$(Platform)'=='AnyCPU'">$(RepoRootPath)bin\Packages\$(Configuration)\Vsix\</VSIXOutputPath>
+    <SBOMFileDestPath>$(VSIXOutputPath)</SBOMFileDestPath>
     <Nullable>enable</Nullable>
     <!-- Don't use generated implicit usings so we can default to Microsoft.IO in net472. -->
     <ImplicitUsings>disable</ImplicitUsings>
@@ -15,12 +17,14 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
 
+    <!-- https://learn.microsoft.com/en-us/dotnet/fundamentals/apicompat/package-validation/overview -->
+    <EnablePackageValidation>true</EnablePackageValidation>
+
     <!-- https://github.com/dotnet/msbuild/blob/main/documentation/ProjectReference-Protocol.md#setplatform-negotiation -->
     <EnableDynamicPlatformResolution>true</EnableDynamicPlatformResolution>
 
     <!-- Opt in till https://github.com/NuGet/Home/issues/9803 makes this the default. -->
-    <!-- Opt back out until an SDK with the fix for https://github.com/NuGet/Home/issues/12177 is generally available. -->
-    <RestoreUseStaticGraphEvaluation>false</RestoreUseStaticGraphEvaluation>
+    <RestoreUseStaticGraphEvaluation>true</RestoreUseStaticGraphEvaluation>
 
     <!-- This entire repo has just one version.json file, so compute the version once and share with all projects in a large build. -->
     <GitVersionBaseDirectory>$(MSBuildThisFileDirectory)</GitVersionBaseDirectory>
@@ -62,4 +66,6 @@
       <PackageReleaseNotes Condition="'$(RepositoryUrl)'!=''">$(RepositoryUrl)/releases/tag/v$(Version)</PackageReleaseNotes>
     </PropertyGroup>
   </Target>
+
+  <Import Project="azure-pipelines\NuGetSbom.props" />
 </Project>
