@@ -251,7 +251,6 @@ jobs:
           displayName: 💅 Verify formatted code
           env:
             dotnetformat: true # part of a workaround for https://github.com/dotnet/sdk/issues/44951
-      - template: expand-template.yml
 
   - ${{ if parameters.EnableMacOSBuild }}:
     - job: macOS
@@ -283,7 +282,6 @@ jobs:
           Is1ESPT: ${{ parameters.Is1ESPT }}
           RunTests: ${{ parameters.RunTests }}
           BuildRequiresAccessToken: ${{ parameters.RealSign }} # Real signing on non-Windows machines requires passing through access token to build steps that sign
-      - template: expand-template.yml
 
   - job: WrapUp
     dependsOn:
