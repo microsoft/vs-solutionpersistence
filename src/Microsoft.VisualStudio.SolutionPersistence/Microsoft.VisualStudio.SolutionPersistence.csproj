@@ -3,6 +3,10 @@
     <TargetFrameworks Condition="'$(TargetFrameworks)'==''">net472;net8.0</TargetFrameworks>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(TargetFramework)' != 'net472'">
+    <IsAotCompatible>true</IsAotCompatible>
+  </PropertyGroup>
+
   <!-- Don't run analyzers when building in source build. -->
   <ItemGroup Label="Analyzers" Condition=" '$(SourceBuild)' != 'true' ">
     <PackageReference Include="Microsoft.CodeAnalysis.PublicApiAnalyzers" PrivateAssets="all" />
