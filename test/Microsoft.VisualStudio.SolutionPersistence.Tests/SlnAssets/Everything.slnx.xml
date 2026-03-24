@@ -23,7 +23,7 @@
     <Platform Project="x64" />
     <Properties Name="DebuggerProjectSystem">
       <Property Name="AttachLaunchAction" Value="No" />
-      <Property Name="Environment" Value="Default" />
+      <Property Name="Environment" Value="foo=1&#x9;baz=value&#x9;bar=2&#x9;" />
       <Property Name="Executable" Value="C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\devenv.exe" />
       <Property Name="IORedirection" Value="Auto" />
       <Property Name="LaunchingEngine" Value="fb0d4648-f776-4980-95f8-bb7f36ebc1ee" />

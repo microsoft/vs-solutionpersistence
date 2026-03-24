@@ -18,7 +18,7 @@ internal sealed partial class XmlProperty(SlnxFile root, XmlElement element) :
 
     internal string Value
     {
-        get => this.GetXmlAttribute(Keyword.Value) ?? string.Empty;
+        get => this.XmlElement.GetAttribute(Keyword.Value.ToXmlString());
         set => this.UpdateXmlAttribute(Keyword.Value, value);
     }
 

@@ -42,7 +42,7 @@ EndProject
 Project("{911E67C6-3D85-4FCE-B560-20A9C3E3FF48}") = "devenv", "..\..\..\..\..\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\devenv.exe", "{78E62256-49D8-4CC1-8491-D7285015B09E}"
 	ProjectSection(DebuggerProjectSystem) = preProject
 		AttachLaunchAction = No
-		Environment = Default
+		Environment = foo=1	baz=value	bar=2	
 		Executable = C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\devenv.exe
 		IORedirection = Auto
 		LaunchingEngine = fb0d4648-f776-4980-95f8-bb7f36ebc1ee
