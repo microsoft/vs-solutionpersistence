@@ -7,9 +7,8 @@ It is referenced by `update-library-template.prompt.md` and kept separate to avo
 
 These show as "deleted by us" conflicts. Here are the known cases:
 
-* **GitHub Actions CI files** (`.github/workflows/docs.yml`, `.github/actions/publish-artifacts/action.yaml`): This repo uses Azure Pipelines, not GitHub Actions for CI/CD. Keep these deleted.
+* **GitHub Actions CI files** (`.github/workflows/docs.yml`, `.github/workflows/docs_validate.yml`, `.github/actions/publish-artifacts/action.yaml`): This repo uses Azure Pipelines, not GitHub Actions for CI/CD. Keep these deleted.
 * **`.github/workflows/libtemplate-update.yml`**: Automatic Library.Template merge workflow. Should be **kept/restored** — it was mistakenly deleted in a past merge and is useful infrastructure.
-* **`.github/workflows/docs_validate.yml`**: This repo has `docfx/` content, so doc validation is useful. Keep it.
 * **`.github/renovate.json`**: Dependency update automation. Should be kept/restored if missing.
 * **`test/Library.Tests/Library.Tests.csproj`**: Template's generic test project. Re-delete it, but apply any relevant changes to `test/Microsoft.VisualStudio.SolutionPersistence.Tests/`.
 
