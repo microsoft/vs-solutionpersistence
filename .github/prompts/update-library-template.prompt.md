@@ -14,7 +14,7 @@ description: Merges the latest Library.Template into this repo (at position of H
 There may be special notes in `.github/prompts/template-release-notes.md` that describe special considerations for certain files or scenarios to help you resolve conflicts appropriately.
 Always refer to that file before proceeding.
 In particular, focus on the *incoming* part of the file, since it represents the changes from the Library.Template that you are merging into your repo.
-
+Also refer to `.github/prompts/repo-merge-notes.md` for notes specific to this repo (e.g. which deleted files to keep, which customizations to preserve).
 Also consider that some repos choose to reject certain Library.Template patterns.
 For example the template uses MTPv2 for test projects, but a repo might have chosen not to adopt that.
 When resolving merge conflicts, consider whether it looks like the relevant code file is older than it should be given the changes the template is bringing in.
@@ -36,6 +36,17 @@ In some cases however, the deleted file may have incoming changes that should be
 The `test/Library.Tests/Library.Tests.csproj` file is very typical of this.
 Changes to this file should very typically be applied to any and all test projects in the repo.
 You are responsible for doing this in addition to re-deleting this template file.
+
+### Files deleted by the template
+
+When the template deletes a file that exists locally, check the template's commit history to understand *why* it was removed.
+Use the GitHub commit history page for the file (e.g. `https://github.com/aarnott/Library.Template/commits/microbuild/path/to/file`) to find the relevant commit.
+If the template restructured or centralized the functionality (e.g. OptProf pipelines moved to a centralized VS pipeline), accept the deletion.
+If the file contains repo-specific customizations not present in the template, keep it.
+
+### Files deleted locally but updated by the template
+
+These show as "deleted by us" conflicts. Refer to `.github/prompts/repo-merge-notes.md` for this repo's specific decisions on which files to keep or re-delete.
 
 ## Validation
 
