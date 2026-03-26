@@ -173,9 +173,9 @@ internal sealed partial class SlnFileV12Serializer
                                 // original will load the solution as well, but will mark it as "tarnished" with implication to "isDirty" and such.
                                 propName = propName.Trim();
 
-                                // similar for values
-                                tokenizer.TrimStart();
-                                StringSpan propValue = tokenizer.Current;
+                                // Strip all leading spaces from the value, matching legacy parser behavior.
+                                // The legacy parser strips only spaces (not tabs), so tabs in the value are preserved.
+                                StringSpan propValue = tokenizer.Current.TrimStart(' ');
 
                                 // note: it does not strip trailing spaces for value. That was obvious bug, but in fact some could exploited it to store spaces at the end of values.
                                 // tokenizer.Trim(ref value);
