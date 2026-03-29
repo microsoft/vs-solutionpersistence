@@ -110,4 +110,37 @@ public sealed class Project
         Assert.Equal("DefaultStartup.csproj", firstProject.FilePath);
         Assert.Equal(firstItem, firstProject);
     }
+
+    /// <summary>
+    /// Ensures project order is preserved when round-tripping .slnx.
+    /// </summary>
+    [Fact]
+    public async Task RoundTripProjectOrderAsync()
+    {
+        SolutionModel solution = new SolutionModel();
+        SolutionProjectModel projectA = solution.AddProject("A.csproj");
+        SolutionProjectModel projectB = solution.AddProject("B.csproj");
+
+        projectA.Order = 2;
+        projectB.Order = 1;
+
+        (SolutionModel reserializedSolution, FileContents contents) = await SaveAndReopenModelAsync(SolutionSerializers.SlnXml, solution);
+
+        Assert.Contains("Project Path=\"A.csproj\" Order=\"2\"", contents.FullString);
+        Assert.Contains("Project Path=\"B.csproj\" Order=\"1\"", contents.FullString);
+        Assert.Equal(2, reserializedSolution.FindProject("A.csproj")!.Order);
+        Assert.Equal(1, reserializedSolution.FindProject("B.csproj")!.Order);
+    }
+
+    /// <summary>
+    /// Ensures order cannot be set to a negative value.
+    /// </summary>
+    [Fact]
+    public void RejectsNegativeProjectOrder()
+    {
+        SolutionModel solution = new SolutionModel();
+        SolutionProjectModel project = solution.AddProject("A.csproj");
+
+        Assert.Throws<ArgumentOutOfRangeException>(() => project.Order = -1);
+    }
 }

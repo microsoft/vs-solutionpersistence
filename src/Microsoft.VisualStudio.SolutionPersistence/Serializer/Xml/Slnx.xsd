@@ -51,6 +51,7 @@
             <xs:group ref="PropertiesGroup" minOccurs="0" maxOccurs="unbounded"/>
         </xs:choice>
         <xs:attribute name="Name" type="xs:string" use="required"/>
+        <xs:attribute name="Order" type="xs:nonNegativeInteger" />
     </xs:complexType>
 
     <xs:complexType name="Project">
@@ -64,6 +65,7 @@
             <xs:group ref="PropertiesGroup" minOccurs="0" maxOccurs="unbounded"/>
         </xs:choice>
         <xs:attribute name="Path" type="xs:string" use="required"/>
+        <xs:attribute name="Order" type="xs:nonNegativeInteger" />
         <xs:attribute name="Type" type="xs:string" />
         <xs:attribute name="DisplayName" type="xs:string" />
     </xs:complexType>

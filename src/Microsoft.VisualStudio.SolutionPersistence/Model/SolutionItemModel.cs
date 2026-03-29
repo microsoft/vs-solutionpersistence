@@ -10,6 +10,7 @@ public abstract class SolutionItemModel : PropertyContainerModel
 {
     private Guid? id;
     private Guid? defaultId;
+    private int? order;
 
     private protected SolutionItemModel(SolutionModel solutionModel, SolutionFolderModel? parent)
     {
@@ -30,6 +31,7 @@ public abstract class SolutionItemModel : PropertyContainerModel
         this.Solution = solutionModel;
         this.id = itemModel.id;
         this.defaultId = itemModel.defaultId;
+        this.order = itemModel.order;
 
         // This is a shallow copy of the parent, it needs to be swapped out to finish the deep copy.
         // But we can't find the new parent until all copy constructors have been called.
@@ -76,6 +78,26 @@ public abstract class SolutionItemModel : PropertyContainerModel
     /// Gets a value indicating whether the Id is the default Id generated from the ItemRef.
     /// </summary>
     public bool IsDefaultId => this.id is null;
+
+    /// <summary>
+    /// Gets or sets the item order used by .slnx files.
+    /// </summary>
+    /// <remarks>
+    /// When set, this must be a non-negative integer.
+    /// </remarks>
+    public int? Order
+    {
+        get => this.order;
+        set
+        {
+            if (value < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(Order));
+            }
+
+            this.order = value;
+        }
+    }
 
     /// <summary>
     /// Gets the display name of the item. If there is a filename it will be used, otherwise the actual display name.
