@@ -124,6 +124,26 @@ internal abstract partial class XmlDecorator
     internal void UpdateXmlAttributeGuid(Keyword keyword, Guid value) =>
         this.UpdateXmlAttribute(keyword, isDefault: value == Guid.Empty, value, guid => guid.ToString());
 
+    internal int? GetXmlAttributeInt(Keyword keyword)
+    {
+        string? value = this.GetXmlAttribute(keyword);
+        if (value.IsNullOrEmpty())
+        {
+            return null;
+        }
+
+        if (int.TryParse(value, System.Globalization.NumberStyles.None, System.Globalization.CultureInfo.InvariantCulture, out int intValue) &&
+            intValue >= 0)
+        {
+            return intValue;
+        }
+
+        throw new FormatException($"Attribute '{keyword.ToXmlString()}' must be a non-negative integer.");
+    }
+
+    internal void UpdateXmlAttributeInt(Keyword keyword, int? value) =>
+        this.UpdateXmlAttribute(keyword, isDefault: value is null, value.GetValueOrDefault(), v => v.ToString(System.Globalization.CultureInfo.InvariantCulture));
+
     internal bool GetXmlAttributeBool(Keyword keyword, bool defaultValue = false) =>
         bool.TryParse(this.GetXmlAttribute(keyword), out bool boolValue) ? boolValue : defaultValue;
 

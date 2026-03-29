@@ -222,4 +222,25 @@ public sealed class Folders
         Assert.Equal("/A/Nested/Deep/", folderNestedA.Path);
         Assert.Equal("/C/Nested/Deep/", folderNestedB.Path);
     }
+
+    /// <summary>
+    /// Ensures folder order is preserved when round-tripping .slnx.
+    /// </summary>
+    [Fact]
+    public async Task RoundTripFolderOrderAsync()
+    {
+        SolutionModel solution = new SolutionModel();
+        SolutionFolderModel folderA = solution.AddFolder("/A/");
+        SolutionFolderModel folderB = solution.AddFolder("/B/");
+
+        folderA.Order = 20;
+        folderB.Order = 10;
+
+        (SolutionModel reserializedSolution, FileContents contents) = await SaveAndReopenModelAsync(SolutionSerializers.SlnXml, solution);
+
+        Assert.Contains("Folder Name=\"/A/\" Order=\"20\"", contents.FullString);
+        Assert.Contains("Folder Name=\"/B/\" Order=\"10\"", contents.FullString);
+        Assert.Equal(20, reserializedSolution.FindFolder("/A/")!.Order);
+        Assert.Equal(10, reserializedSolution.FindFolder("/B/")!.Order);
+    }
 }

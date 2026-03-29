@@ -210,6 +210,27 @@ public sealed class InvalidSolutions
     }
 
     /// <summary>
+    /// Ensure .slnx rejects non-numeric Order attributes.
+    /// </summary>
+    [Fact]
+    public async Task InvalidOrderAttributeAsync()
+    {
+        const string invalidSlnx = """
+<Solution>
+  <Project Path="App.csproj" Order="abc" />
+</Solution>
+""";
+
+        using MemoryStream stream = new MemoryStream(Encoding.UTF8.GetBytes(invalidSlnx));
+        SolutionException ex = await Assert.ThrowsAsync<SolutionException>(
+            async () => _ = await SolutionSerializers.SlnXml.OpenAsync(stream, CancellationToken.None));
+
+        Assert.Contains("Order", ex.Message);
+        Assert.Equal(2, ex.Line);
+        Assert.Equal(4, ex.Column);
+    }
+
+    /// <summary>
     /// The legacy sln solution parser would ignore duplicate folder guids.
     /// Ensure this behavior is maintained.
     /// </summary>

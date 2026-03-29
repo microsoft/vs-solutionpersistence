@@ -37,6 +37,12 @@ internal sealed partial class XmlProject
             modified = true;
         }
 
+        if (this.Order != modelProject.Order)
+        {
+            this.Order = modelProject.Order;
+            modified = true;
+        }
+
         // BuildDependencies
         modified |= this.ApplyModelItemsToXml(
             itemRefs: modelProject.Dependencies?.ToList(dependencyProject => this.Root.ConvertToUserPath(dependencyProject.FilePath)),
