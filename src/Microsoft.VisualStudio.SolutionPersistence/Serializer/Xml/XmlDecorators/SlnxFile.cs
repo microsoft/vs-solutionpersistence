@@ -2,7 +2,10 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Diagnostics;
+using System.Linq;
 using System.Xml;
+using Microsoft.Extensions.FileSystemGlobbing;
+using Microsoft.Extensions.FileSystemGlobbing.Abstractions;
 using Microsoft.VisualStudio.SolutionPersistence.Model;
 using Microsoft.VisualStudio.SolutionPersistence.Utilities;
 
@@ -29,6 +32,10 @@ internal sealed class SlnxFile
         XmlElement? xmlSolution = this.Document.DocumentElement;
         if (xmlSolution is not null && Keywords.ToKeyword(xmlSolution.Name) == Keyword.Solution)
         {
+            // Expand ALL File/Project path attributes with glob patterns at raw XML parsing time
+            // This happens BEFORE decorators are created, so all paths (literal and glob) go through expansion
+            this.ExpandGlobPatternsInXml(xmlSolution);
+
             this.Solution = new XmlSolution(this, xmlSolution);
             this.Solution.UpdateFromXml();
 
@@ -110,6 +117,162 @@ internal sealed class SlnxFile
     internal string ToXmlString()
     {
         return this.Document.OuterXml;
+    }
+
+    private void ExpandGlobPatternsInElement(XmlElement element, string baseDirectory, HashSet<string> allResolvedPaths)
+    {
+        // Process File and Project elements in this element first
+        // We need to handle them in order to support excludes correctly.
+        // We iterate through a snapshot of children, but modify the live DOM.
+        List<XmlNode> children = element.ChildNodes.Cast<XmlNode>().ToList();
+
+        foreach (XmlNode childNode in children)
+        {
+            // Skip if the node was already removed from the DOM
+            if (childNode.ParentNode is null)
+            {
+                continue;
+            }
+
+            if (childNode is not XmlElement childElement)
+            {
+                continue;
+            }
+
+            string elementName = childElement.Name;
+            if (elementName != "File" && elementName != "Project")
+            {
+                continue;
+            }
+
+            string? pathAttribute = childElement.GetAttribute("Path");
+            if (string.IsNullOrEmpty(pathAttribute))
+            {
+                continue;
+            }
+
+            string modelPath = PathExtensions.ConvertToModel(pathAttribute);
+
+            if (modelPath.StartsWith('!'))
+            {
+                // Exclude pattern
+                this.ApplyExcludePattern(element, childElement, modelPath.Substring(1), baseDirectory, allResolvedPaths);
+            }
+            else
+            {
+                // Include pattern
+                this.ApplyIncludePattern(element, childElement, modelPath, baseDirectory, allResolvedPaths);
+            }
+        }
+
+        // Process recursively for nested folders
+        foreach (XmlNode childNode in element.ChildNodes)
+        {
+            if (childNode is XmlElement childElement && childElement.Name != "File" && childElement.Name != "Project")
+            {
+                this.ExpandGlobPatternsInElement(childElement, baseDirectory, allResolvedPaths);
+            }
+        }
+    }
+
+    private void ApplyExcludePattern(XmlElement parent, XmlElement excludeElement, string pattern, string baseDirectory, HashSet<string> allResolvedPaths)
+    {
+        // Remove the exclude element itself
+        _ = parent.RemoveChild(excludeElement);
+
+        // Find all siblings of the same type that match the pattern
+        string targetElementName = excludeElement.Name;
+        Matcher matcher = new(StringComparison.OrdinalIgnoreCase, preserveFilterOrder: true);
+        _ = matcher.AddInclude(pattern); // We use Include here because we want to match the file path against this pattern
+
+        // We need to iterate over current children of the parent
+        List<XmlElement> siblingsToCheck = [];
+        foreach (XmlNode node in parent.ChildNodes)
+        {
+            if (node is XmlElement el && el.Name == targetElementName)
+            {
+                siblingsToCheck.Add(el);
+            }
+        }
+
+        foreach (XmlElement sibling in siblingsToCheck)
+        {
+            string? path = sibling.GetAttribute("Path");
+            if (string.IsNullOrEmpty(path))
+            {
+                continue;
+            }
+
+            string modelPath = PathExtensions.ConvertToModel(path);
+
+            // Check if this path matches the exclude pattern
+            PatternMatchingResult result = matcher.Match(modelPath);
+            if (result.HasMatches)
+            {
+                _ = parent.RemoveChild(sibling);
+                _ = allResolvedPaths.Remove(modelPath);
+            }
+        }
+    }
+
+    private void ApplyIncludePattern(XmlElement parent, XmlElement includeElement, string pattern, string baseDirectory, HashSet<string> allResolvedPaths)
+    {
+        Matcher matcher = new(StringComparison.OrdinalIgnoreCase, preserveFilterOrder: true);
+        _ = matcher.AddInclude(pattern);
+
+        IEnumerable<string> globResults = matcher.GetResultsInFullPath(baseDirectory);
+        List<string> resolvedPaths = [];
+
+        foreach (string absolutePath in globResults)
+        {
+            string relativePath = Path.GetRelativePath(baseDirectory, absolutePath);
+            if (allResolvedPaths.Add(relativePath))
+            {
+                resolvedPaths.Add(relativePath);
+            }
+        }
+
+        // Handle no matches
+        if (resolvedPaths.Count == 0)
+        {
+            // If it's a literal path (no wildcards), preserve it even if it doesn't exist (or wasn't found)
+            if (allResolvedPaths.Add(pattern))
+            {
+                resolvedPaths.Add(pattern);
+            }
+        }
+
+        // Update XML
+        if (resolvedPaths.Count > 0)
+        {
+            // Insert new elements
+            foreach (string path in resolvedPaths)
+            {
+                XmlElement newElement = (XmlElement)includeElement.CloneNode(deep: true);
+                newElement.SetAttribute("Path", PathExtensions.ConvertModelToForwardSlashPath(path));
+                _ = parent.InsertBefore(newElement, includeElement);
+            }
+        }
+
+        // Remove the original element
+        _ = parent.RemoveChild(includeElement);
+    }
+
+    private void ExpandGlobPatternsInXml(XmlElement solutionElement)
+    {
+        if (this.FullPath is null)
+        {
+            // Can't resolve relative paths without a base directory
+            return;
+        }
+
+        string baseDirectory = Path.GetDirectoryName(this.FullPath) ?? Environment.CurrentDirectory;
+
+        // Track all resolved paths to avoid duplicates across the entire solution
+        HashSet<string> allResolvedPaths = new(StringComparer.OrdinalIgnoreCase);
+
+        // Process all File and Project elements recursively throughout the solution
+        this.ExpandGlobPatternsInElement(solutionElement, baseDirectory, allResolvedPaths);
     }
 
     // Fill out default values.

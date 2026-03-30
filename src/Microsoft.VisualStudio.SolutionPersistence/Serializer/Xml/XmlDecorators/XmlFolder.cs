@@ -82,11 +82,19 @@ internal sealed class XmlFolder(SlnxFile root, XmlSolution xmlSolution, XmlEleme
             SolutionFolderModel folderModel = solutionModel.AddFolder(this.Name);
             folderModel.Id = this.Id;
 
-            foreach (XmlFile file in this.files.GetItems())
+            // Iterate over the XML children to preserve order, but use the decorators for data
+            foreach (XmlNode childNode in this.XmlElement.ChildNodes)
             {
-                string modelPath = PathExtensions.ConvertToModel(file.Path);
-                folderModel.AddFile(modelPath);
-                this.Root.UserPaths[modelPath] = file.Path;
+                if (childNode is XmlElement childElement && childElement.Name == "File")
+                {
+                    string? path = childElement.GetAttribute("Path");
+                    if (!string.IsNullOrEmpty(path))
+                    {
+                        string modelPath = PathExtensions.ConvertToModel(path);
+                        folderModel.AddFile(modelPath);
+                        this.Root.UserPaths[modelPath] = path;
+                    }
+                }
             }
 
             foreach (XmlProperties properties in this.propertyBags.GetItems())
