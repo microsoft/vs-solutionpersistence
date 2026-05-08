@@ -1,17 +1,19 @@
 ---
+name: update-library-template
 description: Merges the latest Library.Template into this repo (at position of HEAD) and resolves conflicts.
+disable-model-invocation: true
 ---
 
 # Instructions
 
-1. Run `tools/MergeFrom-Template.ps1`
+1. Run `./tools/MergeFrom-Template.ps1` from the repo root.
 2. Resolve merge conflicts, taking into account conflict resolution policy below.
 3. Validate the changes, as described in the validation section below.
 4. Committing your changes (if applicable).
 
 ## Conflict resolution policy
 
-There may be special notes in `.github/prompts/template-release-notes.md` that describe special considerations for certain files or scenarios to help you resolve conflicts appropriately.
+There may be [special notes](template-release-notes.md) that describe special considerations for certain files or scenarios to help you resolve conflicts appropriately.
 Always refer to that file before proceeding.
 In particular, focus on the *incoming* part of the file, since it represents the changes from the Library.Template that you are merging into your repo.
 Also refer to `.github/prompts/repo-merge-notes.md` for notes specific to this repo (e.g. which deleted files to keep, which customizations to preserve).
@@ -46,7 +48,13 @@ If the file contains repo-specific customizations not present in the template, k
 
 ### Files deleted locally but updated by the template
 
-These show as "deleted by us" conflicts. Refer to `.github/prompts/repo-merge-notes.md` for this repo's specific decisions on which files to keep or re-delete.
+These show as "deleted by us" conflicts. Refer to `repo-merge-notes.md` for this repo's specific decisions on which files to keep or re-delete.
+
+## Updating package and SDK versions
+
+After the merge, always check global.json for MSBuild Sdks with names starting with `Microsoft.VisualStudio.Internal.MicroBuild`.
+These SDK versions should match the value of the `MicroBuildVersion` property found in `Directory.Packages.props`.
+Always take the latest of the versions you see among these SDKs and the `MicroBuildVersion` property.
 
 ## Validation
 
