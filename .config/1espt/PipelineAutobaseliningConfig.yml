@@ -60,13 +60,13 @@ pipelines:
         credscan:
           lastModifiedDate: 2025-02-21
         eslint:
-          lastModifiedDate: 2025-02-21
+          lastModifiedDate: 2026-05-12
         armory:
-          lastModifiedDate: 2025-02-21
+          lastModifiedDate: 2026-05-12
         accessibilityinsights:
           lastModifiedDate: 2025-08-21
       binary:
         credscan:
           lastModifiedDate: 2025-02-21
         binskim:
-          lastModifiedDate: 2025-02-21
+          lastModifiedDate: 2026-05-12
