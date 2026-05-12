@@ -6,7 +6,6 @@ Shared serializers and models for Visual Studio solution files. Handles traditio
 
 [![NuGet package](https://img.shields.io/nuget/v/Microsoft.VisualStudio.SolutionPersistence.svg)](https://nuget.org/packages/Microsoft.VisualStudio.SolutionPersistence)
 
-
 ## Features
 
 * Serializers for solution files, traditional text based .sln file, and XML based .slnx file.

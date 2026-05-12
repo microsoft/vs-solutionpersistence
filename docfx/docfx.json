@@ -3,7 +3,7 @@
 		{
 			"src": [
 				{
-					"src": "../src/Library",
+					"src": "../src/Microsoft.VisualStudio.SolutionPersistence",
 					"files": [
 						"**/*.csproj"
 					]
@@ -39,8 +39,8 @@
 			"modern"
 		],
 		"globalMetadata": {
-			"_appName": "Library",
-			"_appTitle": "Library",
+			"_appName": "SolutionPersistence",
+			"_appTitle": "SolutionPersistence",
 			"_enableSearch": true,
 			"pdf": false
 		}
