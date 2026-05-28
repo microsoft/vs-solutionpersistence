@@ -20,6 +20,13 @@ variables:
 extends:
   template: azure-pipelines/MicroBuild.1ES.Official.yml@MicroBuildTemplate
   parameters:
+    settings:
+      # Enforce CFS (Compliant Feed Service) network isolation to satisfy SFI-ES4.2.4.
+      # CFSClean blocks public package feed endpoints (nuget.org, npmjs.org, etc.).
+      # CFSClean2 blocks PowerShell Gallery endpoints (powershellgallery.com).
+      # CFSClean3 blocks Docker, Debian, Hashicorp, SourceForge, and other forbidden endpoints.
+      # See https://eng.ms/docs/coreai/devdiv/one-engineering-system-1es/1es-build/networkisolation/resolving-cfs-s360-items
+      networkIsolationPolicy: Permissive,CFSClean,CFSClean2,CFSClean3
     sdl:
       sourceAnalysisPool: VSEng-MicroBuildVSStable
 
