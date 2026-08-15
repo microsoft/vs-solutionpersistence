@@ -28,12 +28,6 @@ internal sealed class XmlFolder(SlnxFile root, XmlSolution xmlSolution, XmlEleme
         set => this.UpdateXmlAttributeGuid(Keyword.Id, value);
     }
 
-    internal int? Order
-    {
-        get => this.GetXmlAttributeInt(Keyword.Order);
-        set => this.UpdateXmlAttributeInt(Keyword.Order, value);
-    }
-
 #if DEBUG
 
     internal override string DebugDisplay => $"{base.DebugDisplay} FolderProjects={this.folderProjects} Files={this.files}";
@@ -87,7 +81,6 @@ internal sealed class XmlFolder(SlnxFile root, XmlSolution xmlSolution, XmlEleme
         {
             SolutionFolderModel folderModel = solutionModel.AddFolder(this.Name);
             folderModel.Id = this.Id;
-            folderModel.Order = this.Order;
 
             foreach (XmlFile file in this.files.GetItems())
             {
@@ -101,9 +94,24 @@ internal sealed class XmlFolder(SlnxFile root, XmlSolution xmlSolution, XmlEleme
                 properties.AddToModel(folderModel);
             }
 
-            foreach (XmlProject project in this.folderProjects.GetItems())
+            if (this.xmlSolution.SortOrder == SolutionSortOrder.Document)
             {
-                newProjects.Add((project, project.AddToModel(solutionModel)));
+                // Preserve the order the elements appear in the document.
+                foreach (XmlElement childElement in this.XmlElement.ChildElements())
+                {
+                    if (Keywords.ToKeyword(childElement.Name) == Keyword.Project &&
+                        this.folderProjects.TryGet(childElement.GetAttribute(Keyword.Path.ToXmlString()).Trim(), out XmlProject? project))
+                    {
+                        newProjects.Add((project, project.AddToModel(solutionModel)));
+                    }
+                }
+            }
+            else
+            {
+                foreach (XmlProject project in this.folderProjects.GetItems())
+                {
+                    newProjects.Add((project, project.AddToModel(solutionModel)));
+                }
             }
         }
         catch (Exception ex) when (SolutionException.ShouldWrap(ex))
@@ -125,12 +133,6 @@ internal sealed class XmlFolder(SlnxFile root, XmlSolution xmlSolution, XmlEleme
         if (this.Id != id)
         {
             this.Id = id;
-            modified = true;
-        }
-
-        if (this.Order != modelFolder.Order)
-        {
-            this.Order = modelFolder.Order;
             modified = true;
         }
 

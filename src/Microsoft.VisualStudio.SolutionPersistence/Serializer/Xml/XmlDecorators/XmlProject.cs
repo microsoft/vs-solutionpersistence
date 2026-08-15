@@ -29,12 +29,6 @@ internal sealed partial class XmlProject(SlnxFile root, XmlFolder? xmlParentFold
         set => this.UpdateXmlAttributeGuid(Keyword.Id, value);
     }
 
-    internal int? Order
-    {
-        get => this.GetXmlAttributeInt(Keyword.Order);
-        set => this.UpdateXmlAttributeInt(Keyword.Order, value);
-    }
-
     internal string? DisplayName
     {
         get => this.GetXmlAttribute(Keyword.DisplayName);
@@ -123,7 +117,6 @@ internal sealed partial class XmlProject(SlnxFile root, XmlFolder? xmlParentFold
                 folder: parentFolder);
 
             projectModel.Id = this.Id;
-            projectModel.Order = this.Order;
             projectModel.DisplayName = this.DisplayName;
 
             foreach (ConfigurationRule configurationRule in this.configurationRules.ToModel())

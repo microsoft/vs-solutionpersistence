@@ -88,6 +88,7 @@ public sealed class SolutionModel : PropertyContainerModel
         }
 
         this.Description = solutionModel.Description;
+        this.SortOrder = solutionModel.SortOrder;
         this.solutionBuildTypes = [.. solutionModel.solutionBuildTypes];
         this.solutionPlatforms = [.. solutionModel.solutionPlatforms];
         this.projectTypes = [.. solutionModel.projectTypes];
@@ -110,6 +111,15 @@ public sealed class SolutionModel : PropertyContainerModel
     /// Gets or sets a user visible comment describing the solution.
     /// </summary>
     public string? Description { get; set; }
+
+    /// <summary>
+    /// Gets or sets the order in which solution items are written to a .slnx file.
+    /// </summary>
+    /// <remarks>
+    /// The default is <see cref="SolutionSortOrder.Alphabetical"/>, which groups items by type and sorts them alphabetically.
+    /// Set to <see cref="SolutionSortOrder.Document"/> to preserve the order the items appear in the solution file.
+    /// </remarks>
+    public SolutionSortOrder SortOrder { get; set; }
 
     /// <summary>
     /// Gets the list of solution items in the solution.

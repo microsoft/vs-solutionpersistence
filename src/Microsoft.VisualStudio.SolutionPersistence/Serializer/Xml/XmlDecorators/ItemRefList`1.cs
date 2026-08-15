@@ -48,6 +48,8 @@ internal readonly struct ItemRefList<T>(bool ignoreCase)
 
     internal readonly T? FirstOrDefault() => this.items.Count > 0 ? this.items[0] : null;
 
+    internal readonly bool TryGet(string itemRef, [NotNullWhen(true)] out T? item) => this.items.TryGetValue(itemRef, out item);
+
     // Finds the item that would be immediately after the given item ref.
     internal readonly bool TryFindNext(string itemRef, out T? item)
     {
