@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Xml;
+using Microsoft.VisualStudio.SolutionPersistence.Model;
 using Microsoft.VisualStudio.SolutionPersistence.Utilities;
 
 namespace Microsoft.VisualStudio.SolutionPersistence.Serializer.Xml.XmlDecorators;
@@ -121,11 +122,19 @@ internal abstract partial class XmlContainer
         }
 
         // Add new elements that aren't already in the XML.
-        modelItems.Sort(decoratorItems.IgnoreCase ? ComparisonOrdinalIgnoreCase : ComparisonOrdinal);
+        bool documentOrder = this.Root.Solution?.SortOrder == SolutionSortOrder.Document;
+        if (!documentOrder)
+        {
+            modelItems.Sort(decoratorItems.IgnoreCase ? ComparisonOrdinalIgnoreCase : ComparisonOrdinal);
+        }
+
         foreach ((string itemRef, TModelItem modelItem) in modelItems)
         {
             // Find position to insert before based on general areas and alphabetical order.
-            XmlDecorator? insertBefore = decoratorItems.TryFindNext(itemRef, out TDecorator? insertBeforeLocal) ? insertBeforeLocal : this.FindNextDecorator<TDecorator>();
+            // In document order mode new items are appended to the end of their area in model order.
+            XmlDecorator? insertBefore = documentOrder
+                ? this.FindNextDecorator<TDecorator>()
+                : (decoratorItems.TryFindNext(itemRef, out TDecorator? insertBeforeLocal) ? insertBeforeLocal : this.FindNextDecorator<TDecorator>());
 
             TDecorator newDecorator = (TDecorator)this.CreateAndAddChild(decoratorElementName, itemRef, insertBefore);
             _ = applyModelToXml?.Invoke(newDecorator, modelItem);
