@@ -13,15 +13,22 @@ public sealed class SolutionProjectModel : SolutionItemModel
     private Guid typeId;
     private string type;
     private string filePath;
+    private string? displayNameOverride;
     private List<SolutionProjectModel>? dependencies;
     private List<ConfigurationRule>? projectConfigurationRules;
 
     [SetsRequiredMembers]
-    internal SolutionProjectModel(SolutionModel solutionModel, string filePath, Guid typeId, string type, SolutionFolderModel? parent)
+    internal SolutionProjectModel(SolutionModel solutionModel, string filePath, Guid typeId, string type, SolutionFolderModel? parent, string? displayNameOverride = null)
         : base(solutionModel, parent)
     {
         this.typeId = typeId;
         this.type = type;
+        if (displayNameOverride is not null)
+        {
+            Argument.ThrowIfNullOrEmpty(displayNameOverride, nameof(displayNameOverride));
+        }
+
+        this.displayNameOverride = displayNameOverride;
         this.FilePath = filePath;
     }
 
@@ -36,6 +43,7 @@ public sealed class SolutionProjectModel : SolutionItemModel
     {
         this.typeId = projectModel.TypeId;
         this.type = projectModel.Type;
+        this.displayNameOverride = projectModel.DisplayNameOverride;
         this.FilePath = projectModel.FilePath;
         this.DisplayName = projectModel.DisplayName;
         if (projectModel.dependencies is not null)
@@ -138,11 +146,49 @@ public sealed class SolutionProjectModel : SolutionItemModel
     /// </remarks>
     public string? DisplayName { get; set; }
 
+    /// <summary>
+    /// Gets or sets an explicit display name that takes precedence over the project file name.
+    /// </summary>
+    /// <remarks>
+    /// Use this for project types with a conventional manifest file name.
+    /// A null value restores the usual file-name-based naming policy.
+    /// Unlike <see cref="DisplayName"/>, this value also applies to file-backed projects
+    /// and is preserved by the XML serializer.
+    /// </remarks>
+    public string? DisplayNameOverride
+    {
+        get => this.displayNameOverride;
+        set
+        {
+            if (value is not null)
+            {
+                Argument.ThrowIfNullOrEmpty(value, nameof(value));
+            }
+
+            string? oldName = this.displayNameOverride;
+            this.displayNameOverride = value;
+            try
+            {
+                this.Solution.ValidateProjectName(this);
+            }
+            catch (Exception)
+            {
+                this.displayNameOverride = oldName;
+                throw;
+            }
+        }
+    }
+
     /// <inheritdoc/>
     public override string ActualDisplayName
     {
         get
         {
+            if (this.DisplayNameOverride is not null)
+            {
+                return this.DisplayNameOverride;
+            }
+
             // If the project has a file name, use that as the display name.
             // This historically takes precedence over the DisplayName property.
             StringSpan fileName = PathExtensions.GetStandardDisplayName(this.FilePath.AsSpan());

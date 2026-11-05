@@ -72,7 +72,7 @@ Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel.AddBuildType(string! buildType) -> void
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel.AddFolder(string! path) -> Microsoft.VisualStudio.SolutionPersistence.Model.SolutionFolderModel!
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel.AddPlatform(string! platform) -> void
-Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel.AddProject(string! filePath, string? projectTypeName = null, Microsoft.VisualStudio.SolutionPersistence.Model.SolutionFolderModel? folder = null) -> Microsoft.VisualStudio.SolutionPersistence.Model.SolutionProjectModel!
+Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel.AddProject(string! filePath, string? projectTypeName, Microsoft.VisualStudio.SolutionPersistence.Model.SolutionFolderModel? folder) -> Microsoft.VisualStudio.SolutionPersistence.Model.SolutionProjectModel!
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel.BuildTypes.get -> System.Collections.Generic.IReadOnlyList<string!>!
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel.Description.get -> string?
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel.Description.set -> void

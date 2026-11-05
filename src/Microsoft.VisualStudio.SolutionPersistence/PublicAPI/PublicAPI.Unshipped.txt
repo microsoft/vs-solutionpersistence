@@ -1,4 +1,7 @@
 #nullable enable
+Microsoft.VisualStudio.SolutionPersistence.Model.SolutionModel.AddProject(string! filePath, string? projectTypeName = null, Microsoft.VisualStudio.SolutionPersistence.Model.SolutionFolderModel? folder = null, string? displayNameOverride = null) -> Microsoft.VisualStudio.SolutionPersistence.Model.SolutionProjectModel!
+Microsoft.VisualStudio.SolutionPersistence.Model.SolutionProjectModel.DisplayNameOverride.get -> string?
+Microsoft.VisualStudio.SolutionPersistence.Model.SolutionProjectModel.DisplayNameOverride.set -> void
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionArgumentException
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionArgumentException.SolutionArgumentException(string? message, Microsoft.VisualStudio.SolutionPersistence.Model.SolutionErrorType type) -> void
 Microsoft.VisualStudio.SolutionPersistence.Model.SolutionArgumentException.SolutionArgumentException(string? message, string? paramName, Microsoft.VisualStudio.SolutionPersistence.Model.SolutionErrorType type) -> void

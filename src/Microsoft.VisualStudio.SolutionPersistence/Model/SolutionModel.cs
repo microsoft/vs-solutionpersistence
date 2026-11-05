@@ -210,7 +210,23 @@ public sealed class SolutionModel : PropertyContainerModel
     /// </param>
     /// <param name="folder">The parent solution folder to add the project to.</param>
     /// <returns>The model for the new project.</returns>
-    public SolutionProjectModel AddProject(string filePath, string? projectTypeName = null, SolutionFolderModel? folder = null)
+    public SolutionProjectModel AddProject(string filePath, string? projectTypeName, SolutionFolderModel? folder)
+    {
+        return this.AddProject(filePath, projectTypeName, folder, displayNameOverride: null);
+    }
+
+    /// <summary>
+    /// Adds a project with an optional explicit display name to the solution.
+    /// </summary>
+    /// <param name="filePath">The relative path to the project.</param>
+    /// <param name="projectTypeName">The project type name, or null to infer it from the file extension.</param>
+    /// <param name="folder">The parent solution folder, or null for the solution root.</param>
+    /// <param name="displayNameOverride">The explicit project name, or null to use the usual naming policy.</param>
+    /// <returns>The model for the new project.</returns>
+    /// <remarks>
+    /// The explicit name is applied before sibling names are validated.
+    /// </remarks>
+    public SolutionProjectModel AddProject(string filePath, string? projectTypeName = null, SolutionFolderModel? folder = null, string? displayNameOverride = null)
     {
         Argument.ThrowIfNullOrEmpty(filePath, nameof(filePath));
         this.ValidateInModel(folder);
@@ -220,7 +236,7 @@ public sealed class SolutionModel : PropertyContainerModel
             this.ProjectTypeTable.GetProjectTypeId(projectTypeName, Path.GetExtension(filePath.AsSpan())) ??
             throw new SolutionArgumentException(string.Format(Errors.InvalidProjectTypeReference_Args1, projectTypeName), nameof(projectTypeName), SolutionErrorType.InvalidProjectTypeReference);
 
-        return this.AddProject(filePath, projectTypeName ?? string.Empty, projectTypeId, folder);
+        return this.AddProject(filePath, projectTypeName ?? string.Empty, projectTypeId, folder, displayNameOverride);
     }
 
     /// <summary>
@@ -479,9 +495,9 @@ public sealed class SolutionModel : PropertyContainerModel
         }
     }
 
-    internal SolutionProjectModel AddProject(string filePath, string projectTypeName, Guid projectTypeId, SolutionFolderModel? folder)
+    internal SolutionProjectModel AddProject(string filePath, string projectTypeName, Guid projectTypeId, SolutionFolderModel? folder, string? displayNameOverride = null)
     {
-        SolutionProjectModel project = new SolutionProjectModel(this, filePath, projectTypeId, projectTypeName, folder);
+        SolutionProjectModel project = new SolutionProjectModel(this, filePath, projectTypeId, projectTypeName, folder, displayNameOverride);
 
         // Project is already in the solution.
         if (this.FindProject(project.FilePath) is not null)

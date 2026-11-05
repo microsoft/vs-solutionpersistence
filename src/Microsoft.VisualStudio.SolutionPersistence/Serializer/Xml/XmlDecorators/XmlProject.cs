@@ -114,7 +114,8 @@ internal sealed partial class XmlProject(SlnxFile root, XmlFolder? xmlParentFold
             SolutionProjectModel projectModel = solution.AddProject(
                 filePath: PathExtensions.ConvertToModel(this.Path),
                 projectTypeName: this.Type ?? string.Empty,
-                folder: parentFolder);
+                folder: parentFolder,
+                displayNameOverride: this.DefaultDisplayName.IsEmpty ? null : this.DisplayName);
 
             projectModel.Id = this.Id;
             projectModel.DisplayName = this.DisplayName;
