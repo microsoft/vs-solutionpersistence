@@ -20,10 +20,10 @@ internal sealed partial class XmlProject
             modified = true;
         }
 
-        string? displayName =
+        string? displayName = modelProject.DisplayNameOverride ?? (
             modelProject.DisplayName is null || StringExtensions.EqualsOrdinal(this.DefaultDisplayName, modelProject.ActualDisplayName) ?
             null :
-            modelProject.DisplayName;
+            modelProject.DisplayName);
         if (!StringComparer.Ordinal.Equals(this.DisplayName, displayName))
         {
             this.DisplayName = displayName;
