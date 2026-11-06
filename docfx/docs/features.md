@@ -2,15 +2,17 @@
 
 ## Explicit project names
 
-Projects normally use their project file's base name. For project systems with a
-fixed manifest filename, use the four-argument `SolutionModel.AddProject`
-overload to supply a `displayNameOverride` before duplicate-name validation:
+Projects normally use their project file's base name. Some project systems use
+a fixed manifest filename, such as Rust's `Cargo.toml`, with the project name
+defined inside the manifest rather than in its filename. For these projects,
+use the four-argument `SolutionModel.AddProject` overload to supply a
+`displayNameOverride` before duplicate-name validation:
 
 ```csharp
 var solution = new SolutionModel();
 const string projectType = "0D916ADF-294A-4D07-A543-8F58229C3415";
-solution.AddProject("app1/Cargo.toml", projectType, null, "app1");
-solution.AddProject("app2/Cargo.toml", projectType, null, "app2");
+solution.AddProject(filePath: "app1/Cargo.toml", projectTypeName: projectType, folder: null, displayNameOverride: "app1");
+solution.AddProject(filePath: "app2/Cargo.toml", projectTypeName: projectType, folder: null, displayNameOverride: "app2");
 ```
 
 `SolutionProjectModel.DisplayNameOverride` can also change an existing project's
