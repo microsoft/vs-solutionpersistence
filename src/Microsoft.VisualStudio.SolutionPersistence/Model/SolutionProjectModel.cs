@@ -64,23 +64,36 @@ public sealed class SolutionProjectModel : SolutionItemModel
 
         set
         {
-            // Attempt to resolve the type name,
-            if (Guid.TryParse(value, out Guid typeId))
+            Guid oldTypeId = this.typeId;
+            string oldType = this.type;
+            try
             {
-                if (typeId == Guid.Empty)
+                // Attempt to resolve the type name.
+                if (Guid.TryParse(value, out Guid typeId))
                 {
-                    throw new ArgumentNullException(nameof(value));
+                    if (typeId == Guid.Empty)
+                    {
+                        throw new ArgumentNullException(nameof(value));
+                    }
+
+                    // Type looks like a project type id and try to lookup the type name.
+                    this.typeId = typeId;
+                    this.type = this.Solution.ProjectTypeTable.GetConciseType(this.typeId, string.Empty, this.Extension);
+                }
+                else
+                {
+                    // Type looks like a name, lookup the project type id and simplify name if possible.
+                    this.typeId = this.Solution.ProjectTypeTable.GetProjectTypeId(value, this.Extension.AsSpan()) ?? Guid.Empty;
+                    this.type = this.Solution.ProjectTypeTable.GetConciseType(this.typeId, value, this.Extension);
                 }
 
-                // Type looks like a project type id and try to lookup the type name.
-                this.typeId = typeId;
-                this.type = this.Solution.ProjectTypeTable.GetConciseType(this.typeId, string.Empty, this.Extension);
+                this.Solution.ValidateProjectName(this);
             }
-            else
+            catch
             {
-                // Type looks like a name, lookup the project type id and simplify name if possible.
-                this.typeId = this.Solution.ProjectTypeTable.GetProjectTypeId(value, this.Extension.AsSpan()) ?? Guid.Empty;
-                this.type = this.Solution.ProjectTypeTable.GetConciseType(this.typeId, value, this.Extension);
+                this.typeId = oldTypeId;
+                this.type = oldType;
+                throw;
             }
         }
     }
