@@ -20,7 +20,7 @@ public sealed class SolutionModel : PropertyContainerModel
 #endif
 
     // Rust projects use a fixed manifest filename rather than the project name.
-    private static readonly HashSet<Guid> ProjectTypesAllowingDuplicateNames = [new Guid("0D916ADF-294A-4D07-A543-8F58229C3415")];
+    private static readonly HashSet<Guid> ProjectTypesAllowedToHaveDuplicateNames = [new Guid("0D916ADF-294A-4D07-A543-8F58229C3415")];
 
     private readonly VisualStudioProperties visualStudioProperties;
     private readonly Dictionary<Guid, SolutionItemModel> solutionItemsById;
@@ -585,7 +585,7 @@ public sealed class SolutionModel : PropertyContainerModel
 
     internal void ValidateProjectName(SolutionProjectModel project)
     {
-        if (this.suspendProjectValidation || ProjectTypesAllowingDuplicateNames.Contains(project.TypeId))
+        if (this.suspendProjectValidation || ProjectTypesAllowedToHaveDuplicateNames.Contains(project.TypeId))
         {
             return;
         }
@@ -597,7 +597,7 @@ public sealed class SolutionModel : PropertyContainerModel
         {
             if (!ReferenceEquals(existingProject.Parent, project.Parent) ||
                 ReferenceEquals(existingProject, project) ||
-                ProjectTypesAllowingDuplicateNames.Contains(existingProject.TypeId))
+                ProjectTypesAllowedToHaveDuplicateNames.Contains(existingProject.TypeId))
             {
                 continue;
             }
