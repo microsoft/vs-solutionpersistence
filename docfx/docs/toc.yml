@@ -3,3 +3,5 @@ items:
   href: features.md
 - name: Getting Started
   href: getting-started.md
+- name: SLNX File Format
+  href: slnx-file-format.md
