@@ -80,6 +80,9 @@ internal sealed partial class ProjectTypeTable
             new ProjectType(new Guid("54A90642-561A-4BB1-A94E-469ADEE60C69"), NoBuildRules) { Name = "Javascript", Extension = ".esproj" },
             new ProjectType(new Guid("9092AA53-FB77-4645-B42D-1CCCA6BD08BD"), NoBuildRules) { Name = "Node.js", Extension = ".njsproj" },
 
+            // Python project types
+            new ProjectType(new Guid("888888A0-9F3D-457C-B088-3A5042F75D52"), NoBuildRules) { Name = "Python", Extension = ".pyproj" },
+
             // Setup project types
             new ProjectType(new Guid("151D2E53-A2C4-4D7D-83FE-D05416EBD58E"), NoBuildRules) { Name = "Deploy", Extension = ".deployproj" },
             new ProjectType(new Guid("54435603-DBB4-11D2-8724-00A0C9A8B90C"), NoBuildRules) { Name = "Installer", Extension = ".vsproj" },
