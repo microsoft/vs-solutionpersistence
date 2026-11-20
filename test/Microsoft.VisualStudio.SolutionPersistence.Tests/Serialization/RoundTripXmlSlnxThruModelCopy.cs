@@ -13,43 +13,43 @@ namespace Serialization;
 [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1600:Elements should be documented", Justification = "All tests in this class have the same purpose.")]
 public class RoundTripXmlSlnxThruModelCopy
 {
-    [Fact]
+    [Test]
     public Task CommentsAsync()
     {
         return Assert.ThrowsAsync<FailException>(() => TestRoundTripSerializerAsync(SlnAssets.XmlSlnxComments));
     }
 
-    [Fact]
+    [Test]
     public Task LegacyValuesAsync() => TestRoundTripSerializerAsync(SlnAssets.XmlSlnxLegacyValuesNoObsolete);
 
-    [Fact]
+    [Test]
     public Task BlankAsync() => TestRoundTripSerializerAsync(SlnAssets.XmlSlnxBlank);
 
-    [Fact]
+    [Test]
     public Task CpsAsync() => TestRoundTripSerializerAsync(SlnAssets.XmlSlnxCps);
 
-    [Fact]
+    [Test]
     public Task EverythingAsync() => TestRoundTripSerializerAsync(SlnAssets.XmlSlnxEverything);
 
-    [Fact]
+    [Test]
     public Task OrchardCoreAsync() => TestRoundTripSerializerAsync(SlnAssets.XmlSlnxOrchardCore);
 
-    [Fact]
+    [Test]
     public Task SingleNativeProjectAsync() => TestRoundTripSerializerAsync(SlnAssets.XmlSlnxSingleNativeProject);
 
-    [Fact]
+    [Test]
     public Task BuiltInProjectTypesAsync() => TestRoundTripSerializerAsync(SlnAssets.XmlBuiltInProjectTypes);
 
-    [Fact]
+    [Test]
     public Task GiantAsync() => TestRoundTripSerializerAsync(SlnAssets.XmlSlnxGiant);
 
-    [Fact]
+    [Test]
     public Task MissingConfigurationsAsync() => TestRoundTripSerializerAsync(SlnAssets.XmlSlnxMissingConfigurations);
 
-    [Fact]
+    [Test]
     public Task TraditionalAsync() => TestRoundTripSerializerAsync(SlnAssets.XmlSlnxTraditional);
 
-    [Fact]
+    [Test]
     public Task ReportProjectAsync() => TestRoundTripSerializerAsync(SlnAssets.LoadResource("Report Project.slnx"));
 
     private static async Task TestRoundTripSerializerAsync(ResourceStream slnStream)

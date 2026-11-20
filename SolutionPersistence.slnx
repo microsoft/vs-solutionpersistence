@@ -24,6 +24,7 @@
     <Project Path="src\Microsoft.VisualStudio.SolutionPersistence\Microsoft.VisualStudio.SolutionPersistence.csproj" />
   </Folder>
   <Folder Name="/test/">
+    <Project Path="test\AotCompatibilityTest\AotCompatibilityTest.csproj" />
     <Project Path="test\Microsoft.VisualStudio.SolutionPersistence.Tests\Microsoft.VisualStudio.SolutionPersistence.Tests.csproj" />
   </Folder>
 </Solution>

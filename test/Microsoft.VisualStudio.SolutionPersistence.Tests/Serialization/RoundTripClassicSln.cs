@@ -9,44 +9,47 @@ namespace Serialization;
 [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1600:Elements should be documented", Justification = "All tests in this class have the same purpose.")]
 public class RoundTripClassicSln
 {
-    public static TheoryData<ResourceName> ClassicSlnFiles =>
-        new TheoryData<ResourceName>(SlnAssets.ClassicSlnFiles);
+    /// <summary>
+    /// Gets the classic SLN files to round-trip.
+    /// </summary>
+    /// <returns>The available classic SLN files.</returns>
+    public static IEnumerable<ResourceName> ClassicSlnFiles() => SlnAssets.ClassicSlnFiles;
 
-    [Fact]
+    [Test]
     public Task BlankAsync() => TestRoundTripSerializerAsync(SlnAssets.ClassicSlnBlank);
 
-    [Fact]
+    [Test]
     public Task CpsAsync() => TestRoundTripSerializerAsync(SlnAssets.ClassicSlnCps);
 
-    [Fact]
+    [Test]
     public Task EverythingAsync() => TestRoundTripSerializerAsync(SlnAssets.ClassicSlnEverything);
 
-    [Fact]
+    [Test]
     public Task ManyAsync() => TestRoundTripSerializerAsync(SlnAssets.ClassicSlnMany);
 
-    [Fact]
+    [Test]
     public Task OrchardCoreAsync() => TestRoundTripSerializerAsync(SlnAssets.ClassicSlnOrchardCore);
 
-    [Fact]
+    [Test]
     public Task SingleNativeProjectAsync() => TestRoundTripSerializerAsync(SlnAssets.ClassicSlnSingleNativeProject);
 
-    [Fact]
+    [Test]
     public Task GiantAsync() => TestRoundTripSerializerAsync(SlnAssets.ClassicSlnGiant);
 
-    [Fact]
+    [Test]
     public Task TraditionalAsync() => TestRoundTripSerializerAsync(SlnAssets.ClassicSlnTraditional);
 
-    [Fact]
+    [Test]
     public Task MissingConfigurationsAsync() => TestRoundTripSerializerAsync(SlnAssets.ClassicSlnMissingConfigurations);
 
-    [Fact]
+    [Test]
     public Task FolderIdAsync() => TestRoundTripSerializerAsync(SlnAssets.LoadResource("FolderId.sln"));
 
-    [Fact]
+    [Test]
     public Task ReportProjectAsync() => TestRoundTripSerializerAsync(SlnAssets.LoadResource("Report Project.sln"));
 
-    [Theory]
-    [MemberData(nameof(ClassicSlnFiles))]
+    [Test]
+    [MethodDataSource(nameof(ClassicSlnFiles))]
     public Task AllClassicSolutionAsync(ResourceName sampleFile)
     {
         return TestRoundTripSerializerAsync(sampleFile.Load());

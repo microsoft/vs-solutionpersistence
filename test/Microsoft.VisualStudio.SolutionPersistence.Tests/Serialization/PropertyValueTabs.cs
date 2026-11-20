@@ -11,7 +11,7 @@ public class PropertyValueTabs
     /// <summary>
     /// Verifies that leading, trailing, and embedded tabs in property values survive a .slnx roundtrip.
     /// </summary>
-    [Fact]
+    [Test]
     public async Task SlnxRoundTrip_TabsInPropertyValuesAsync()
     {
         SolutionModel solution = new SolutionModel();
@@ -32,7 +32,7 @@ public class PropertyValueTabs
     /// <summary>
     /// Verifies that leading, trailing, and embedded tabs in property values survive a .sln roundtrip.
     /// </summary>
-    [Fact]
+    [Test]
     public async Task SlnRoundTrip_TabsInPropertyValuesAsync()
     {
         SolutionModel solution = new SolutionModel();

@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net8.0</TargetFrameworks>
+    <TargetFrameworks>net10.0</TargetFrameworks>
     <TargetFrameworks Condition="'$(OS)' == 'Windows_NT'">$(TargetFrameworks);net472</TargetFrameworks>
     <OutputType>Exe</OutputType>
     <RootNamespace />
@@ -12,9 +12,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="xunit.v3.mtp-v2" />
-    <!-- We only need System.Memory 4.6 for xunit, don't add unnecessary dependecy in Nuget package. -->
-    <PackageReference Include="System.Memory" VersionOverride="4.6" />
+    <PackageReference Include="TUnit.Engine" />
+    <PackageReference Include="xunit.v3.assert.aot" Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)','net9.0'))" />
+    <PackageReference Include="xunit.v3.assert" Condition="!$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)','net9.0'))" />
+    <!-- Keep this test-only dependency out of the shipped package. -->
+    <PackageReference Include="System.Memory" VersionOverride="4.6.3" />
   </ItemGroup>
 
   <ItemGroup Label="NetFrameworkPackages" Condition=" '$(TargetFramework)' == 'net472' ">

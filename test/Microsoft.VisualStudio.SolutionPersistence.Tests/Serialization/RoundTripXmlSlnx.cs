@@ -9,53 +9,56 @@ namespace Serialization;
 [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1600:Elements should be documented", Justification = "All tests in this class have the same purpose.")]
 public class RoundTripXmlSlnx
 {
-    public static TheoryData<ResourceName> XmlSlnxFiles =>
-        new TheoryData<ResourceName>(SlnAssets.XmlSlnxFiles);
+    /// <summary>
+    /// Gets the SLNX files to round-trip.
+    /// </summary>
+    /// <returns>The available SLNX files.</returns>
+    public static IEnumerable<ResourceName> XmlSlnxFiles() => SlnAssets.XmlSlnxFiles;
 
-    [Fact]
+    [Test]
     public Task CommentsAsync() => TestRoundTripSerializerAsync(SlnAssets.XmlSlnxComments);
 
-    [Fact]
+    [Test]
     public Task LegacyValuesAsync() => TestRoundTripSerializerAsync(SlnAssets.XmlSlnxLegacyValuesNoObsolete);
 
-    [Fact]
+    [Test]
     public Task BlankAsync() => TestRoundTripSerializerAsync(SlnAssets.XmlSlnxBlank);
 
-    [Fact]
+    [Test]
     public Task CpsAsync() => TestRoundTripSerializerAsync(SlnAssets.XmlSlnxCps);
 
-    [Fact]
+    [Test]
     public Task EverythingAsync() => TestRoundTripSerializerAsync(SlnAssets.XmlSlnxEverything);
 
-    [Fact]
+    [Test]
     public Task OrchardCoreAsync() => TestRoundTripSerializerAsync(SlnAssets.XmlSlnxOrchardCore);
 
-    [Fact]
+    [Test]
     public Task SingleNativeProjectAsync() => TestRoundTripSerializerAsync(SlnAssets.XmlSlnxSingleNativeProject);
 
-    [Fact]
+    [Test]
     public Task BuiltInProjectTypesAsync() => TestRoundTripSerializerAsync(SlnAssets.XmlBuiltInProjectTypes);
 
-    [Fact]
+    [Test]
     public Task GiantAsync() => TestRoundTripSerializerAsync(SlnAssets.XmlSlnxGiant);
 
-    [Fact]
+    [Test]
     public Task TraditionalAsync() => TestRoundTripSerializerAsync(SlnAssets.XmlSlnxTraditional);
 
-    [Fact]
+    [Test]
     public Task MissingConfigurationsAsync() => TestRoundTripSerializerAsync(SlnAssets.XmlSlnxMissingConfigurations);
 
-    [Fact]
+    [Test]
     public Task VersionAsync() => TestRoundTripSerializerAsync(SlnAssets.XmlSlnxVersion);
 
-    [Fact]
+    [Test]
     public Task VersionMinAsync() => TestRoundTripSerializerAsync(SlnAssets.XmlSlnxVersionMin);
 
-    [Fact]
+    [Test]
     public Task ReportProject() => TestRoundTripSerializerAsync(SlnAssets.LoadResource("Report Project.slnx"));
 
-    [Theory]
-    [MemberData(nameof(XmlSlnxFiles))]
+    [Test]
+    [MethodDataSource(nameof(XmlSlnxFiles))]
     public Task AllXmlSolutionAsync(ResourceName sampleFile)
     {
         return TestRoundTripSerializerAsync(sampleFile.Load());

@@ -1,7 +1,7 @@
 # Repo-specific merge notes for vs-solutionpersistence
 
 This file contains notes specific to this repo that help resolve Library.Template merge conflicts.
-It is referenced by `update-library-template.prompt.md` and kept separate to avoid merge conflicts with template-owned files.
+It is referenced by `SKILL.md` and kept separate to avoid merge conflicts with template-owned files.
 
 ## Files deleted locally that the template will try to update
 

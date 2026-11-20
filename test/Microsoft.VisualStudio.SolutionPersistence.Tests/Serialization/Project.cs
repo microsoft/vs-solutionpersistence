@@ -12,7 +12,7 @@ public sealed class Project
     /// Ensure the model can be used to add projects.
     /// This also validates the API fails correctly when adding invalid projects.
     /// </summary>
-    [Fact]
+    [Test]
     public void AddProject()
     {
         string projectPath = Path.Join("..", "Folder", "Subfolder", "ProjectFileName.csproj");
@@ -55,7 +55,7 @@ public sealed class Project
     /// <summary>
     /// Ensures the model can be used to remove projects.
     /// </summary>
-    [Fact]
+    [Test]
     public async Task RemoveProjectAsync()
     {
         SolutionModel solution = await SolutionSerializers.SlnXml.OpenAsync(SlnAssets.XmlSlnxEverything.Stream, CancellationToken.None);
@@ -75,7 +75,7 @@ public sealed class Project
     /// <summary>
     /// Ensures the model can be used to move projects to a soluiton folder.
     /// </summary>
-    [Fact]
+    [Test]
     public async Task MoveProjectAsync()
     {
         SolutionModel solution = await SolutionSerializers.SlnXml.OpenAsync(SlnAssets.XmlSlnxEverything.Stream, CancellationToken.None);
@@ -100,7 +100,7 @@ public sealed class Project
     /// <summary>
     /// Ensure the default startup project is read correctly.
     /// </summary>
-    [Fact]
+    [Test]
     public async Task DefaultStartupAsync()
     {
         ResourceStream defaultStartupSolution = SlnAssets.LoadResource("DefaultStartup.slnx");

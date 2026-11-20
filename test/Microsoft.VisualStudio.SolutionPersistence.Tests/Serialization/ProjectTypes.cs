@@ -13,7 +13,7 @@ public sealed class ProjectTypes
     /// <summary>
     /// Keeps the checked in built-in project types test in sync with the code version.
     /// </summary>
-    [Fact]
+    [Test]
     public async Task BuiltInProjectTypes()
     {
         // Turn the build-in project types into a solution model.
@@ -36,7 +36,7 @@ public sealed class ProjectTypes
     /// <summary>
     /// Attempt to set project types to invalid values.
     /// </summary>
-    [Fact]
+    [Test]
     public void InvalidTypes()
     {
     }

@@ -15,7 +15,7 @@ public class ManipulateXmlPropertyBag
     /// Validates that properties can be removed from a properties bag.
     /// It ensures that whitespace is updated correctly.
     /// </summary>
-    [Fact]
+    [Test]
     public async Task RemoveSomePropertiesAsync()
     {
         await ValidateModifiedSolutionAsync(CreateModifiedModel, SlnAssets.XmlSlnxJustProperties, SlnAssets.XmlSlnxProperties_No2No4);
@@ -34,7 +34,7 @@ public class ManipulateXmlPropertyBag
     /// Validates that all properties can be removed from a properties bag.
     /// It ensures that whitespace is updated correctly.
     /// </summary>
-    [Fact]
+    [Test]
     public async Task RemoveAllPropertiesAsync()
     {
         await ValidateModifiedSolutionAsync(CreateModifiedModel, SlnAssets.XmlSlnxJustProperties, SlnAssets.XmlSlnxProperties_Empty);
@@ -55,7 +55,7 @@ public class ManipulateXmlPropertyBag
     /// This test validates that properties can be added to an existing properties bag.
     /// It ensures that whitespace is updated correctly.
     /// </summary>
-    [Fact]
+    [Test]
     public async Task AddPropertiesAsync()
     {
         await ValidateModifiedSolutionAsync(CreateModifiedModel, SlnAssets.XmlSlnxJustProperties, SlnAssets.XmlSlnxProperties_Add0Add7);
@@ -74,7 +74,7 @@ public class ManipulateXmlPropertyBag
     /// Validates that properties can be added to an empty properties bag.
     /// It ensures that whitespace is updated correctly.
     /// </summary>
-    [Fact]
+    [Test]
     public async Task AddFromEmptyAsync()
     {
         await ValidateModifiedSolutionAsync(CreateModifiedModel, SlnAssets.XmlSlnxProperties_Empty, SlnAssets.XmlSlnxProperties_NoComments);

@@ -9,27 +9,29 @@ namespace Serialization;
 /// These can be used to syncronize converted test assets for any changes.
 /// </summary>
 /// <param name="fixture">Fixture to ensure a temp directory is created for all the tests.</param>
-public sealed partial class MakeSlnx(MakeSlnx.MakeSlnxFixture fixture) : IClassFixture<MakeSlnx.MakeSlnxFixture>
+[ClassDataSource<MakeSlnx.MakeSlnxFixture>(Shared = SharedType.PerClass)]
+[NotInParallel(nameof(MakeSlnx))]
+public sealed partial class MakeSlnx(MakeSlnx.MakeSlnxFixture fixture)
 {
     /// <summary>
     /// Gets the classic SLN files to convert to SLNX.
     /// </summary>
-    public static TheoryData<ResourceName> ClassicSlnFiles =>
-        new TheoryData<ResourceName>(SlnAssets.ClassicSlnFiles);
+    /// <returns>The available classic SLN files.</returns>
+    public static IEnumerable<ResourceName> ClassicSlnFiles() => SlnAssets.ClassicSlnFiles;
 
     /// <summary>
     /// Gets the SLNX files to convert to SLN.
     /// </summary>
-    public static TheoryData<ResourceName> XmlSlnxFiles =>
-        new TheoryData<ResourceName>(SlnAssets.XmlSlnxFiles);
+    /// <returns>The available SLNX files.</returns>
+    public static IEnumerable<ResourceName> XmlSlnxFiles() => SlnAssets.XmlSlnxFiles;
 
     /// <summary>
     /// Converts all the sample SLN files into SLNX and puts them in the temp <see cref="OutputDirectory"/> directory.
     /// </summary>
     /// <param name="slnFileName">The file to convert.</param>
-    [Theory]
-    [MemberData(nameof(ClassicSlnFiles))]
-    [Trait("TestCategory", "FailsInCloudTest")]
+    [Test]
+    [MethodDataSource(nameof(ClassicSlnFiles))]
+    [Property("TestCategory", "FailsInCloudTest")]
     public async Task ConvertSlnToSlnxAsync(ResourceName slnFileName)
     {
         ResourceStream slnFile = slnFileName.Load();
@@ -54,9 +56,9 @@ public sealed partial class MakeSlnx(MakeSlnx.MakeSlnxFixture fixture) : IClassF
     /// Converts all the sample SLNX files into SLN and puts them in the temp <see cref="OutputDirectory"/> directory.
     /// </summary>
     /// <param name="slnxFileName">The slnx file to conver.</param>
-    [Theory]
-    [MemberData(nameof(XmlSlnxFiles))]
-    [Trait("TestCategory", "FailsInCloudTest")]
+    [Test]
+    [MethodDataSource(nameof(XmlSlnxFiles))]
+    [Property("TestCategory", "FailsInCloudTest")]
     public async Task ConvertSlnxToSlnAsync(ResourceName slnxFileName)
     {
         ResourceStream slnxFile = slnxFileName.Load();
@@ -77,9 +79,9 @@ public sealed partial class MakeSlnx(MakeSlnx.MakeSlnxFixture fixture) : IClassF
         StringSpan extension = Path.GetExtension(path.AsSpan());
 
         // If the file name contains a '.' then we need to create a directory structure.
-        string newPath = fileName.Contains('.') ?
-            Path.Join(Path.GetDirectoryName(path), fileName.ToString().Replace('.', Path.DirectorySeparatorChar) + extension.ToString()) :
-            path;
+        string newPath = fileName.Contains('.')
+            ? Path.Join(Path.GetDirectoryName(path), fileName.ToString().Replace('.', Path.DirectorySeparatorChar) + extension.ToString())
+            : path;
 
         // Add common extensions to the file name to avoid opening test assets as solutions.
         switch (extension)

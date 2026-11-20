@@ -16,11 +16,16 @@ public sealed class StringTests
     /// <summary>
     /// Make sure all keywords have a string representation.
     /// </summary>
-    [Fact]
+    [Test]
     public void KeywordStrings()
     {
         // Validate that if any new keywords are added to the enum, they are in the mapping tables.
-        foreach (Keyword keyword in Enum.GetValues(typeof(Keyword)))
+#if NETFRAMEWORK
+        Keyword[] keywords = (Keyword[])Enum.GetValues(typeof(Keyword));
+#else
+        Keyword[] keywords = Enum.GetValues<Keyword>();
+#endif
+        foreach (Keyword keyword in keywords)
         {
             if (keyword is not Keyword.Unknown and not < 0 and not >= Keyword.MaxProp)
             {
@@ -34,7 +39,7 @@ public sealed class StringTests
     /// <summary>
     /// Make sure all build type names have a string representation.
     /// </summary>
-    [Fact]
+    [Test]
     public void BuildTypeNamesTest()
     {
         foreach (FieldInfo fieldInfo in typeof(BuildTypeNames).GetFields(BindingFlags.NonPublic | BindingFlags.Static))
@@ -48,7 +53,7 @@ public sealed class StringTests
     /// <summary>
     /// Make sure all platform names have a string representation.
     /// </summary>
-    [Fact]
+    [Test]
     public void PlatformNamesTest()
     {
         foreach (FieldInfo fieldInfo in typeof(PlatformNames).GetFields(BindingFlags.NonPublic | BindingFlags.Static))

@@ -11,7 +11,7 @@ public class Validation
     /// <summary>
     /// Validates that the model throws when adding projects with the same project path.
     /// </summary>
-    [Fact]
+    [Test]
     public void DuplicateProjects()
     {
         // Create a solution with duplicate projects.
@@ -24,7 +24,7 @@ public class Validation
     /// <summary>
     /// Validates that the model throws when adding projects with the same display name in the root of the solution.
     /// </summary>
-    [Fact]
+    [Test]
     public void DuplicateProjectNamesInRoot()
     {
         // Create a solution with duplicate project names, but in different folders.
@@ -37,7 +37,7 @@ public class Validation
     /// <summary>
     /// Validates that the model throws when adding projects with the same display name in the same solution folder.
     /// </summary>
-    [Fact]
+    [Test]
     public void DuplicateProjectNamesInSameFolder()
     {
         // Create a solution with duplicate project names, but in different folders.
@@ -51,7 +51,7 @@ public class Validation
     /// <summary>
     /// Validates that the model *allows* adding projects with the same display name in different solution folders.
     /// </summary>
-    [Fact]
+    [Test]
     public void DuplicateProjectNamesInDifferentFolder()
     {
         // Create a solution with duplicate project names, but in different folders.
@@ -70,7 +70,7 @@ public class Validation
     /// <remarks>
     /// This code is shared between projects, folders and configurations. Although this just validates configurations.
     /// </remarks>
-    [Fact]
+    [Test]
     public void ConfigurationName()
     {
         SolutionModel solution = new SolutionModel();
@@ -158,7 +158,7 @@ public class Validation
     /// <summary>
     /// Validates the model correctly validates when adding invalid solution folders.
     /// </summary>
-    [Fact]
+    [Test]
     public void SolutionFolders()
     {
         // Create a solution with duplicate solution folders.

@@ -4,4 +4,6 @@
 /// <summary>
 /// Represents a resource name and an identifier.
 /// </summary>
+/// <param name="Name">The resource name.</param>
+/// <param name="FullResourceId">The fully qualified resource identifier.</param>
 public record struct ResourceName(string Name, string FullResourceId);

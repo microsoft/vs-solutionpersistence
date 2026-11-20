@@ -4,4 +4,6 @@
 /// <summary>
 /// Represents a resource loaded from the assembly.
 /// </summary>
+/// <param name="Name">The resource name.</param>
+/// <param name="Stream">The resource data.</param>
 public record struct ResourceStream(string Name, Stream Stream);

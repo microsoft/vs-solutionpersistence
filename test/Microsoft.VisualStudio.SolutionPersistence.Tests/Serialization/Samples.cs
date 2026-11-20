@@ -11,7 +11,7 @@ public class Samples
     /// <summary>
     /// Tests the wiki sample code to convert an SLN file to an SLNX file.
     /// </summary>
-    [Fact]
+    [Test]
     public async Task ConvertToSlnx()
     {
         string filePath = SlnAssets.ClassicSlnEverything.SaveResourceToTempFile();
@@ -31,7 +31,7 @@ public class Samples
     /// <summary>
     /// Tests the wiki sample code to read configurations from each project.
     /// </summary>
-    [Fact]
+    [Test]
     public async Task ReadEachProjectAsync()
     {
         SolutionModel solution = await SolutionSerializers.SlnFileV12.OpenAsync(SlnAssets.ClassicSlnEverything.Stream, CancellationToken.None);
@@ -41,7 +41,7 @@ public class Samples
     /// <summary>
     /// Tests the wiki sample code to add a project.
     /// </summary>
-    [Fact]
+    [Test]
     public async Task AddProjectAsync()
     {
         SolutionModel solution = await SolutionSerializers.SlnFileV12.OpenAsync(SlnAssets.ClassicSlnEverything.Stream, CancellationToken.None);
