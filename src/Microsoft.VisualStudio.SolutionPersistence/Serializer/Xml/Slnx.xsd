@@ -9,6 +9,7 @@
             </xs:choice>
             <xs:attribute name="Description" type="xs:string" />
             <xs:attribute name="Version" type="xs:string" />
+            <xs:attribute name="Sort" type="xs:string" />
         </xs:complexType>
     </xs:element>
 

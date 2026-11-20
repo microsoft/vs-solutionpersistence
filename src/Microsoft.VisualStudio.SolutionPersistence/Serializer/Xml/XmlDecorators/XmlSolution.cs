@@ -28,6 +28,18 @@ internal sealed partial class XmlSolution(SlnxFile file, XmlElement element) :
         set => this.UpdateXmlAttribute(Keyword.Version, value);
     }
 
+    internal string? Sort
+    {
+        get => this.GetXmlAttribute(Keyword.Sort);
+        set => this.UpdateXmlAttribute(Keyword.Sort, value);
+    }
+
+    internal SolutionSortOrder SortOrder
+    {
+        get => StringComparer.OrdinalIgnoreCase.Equals(this.Sort, Keywords.SortDocument) ? SolutionSortOrder.Document : SolutionSortOrder.Alphabetical;
+        set => this.Sort = value == SolutionSortOrder.Document ? Keywords.SortDocument : null;
+    }
+
 #if DEBUG
 
     internal override string DebugDisplay => $"{base.DebugDisplay} RootProjects={this.rootProjects} Folders={this.folders}";
@@ -109,20 +121,48 @@ internal sealed partial class XmlSolution(SlnxFile file, XmlElement element) :
         {
             StringTable = this.Root.StringTable,
             Description = this.Description,
+            SortOrder = this.SortOrder,
 
             // Project types are loaded earlier when parsing the XML since they are needed to resolve projects.
             ProjectTypes = this.Root.ProjectTypes.ProjectTypes,
         };
 
         List<(XmlProject, SolutionProjectModel)> newProjects = new List<(XmlProject, SolutionProjectModel)>(this.rootProjects.ItemsCount);
-        foreach (XmlProject project in this.rootProjects.GetItems())
+        if (this.SortOrder == SolutionSortOrder.Document)
         {
-            newProjects.Add((project, project.AddToModel(solutionModel)));
-        }
+            // Preserve the order the elements appear in the document.
+            foreach (XmlElement childElement in this.XmlElement.ChildElements())
+            {
+                switch (Keywords.ToKeyword(childElement.Name))
+                {
+                    case Keyword.Project:
+                        if (this.rootProjects.TryGet(childElement.GetAttribute(Keyword.Path.ToXmlString()).Trim(), out XmlProject? project))
+                        {
+                            newProjects.Add((project, project.AddToModel(solutionModel)));
+                        }
 
-        foreach (XmlFolder folder in this.folders.GetItems())
+                        break;
+                    case Keyword.Folder:
+                        if (this.folders.TryGet(childElement.GetAttribute(Keyword.Name.ToXmlString()).Trim(), out XmlFolder? folder))
+                        {
+                            folder.AddToModel(solutionModel, newProjects);
+                        }
+
+                        break;
+                }
+            }
+        }
+        else
         {
-            folder.AddToModel(solutionModel, newProjects);
+            foreach (XmlProject project in this.rootProjects.GetItems())
+            {
+                newProjects.Add((project, project.AddToModel(solutionModel)));
+            }
+
+            foreach (XmlFolder folder in this.folders.GetItems())
+            {
+                folder.AddToModel(solutionModel, newProjects);
+            }
         }
 
         // Dependencies need to be added after all the projects are loaded.

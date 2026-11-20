@@ -16,6 +16,7 @@ internal enum Keyword
     // Solution properties
     Description,
     Version,
+    Sort,
 
     // Solution sections
     Configurations,
@@ -64,6 +65,8 @@ internal static class Keywords
     internal const string XmlTrue = "true";
     internal const string XmlFalse = "false";
 
+    internal const string SortDocument = "Document";
+
     private static readonly string[] KeywordToString;
     private static readonly Lictionary<string, Keyword> StringToKeyword;
 
@@ -74,6 +77,7 @@ internal static class Keywords
                 new(nameof(Keyword.Solution), Keyword.Solution),
                 new(nameof(Keyword.Description), Keyword.Description),
                 new(nameof(Keyword.Version), Keyword.Version),
+                new(nameof(Keyword.Sort), Keyword.Sort),
                 new(nameof(Keyword.Configurations), Keyword.Configurations),
                 new(nameof(Keyword.Folder), Keyword.Folder),
                 new(nameof(Keyword.Project), Keyword.Project),

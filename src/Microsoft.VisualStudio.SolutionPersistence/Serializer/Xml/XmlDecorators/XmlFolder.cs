@@ -94,9 +94,24 @@ internal sealed class XmlFolder(SlnxFile root, XmlSolution xmlSolution, XmlEleme
                 properties.AddToModel(folderModel);
             }
 
-            foreach (XmlProject project in this.folderProjects.GetItems())
+            if (this.xmlSolution.SortOrder == SolutionSortOrder.Document)
             {
-                newProjects.Add((project, project.AddToModel(solutionModel)));
+                // Preserve the order the elements appear in the document.
+                foreach (XmlElement childElement in this.XmlElement.ChildElements())
+                {
+                    if (Keywords.ToKeyword(childElement.Name) == Keyword.Project &&
+                        this.folderProjects.TryGet(childElement.GetAttribute(Keyword.Path.ToXmlString()).Trim(), out XmlProject? project))
+                    {
+                        newProjects.Add((project, project.AddToModel(solutionModel)));
+                    }
+                }
+            }
+            else
+            {
+                foreach (XmlProject project in this.folderProjects.GetItems())
+                {
+                    newProjects.Add((project, project.AddToModel(solutionModel)));
+                }
             }
         }
         catch (Exception ex) when (SolutionException.ShouldWrap(ex))

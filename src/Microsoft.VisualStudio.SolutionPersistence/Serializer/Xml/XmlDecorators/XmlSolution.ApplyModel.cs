@@ -24,6 +24,12 @@ internal sealed partial class XmlSolution
             modified = true;
         }
 
+        if (this.SortOrder != modelSolution.SortOrder)
+        {
+            this.SortOrder = modelSolution.SortOrder;
+            modified = true;
+        }
+
         // Configurations
         // Use the item ref logic to allow only a single "Configurations" element, and use string.Empty as the item ref.
         modified |= this.ApplyModelItemsToXml<SolutionModel, XmlConfigurations>(
