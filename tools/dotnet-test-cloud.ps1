@@ -125,7 +125,7 @@ if ($isMTP) {
                 ,'--report-trx'
                 ,'--report-trx-filename',"$($nativeAotTest.ProjectName)_$($nativeAotTest.TargetFramework)_NativeAOT_{arch}.trx"
             )
-            if ($IsWindows) {
+            if ($env:OS -eq 'Windows_NT') {
                 $nativeAotArgs += $dumpSwitches
             }
             Write-Host "Running NativeAOT TUnit tests from '$testExecutable'." -ForegroundColor Cyan
