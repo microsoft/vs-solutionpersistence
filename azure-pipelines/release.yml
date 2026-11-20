@@ -21,12 +21,7 @@ extends:
   template: azure-pipelines/MicroBuild.1ES.Official.yml@MicroBuildTemplate
   parameters:
     settings:
-      # Enforce CFS (Compliant Feed Service) network isolation to satisfy SFI-ES4.2.4.
-      # CFSClean blocks public package feed endpoints (nuget.org, npmjs.org, etc.).
-      # CFSClean2 blocks PowerShell Gallery endpoints (powershellgallery.com).
-      # CFSClean3 blocks Docker, Debian, Hashicorp, SourceForge, and other forbidden endpoints.
-      # See https://eng.ms/docs/coreai/devdiv/one-engineering-system-1es/1es-build/networkisolation/resolving-cfs-s360-items
-      networkIsolationPolicy: Permissive,CFSClean,CFSClean2,CFSClean3
+      networkIsolationPolicy: DefaultDeny,CFSClean3
     sdl:
       sourceAnalysisPool: VSEng-MicroBuildVSStable
 
@@ -38,7 +33,7 @@ extends:
         pool:
           name: AzurePipelines-EO
           demands:
-          - ImageOverride -equals 1ESPT-Ubuntu22.04
+          - ImageOverride -equals 1ESPT-Ubuntu22.04 # Do NOT upgrade this job to Ubuntu24 until this is fixed: https://portal.microsofticm.com/imp/v5/incidents/details/830879871/summary
           os: Linux
         templateContext:
           outputs:
@@ -61,7 +56,7 @@ extends:
         pool:
           name: AzurePipelines-EO
           demands:
-          - ImageOverride -equals 1ESPT-Ubuntu22.04
+          - ImageOverride -equals 1ESPT-Ubuntu24.04
           os: Linux
         templateContext:
           type: releaseJob
