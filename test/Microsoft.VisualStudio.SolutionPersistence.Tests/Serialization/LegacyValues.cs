@@ -13,7 +13,7 @@ public sealed class LegacyValues
     /// <summary>
     /// Ensure the legacy VS properties are removed from .sln files when converting to .slnx.
     /// </summary>
-    [Fact]
+    [Test]
     public async Task TrimVisualStudioPropertiesAsync()
     {
         SolutionModel model = await SolutionSerializers.SlnXml.OpenAsync(SlnAssets.XmlSlnxLegacyValues.Stream, CancellationToken.None);
@@ -37,7 +37,7 @@ public sealed class LegacyValues
     /// <summary>
     /// The 'DisplayName' property should be ignored if a project has a file path.
     /// </summary>
-    [Fact]
+    [Test]
     public async Task IgnoreDisplayNameSlnx()
     {
         await ValidateModifiedSolutionAsync(CreateModifiedModel, SlnAssets.XmlSlnxSingleNativeProject, SlnAssets.XmlSlnxSingleNativeProject);
@@ -55,7 +55,7 @@ public sealed class LegacyValues
     /// <summary>
     /// The 'DisplayName' property should be ignored if a project has a file path.
     /// </summary>
-    [Fact]
+    [Test]
     public async Task IgnoreDisplayNameSln()
     {
         await ValidateModifiedSolutionAsync(CreateModifiedModel, SlnAssets.ClassicSlnSingleNativeProject, SlnAssets.ClassicSlnSingleNativeProject, SolutionSerializers.SlnFileV12);

@@ -13,7 +13,7 @@ public sealed class InvalidSolutions
     /// <summary>
     /// Checks for a file that isn't XML.
     /// </summary>
-    [Fact]
+    [Test]
     public Task InvalidXmlSlnxAsync()
     {
         return Assert.ThrowsAsync<XmlException>(async () =>
@@ -26,7 +26,7 @@ public sealed class InvalidSolutions
     /// <summary>
     /// Checks for an XML file that isn't an SLNX file.
     /// </summary>
-    [Fact]
+    [Test]
     public async Task InvalidSlnxAsync()
     {
         ResourceStream wrongRoot = SlnAssets.LoadResource("Invalid/WrongRoot.slnx");
@@ -46,7 +46,7 @@ public sealed class InvalidSolutions
     /// <summary>
     /// Check for file that isn't an .sln file.
     /// </summary>
-    [Fact]
+    [Test]
     public async Task InvalidSlnAsync()
     {
         ResourceStream invalidSln = SlnAssets.LoadResource("Invalid/Invalid.sln");
@@ -64,7 +64,7 @@ public sealed class InvalidSolutions
     /// <summary>
     /// Check for loop in the configuration.
     /// </summary>
-    [Fact]
+    [Test]
     public async Task InvalidConfigurationLoopAsync()
     {
         ResourceStream basedOnLoop = SlnAssets.LoadResource("Invalid/BasedOnLoop.slnx");
@@ -79,7 +79,7 @@ public sealed class InvalidSolutions
     /// <summary>
     /// Check for a .sln missing the end tags.
     /// </summary>
-    [Fact]
+    [Test]
     public async Task MissingEndAsync()
     {
         ResourceStream missingEnd = SlnAssets.LoadResource("Invalid/MissingEnd.sln");
@@ -91,7 +91,7 @@ public sealed class InvalidSolutions
     /// <summary>
     /// Check that extra lines are ignored.
     /// </summary>
-    [Fact]
+    [Test]
     public async Task ExtraLinesAsync()
     {
         ResourceStream extraLines = SlnAssets.LoadResource("Invalid/ExtraLines.sln");
@@ -108,7 +108,7 @@ public sealed class InvalidSolutions
     /// <summary>
     /// Tests for invalid solution folder name paths.
     /// </summary>
-    [Fact]
+    [Test]
     public async Task SolutionFolderAsync()
     {
         ResourceStream noEndSlash = SlnAssets.LoadResource("Invalid/SolutionFolder-NoEndSlash.slnx");
@@ -136,7 +136,7 @@ public sealed class InvalidSolutions
     /// <summary>
     /// Ensures solution fails to load if duplicate projects paths are found.
     /// </summary>
-    [Fact]
+    [Test]
     public async Task DuplicateProjectsAsync()
     {
         ResourceStream duplicateProjects = SlnAssets.LoadResource("Invalid/DuplicateProjects.slnx");
@@ -150,7 +150,7 @@ public sealed class InvalidSolutions
     /// <summary>
     /// Ensure solution fails to load if duplicate folders are found.
     /// </summary>
-    [Fact]
+    [Test]
     public async Task DuplicateFoldersAsync()
     {
         ResourceStream duplicateFolders = SlnAssets.LoadResource("Invalid/DuplicateFolders.slnx");
@@ -162,7 +162,7 @@ public sealed class InvalidSolutions
     /// <summary>
     /// Ensure slnx solution fails to load if an unsupported future version is found.
     /// </summary>
-    [Fact]
+    [Test]
     public async Task FutureSlnxVersionAsync()
     {
         ResourceStream version = SlnAssets.LoadResource("Invalid/VersionFuture.slnx");
@@ -174,7 +174,7 @@ public sealed class InvalidSolutions
     /// <summary>
     /// Ensure sln solution fails to load if an unsupported future version is found.
     /// </summary>
-    [Fact]
+    [Test]
     public async Task FutureSlnVersionAsync()
     {
         ResourceStream version = SlnAssets.LoadResource("Invalid/VersionFuture.sln");
@@ -186,7 +186,7 @@ public sealed class InvalidSolutions
     /// <summary>
     /// Sln solutions with version 13.0 and 14.0 were considered valid by the Visual Studio parser.
     /// </summary>
-    [Fact]
+    [Test]
     public async Task Sln14VersionAsync()
     {
         ResourceStream version14Sln = SlnAssets.LoadResource("Invalid/Version14.sln");
@@ -198,7 +198,7 @@ public sealed class InvalidSolutions
     /// <summary>
     /// Ensure slnx solution fails to load if an invalid version is found.
     /// </summary>
-    [Fact]
+    [Test]
     public async Task InvalidSlnxVersionAsync()
     {
         ResourceStream version = SlnAssets.LoadResource("Invalid/VersionInvalid.slnx");
@@ -213,7 +213,7 @@ public sealed class InvalidSolutions
     /// The legacy sln solution parser would ignore duplicate folder guids.
     /// Ensure this behavior is maintained.
     /// </summary>
-    [Fact]
+    [Test]
     public async Task DuplicateFolderIdSlnAsync()
     {
         ResourceStream duplicateId = SlnAssets.LoadResource("Invalid/DuplicateFolderId.sln");
@@ -228,7 +228,7 @@ public sealed class InvalidSolutions
     /// <summary>
     /// Ensure the slnx parser does fail on duplicate folder guids.
     /// </summary>
-    [Fact]
+    [Test]
     public async Task DuplicateFolderIdSlnxAsync()
     {
         ResourceStream duplicateId = SlnAssets.LoadResource("Invalid/DuplicateFolderId.slnx");
@@ -244,7 +244,7 @@ public sealed class InvalidSolutions
     /// Ensure the slnx parser does fail if project id collides with folder id.
     /// Expected behavior is the folder id is changed to a new value.
     /// </summary>
-    [Fact]
+    [Test]
     public async Task DuplicateItemIdSlnAsync()
     {
         ResourceStream duplicateId = SlnAssets.LoadResource("Invalid/DuplicateItemId.sln");
@@ -265,7 +265,7 @@ public sealed class InvalidSolutions
     /// Recreate legacy bug behavior when duplicate project id guids are found in .sln files.
     /// Use corrupt configuration and change second project id to new value.
     /// </summary>
-    [Fact]
+    [Test]
     public async Task DuplicateProjectIdSlnAsync()
     {
         ResourceStream duplicateId = SlnAssets.LoadResource("Invalid/DuplicateProjectId.sln");
@@ -306,7 +306,7 @@ public sealed class InvalidSolutions
     /// <summary>
     /// Ensure the slnx parser does fail on duplicate project guids.
     /// </summary>
-    [Fact]
+    [Test]
     public async Task DuplicateProjectIdSlnxAsync()
     {
         ResourceStream duplicateId = SlnAssets.LoadResource("Invalid/DuplicateProjectId.slnx");
@@ -322,7 +322,7 @@ public sealed class InvalidSolutions
     /// Verifies that a malformed project type id is loaded as an empty guid without errors, and
     /// the solution is marked as tarnished.
     /// </summary>
-    [Fact]
+    [Test]
     public async Task InvalidProjectTypeSlnAsync()
     {
         ResourceStream invalidProjectType = SlnAssets.LoadResource("Invalid/InvalidProjectType.sln");
@@ -338,7 +338,7 @@ public sealed class InvalidSolutions
     /// <summary>
     /// Make sure sln parsing ignore invalid lines in the NestedProjects section.
     /// </summary>
-    [Fact]
+    [Test]
     public async Task IgnoreInvalidSlnNestingsAsync()
     {
         ResourceStream invalidNestings = SlnAssets.LoadResource("Invalid/SampleMany-InvalidNestings.sln");
@@ -357,7 +357,7 @@ public sealed class InvalidSolutions
     /// <summary>
     /// Make sure sln parsing ignore invalid lines in the ProjectDependencies section.
     /// </summary>
-    [Fact]
+    [Test]
     public async Task IgnoreInvalidSlnDependenciesAsync()
     {
         ResourceStream invalidNestings = SlnAssets.LoadResource("Invalid/SampleMany-InvalidDependencies.sln");

@@ -17,7 +17,7 @@ public class ManipulateXmlKitchenSink
     /// Adds configurations and dependencies to the solution and verifies they
     /// are added to the expected location.
     /// </summary>
-    [Fact]
+    [Test]
     public async Task AddConfigurations()
     {
         await ValidateModifiedSolutionAsync(
@@ -46,7 +46,7 @@ public class ManipulateXmlKitchenSink
     /// <summary>
     /// Adds folders to the solution and verifies they are added to the expected location.
     /// </summary>
-    [Fact]
+    [Test]
     public async Task AddFolders()
     {
         await ValidateModifiedSolutionAsync(
@@ -65,7 +65,7 @@ public class ManipulateXmlKitchenSink
     /// <summary>
     /// Adds projects to the solution and verifies they are added to the expected location.
     /// </summary>
-    [Fact]
+    [Test]
     public async Task AddProjects()
     {
         await ValidateModifiedSolutionAsync(
@@ -86,7 +86,7 @@ public class ManipulateXmlKitchenSink
     /// <summary>
     /// Adds properties to the solution and verifies they are added to the expected location.
     /// </summary>
-    [Fact]
+    [Test]
     public async Task AddPropertySets()
     {
         await ValidateModifiedSolutionAsync(
@@ -116,7 +116,7 @@ public class ManipulateXmlKitchenSink
     /// <summary>
     /// Adds files to the solution and verifies they are added to the expected location.
     /// </summary>
-    [Fact]
+    [Test]
     public async Task AddSolutionFiles()
     {
         await ValidateModifiedSolutionAsync(

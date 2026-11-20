@@ -16,7 +16,7 @@ public sealed class VSVersionParsingTests
     /// General rules are ignoring the leading 'v' or 'V' and any trailing comments (using 'space' char to indicate a comment).
     /// If the version cannot be parsed, it last ".value" is trimmed and the version is tried again.
     /// </summary>
-    [Fact]
+    [Test]
     public void ParseVersion()
     {
         AssertTryParseVSVersion(string.Empty, expected: false);

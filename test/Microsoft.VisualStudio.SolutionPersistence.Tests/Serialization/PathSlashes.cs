@@ -14,7 +14,7 @@ public sealed class PathSlashes
     /// Validates that the model correctly converts paths to the current environment's directory separator
     /// and that model references work correctly.
     /// </summary>
-    [Fact]
+    [Test]
     public async Task VerifyModelSlahesAsync()
     {
         ResourceStream slashesResource = SlnAssets.LoadResource("Invalid/PathSlashes.slnx");
@@ -55,7 +55,7 @@ public sealed class PathSlashes
     /// <summary>
     /// Verify project reference are normalized on save.
     /// </summary>
-    [Fact]
+    [Test]
     public async Task ProjectReferencesFixedUpAsync()
     {
         FileContents fixedSlashesResource = SlnAssets.LoadResource("PathSlashes.slnx").ToLines();

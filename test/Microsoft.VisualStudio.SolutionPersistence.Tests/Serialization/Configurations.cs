@@ -11,7 +11,7 @@ public sealed class Configurations
     /// <summary>
     /// Tests the <see cref="SolutionProjectModel.GetProjectConfiguration(string, string)"/> API.
     /// </summary>
-    [Fact]
+    [Test]
     public void ProjectConfigurations()
     {
         const string platform = "TestPlatform";
@@ -54,7 +54,7 @@ public sealed class Configurations
     /// <summary>
     /// A malformed .sln file can be missing configurations. This test validates that the model can handle this.
     /// </summary>
-    [Fact]
+    [Test]
     public async Task MissingSlnConfigurations()
     {
         // Solution with missing configurations.
@@ -125,7 +125,7 @@ public sealed class Configurations
     /// <summary>
     /// Validate that the model can handle configurations on a project without a project type.
     /// </summary>
-    [Fact]
+    [Test]
     public async Task UnknownProjectTypeWithConfigAsync()
     {
         ResourceStream projectTypeConfigResource = SlnAssets.LoadResource("ProjectTypeConfig.sln");

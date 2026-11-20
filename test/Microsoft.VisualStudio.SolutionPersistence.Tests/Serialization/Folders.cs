@@ -11,7 +11,7 @@ public sealed class Folders
     /// <summary>
     /// Remove a folder from the solution model.
     /// </summary>
-    [Fact]
+    [Test]
     public void RemoveFolder()
     {
         // Create a solution with a deep folder structure and projects.
@@ -68,7 +68,7 @@ public sealed class Folders
     /// <summary>
     /// Rename a folder in the solution model.
     /// </summary>
-    [Fact]
+    [Test]
     public void RenameFolder()
     {
         // Create a solution with a deep folder structure and projects.
@@ -110,7 +110,7 @@ public sealed class Folders
     /// <summary>
     /// Ensures projects update correctly when moving between folders.
     /// </summary>
-    [Fact]
+    [Test]
     public void MoveProjectToFolder()
     {
         // Create a solution with a deep folder structure and projects.
@@ -154,7 +154,7 @@ public sealed class Folders
     /// <summary>
     /// Ensures that folders and subitems update correctly when moved to a new parent folder.
     /// </summary>
-    [Fact]
+    [Test]
     public void MoveFolder()
     {
         // Create a solution with a deep folder structure and projects.
@@ -185,7 +185,7 @@ public sealed class Folders
     /// Validate changing a folder name.
     /// Make sure it detects duplicates.
     /// </summary>
-    [Fact]
+    [Test]
     public void ChangeFolderName()
     {
         SolutionModel solution = new SolutionModel();

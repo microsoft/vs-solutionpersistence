@@ -11,7 +11,7 @@ public class Format
     /// <summary>
     /// Test that SLN converts to UTF-8 automatically from ASCII.
     /// </summary>
-    [Fact]
+    [Test]
     public async Task ConvertASCIItoUTF8Async()
     {
         const string asciiFolderName = "directory123";

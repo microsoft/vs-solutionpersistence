@@ -9,34 +9,34 @@ namespace Serialization;
 [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1600:Elements should be documented", Justification = "All tests in this class have the same purpose.")]
 public class RoundTripClassicSlnThruSlnxStream
 {
-    [Fact]
+    [Test]
     public Task BlankThruSlnxStreamAsync() => TestRoundTripSerializerAsync(SlnAssets.ClassicSlnBlank, SlnAssets.XmlSlnxBlank);
 
-    [Fact]
+    [Test]
     public Task CpsThruSlnxStreamAsync() => TestRoundTripSerializerAsync(SlnAssets.ClassicSlnCps, SlnAssets.XmlSlnxCps);
 
-    [Fact]
+    [Test]
     public Task EverythingThruSlnxStreamAsync() => TestRoundTripSerializerAsync(SlnAssets.ClassicSlnEverything, SlnAssets.XmlSlnxEverything);
 
-    [Fact]
+    [Test]
     public Task OrchardCoreThruSlnxStreamAsync() => TestRoundTripSerializerAsync(SlnAssets.ClassicSlnOrchardCore, SlnAssets.XmlSlnxOrchardCore);
 
-    [Fact]
+    [Test]
     public Task SingleNativeProjectThruSlnxStreamAsync() => TestRoundTripSerializerAsync(SlnAssets.ClassicSlnSingleNativeProject, SlnAssets.XmlSlnxSingleNativeProject);
 
-    [Fact]
+    [Test]
     public Task ManyThruSlnxStreamAsync() => TestRoundTripSerializerAsync(SlnAssets.ClassicSlnMany, SlnAssets.XmlSlnxMany);
 
-    [Fact]
+    [Test]
     public Task GiantThruSlnxStreamAsync() => TestRoundTripSerializerAsync(SlnAssets.ClassicSlnGiant, SlnAssets.XmlSlnxGiant);
 
-    [Fact]
+    [Test]
     public Task TraditionalThruSlnxStreamAsync() => TestRoundTripSerializerAsync(SlnAssets.ClassicSlnTraditional, SlnAssets.XmlSlnxTraditional);
 
-    [Fact]
+    [Test]
     public Task MissingConfigurationsThruSlnxStreamAsync() => TestRoundTripSerializerAsync(SlnAssets.ClassicSlnMissingConfigurations, SlnAssets.XmlSlnxMissingConfigurations);
 
-    [Fact]
+    [Test]
     public Task ReportProjectThruSlnxStreamAsync() => TestRoundTripSerializerAsync(SlnAssets.LoadResource("Report Project.sln"), SlnAssets.LoadResource("Report Project.slnx"));
 
     /// <summary>

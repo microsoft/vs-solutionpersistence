@@ -15,7 +15,7 @@ public sealed class IdGenerator
     /// Since there are different id implementations based on the runtime,
     /// this test ensures that the different algorithms don't diverge.
     /// </summary>
-    [Fact]
+    [Test]
     public void CheckGeneratedIds()
     {
         Guid parentId1 = new Guid("d5a52153-8a08-41d3-8c37-6b19822216a1");
@@ -74,7 +74,7 @@ public sealed class IdGenerator
     /// <summary>
     /// Verify that serialized model ids are deterministic and unique.
     /// </summary>
-    [Fact]
+    [Test]
     public async Task CheckModelIds()
     {
         SolutionModel solution = await SolutionSerializers.SlnXml.OpenAsync(SlnAssets.XmlSlnxMany.Stream, CancellationToken.None);

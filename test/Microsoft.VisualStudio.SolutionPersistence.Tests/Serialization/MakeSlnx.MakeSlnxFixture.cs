@@ -3,9 +3,9 @@
 
 namespace Serialization;
 
-/// <summary>
+/// <content>
 /// Fixture for <see cref="MakeSlnx"/> tests.
-/// </summary>
+/// </content>
 public sealed partial class MakeSlnx
 {
     /// <summary>
